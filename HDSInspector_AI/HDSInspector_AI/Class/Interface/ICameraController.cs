@@ -14,13 +14,12 @@ namespace HDSInspector_AI.Class.Interface
     {
         int ImageHeight { get; }
         int ImageWidth { get; }
-        bool RunAutoConnect { set; }
 
         void SetGrabbedCallBackFunction(CallBack_Grabbed func);
         void SetLoggingCallBackFunction(CallBack_Logging func);
         bool Open();
         void Close();
         void StartAcquistion();
-        void StopAcquistion();
+        void StopAcquisition();
     }
 }

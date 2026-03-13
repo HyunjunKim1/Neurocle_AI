@@ -21,6 +21,13 @@ namespace HDSInspector_AI.Class.GlobalFunction
         Moderate,
         Information
     }
+    public enum E_GRAB_STATUS
+    {
+        GrabReady,
+        FrameDone,
+        FrameComplete,
+        Error
+    }
 
     #endregion
 
