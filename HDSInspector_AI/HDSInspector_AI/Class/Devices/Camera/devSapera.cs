@@ -312,6 +312,5 @@ namespace HDSInspector_AI.Class.Devices.Camera
             buf.GetAddress(idx, out IntPtr ptr);
             return ptr;
         }
-        
     }
 }

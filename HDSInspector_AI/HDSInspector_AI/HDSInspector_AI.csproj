@@ -120,6 +120,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Class\Communication\CommTCPIP_Server.cs" />
     <Compile Include="Class\Devices\Camera\devSapera.cs" />
     <Compile Include="Class\GlobalFunction\CustomLog.cs" />
     <Compile Include="Class\GlobalFunction\CustomDB.cs" />
