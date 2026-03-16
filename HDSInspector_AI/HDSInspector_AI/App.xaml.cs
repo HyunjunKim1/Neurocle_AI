@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -15,9 +16,33 @@ namespace HDSInspector_AI
     {
         public string Version = "1.0.0";
 
-        /*
-         * 260312_hjkim_1.0.0 = Start!
-         * 
-         */
+        Mutex _mutex = null;
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            const string mutexName = "LF_AVI_AI";
+
+            try
+            {
+                _mutex = new Mutex(false, mutexName);
+                if(!_mutex.WaitOne(0, false))
+                {
+                    MessageBox.Show("Program already started", "Error", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Shutdown();
+                    return;
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n\n" + ex.StackTrace + "\n\n" + "Application Exiting...", "Exception");
+                Shutdown();
+                return;
+            }
+
+            base.OnStartup(e);
+
+            var splashScreen = new SplashWindow();
+            splashScreen.Show();
+        }
     }
 }

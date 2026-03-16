@@ -22,7 +22,7 @@ namespace HDSInspector_AI.Class.Communication
         Socket _server;
         Socket _client;
 
-        bool _bIsDisposed;
+        bool _isDisposed;
 
         public delegate void CallBack_Logging(string text);
         CallBack_Logging _callback_Logging = null;
@@ -31,7 +31,7 @@ namespace HDSInspector_AI.Class.Communication
 
         ConcurrentQueue<string> _recvCommand = new ConcurrentQueue<string>();
 
-        bool _bclientConnected = false;
+        bool _clientConnected = false;
 
         public CommTCPIP_Server()
         {
@@ -62,7 +62,7 @@ namespace HDSInspector_AI.Class.Communication
         }
         public void Dispose()
         {
-            if (_bIsDisposed)
+            if (_isDisposed)
                 return;
 
             // 쓰레드 종료 대기
@@ -73,7 +73,7 @@ namespace HDSInspector_AI.Class.Communication
 
             StopServer();
 
-            _bIsDisposed = true;
+            _isDisposed = true;
         }
         public void StartServer()
         {
@@ -93,7 +93,7 @@ namespace HDSInspector_AI.Class.Communication
             {
                 Logging($"[SequencerServer] Client Disconnected!!!");
 
-                _bclientConnected = false;
+                _clientConnected = false;
                 _client?.Close();
                 _client = null;
 
@@ -118,7 +118,7 @@ namespace HDSInspector_AI.Class.Communication
                     _client = _server.Accept();
                     Logging($@"[Inference Server] Client Connected!!");
                     Logging($@"[Inference Server] IP: {(_client.RemoteEndPoint as IPEndPoint).Address}, Port: {(_client.RemoteEndPoint as IPEndPoint).Port}");
-                    _bclientConnected = true;
+                    _clientConnected = true;
                 }
 
                 byte[] buff = new byte[1024];
@@ -141,7 +141,7 @@ namespace HDSInspector_AI.Class.Communication
 
         private void ThreadProcess()
         {
-            if (_bclientConnected == false)
+            if (_clientConnected == false)
                 return;
 
             try
