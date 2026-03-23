@@ -20,7 +20,7 @@ namespace HDSInspector_AI.Class.GlobalFunction
             _logList = new List<string>();
             _criticalSection = new object();
             _threadLogging = new CustomThread(10, LoggingToFile);
-            _threadLogging.Start();
+            _threadLogging.Start(); 
         }
         public void Dispose()
         {
