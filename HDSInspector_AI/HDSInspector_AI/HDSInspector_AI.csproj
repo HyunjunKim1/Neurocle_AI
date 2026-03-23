@@ -108,10 +108,34 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GUI\UserControl\Left\Uc_Communication.xaml.cs">
+      <DependentUpon>Uc_Communication.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControl\Middle\Uc_Log.xaml.cs">
+      <DependentUpon>Uc_Log.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControl\Left\Uc_Status.xaml.cs">
+      <DependentUpon>Uc_Status.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControl\Middle\Uc_Vision.xaml.cs">
+      <DependentUpon>Uc_Vision.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="GUI\Windows\w_Log.xaml">
+    <Page Include="GUI\UserControl\Left\Uc_Communication.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControl\Middle\Uc_Log.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControl\Left\Uc_Status.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControl\Middle\Uc_Vision.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -133,9 +157,6 @@
     <Compile Include="Class\Manager\CameraManager.cs" />
     <Compile Include="Class\Interface\ICameraController.cs" />
     <Compile Include="Class\Manager\UIManager.cs" />
-    <Compile Include="GUI\Windows\w_Log.xaml.cs">
-      <DependentUpon>w_Log.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -174,6 +195,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GUI\Pages\" />
+    <Folder Include="GUI\UserControl\Right\" />
+    <Folder Include="GUI\Windows\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
