@@ -9,5 +9,26 @@
         AllowsTransparency="True"
         WindowStyle="None"
         Title="SplashWindow" Height="400" Width="700" Loaded="Window_Loaded">
-    
+
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="Gray" Offset="0.497"/>
+            <GradientStop Color="DarkGray" Offset="0.938"/>
+            <GradientStop Color="DarkGray"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Padding="8">
+        <Grid x:Name="GridSplash">
+            
+        </Grid>
+    </Border>
 </Window>

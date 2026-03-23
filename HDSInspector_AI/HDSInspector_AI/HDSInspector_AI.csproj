@@ -176,6 +176,12 @@
     <Folder Include="GUI\Pages\" />
     <Folder Include="Resources\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusyIndicator\BusyIndicator.csproj">
+      <Project>{1B97B2F3-5239-436D-82B2-FA1BC1089F91}</Project>
+      <Name>BusyIndicator</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

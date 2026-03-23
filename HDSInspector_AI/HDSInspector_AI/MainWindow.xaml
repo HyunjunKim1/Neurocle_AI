@@ -4,9 +4,61 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDSInspector_AI"
+        xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1900">
-    <Grid>
-        
+        WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        WindowState="Maximized" Height="1080" Width="1920" Title="Haesung DS LF AVI Version 1.0.0">
+
+    <Window.Resources>
+        <LinearGradientBrush
+        x:Key="IndicatorForeground"
+        MappingMode="Absolute"
+        StartPoint="399.906,240.414"
+        EndPoint="419.903,240.414">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop
+                Offset="0.26"
+                Color="#0078D7" />
+                <GradientStop
+                Offset="1.00"
+                Color="#FF005599" />
+            </LinearGradientBrush.GradientStops>
+            <LinearGradientBrush.Transform>
+                <MatrixTransform Matrix="-1.000,0.000,0.000,-1.000,419.905,245.373" />
+            </LinearGradientBrush.Transform>
+        </LinearGradientBrush>
+        <LinearGradientBrush
+        x:Key="IndicatorBackground"
+        MappingMode="Absolute"
+        StartPoint="489.491,230.414"
+        EndPoint="509.491,230.414">
+            <LinearGradientBrush.GradientStops>
+                <GradientStop
+                Offset="0.00"
+                Color="#FFD8E7FD" />
+                <GradientStop
+                Offset="0.73"
+                Color="#0078D7" />
+            </LinearGradientBrush.GradientStops>
+            <LinearGradientBrush.Transform>
+                <MatrixTransform Matrix="1.000,0.000,-0.000,-1.000,-489.491,245.373" />
+            </LinearGradientBrush.Transform>
+        </LinearGradientBrush>
+    </Window.Resources>
+    
+    <Grid Name="GridMain">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <busyIndicator:BusyMask Grid.RowSpan="3" Width="1920" Height="1080" Visibility="Visible"
+        x:Name="BusyIndicator"
+        BusyContent="검사를 종료하고 있습니다. 서버 연결 상태에 따라 시간이 소요될 수 있습니다."
+        IndicatorType="Ring"
+        IsBusy="False"
+        Background="#D8FFFFFF" Grid.ColumnSpan="3" Margin="0,0,0,-16"/>
     </Grid>
 </Window>

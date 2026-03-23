@@ -33,7 +33,9 @@ namespace HDSInspector_AI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.Opacity = 0;
 
+            GLB.ApplyFadeAndZoomAnimation(this, GridSplash, durationMs:500);
         }
     }
 }

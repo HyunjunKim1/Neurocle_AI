@@ -23,5 +23,10 @@ namespace HDSInspector_AI.GUI.Windows
         {
             InitializeComponent();
         }
+
+        public void AddLog(string text)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() => { AddLog(text); }));
+        }
     }
 }
