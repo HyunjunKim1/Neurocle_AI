@@ -1,0 +1,617 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="C001" xml:space="preserve">
+    <value>저장되었습니다.</value>
+  </data>
+  <data name="C002" xml:space="preserve">
+    <value>삭제되었습니다.</value>
+  </data>
+  <data name="C003" xml:space="preserve">
+    <value>삭제 실퍠하였습니다.</value>
+  </data>
+  <data name="E001" xml:space="preserve">
+    <value>장비이름을 입력 바랍니다.</value>
+  </data>
+  <data name="E002" xml:space="preserve">
+    <value>장비이름 중복확인을 해주시기 바랍니다.</value>
+  </data>
+  <data name="E003" xml:space="preserve">
+    <value>선택된 장비를 삭제하시겠습니까?</value>
+  </data>
+  <data name="E004" xml:space="preserve">
+    <value>이미 등록된 이름입니다. 다시 입력해 주세요.</value>
+  </data>
+  <data name="E005" xml:space="preserve">
+    <value>사용가능한 이름입니다.</value>
+  </data>
+  <data name="G001" xml:space="preserve">
+    <value>Gerber 레이어는 8개까지만 등록됩니다.</value>
+  </data>
+  <data name="G002" xml:space="preserve">
+    <value>Gerber 레이어가 등록되어 있지 않습니다.</value>
+  </data>
+  <data name="G003" xml:space="preserve">
+    <value>현재 동일한 작업이 수행중입니다.
+잠시후 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="I001" xml:space="preserve">
+    <value>검사이름을 입력 바랍니다.</value>
+  </data>
+  <data name="I002" xml:space="preserve">
+    <value>검사이름 중복확인을 해주시기 바랍니다.</value>
+  </data>
+  <data name="I003" xml:space="preserve">
+    <value>선택된 항목을 삭제하시겠습니까?</value>
+  </data>
+  <data name="I004" xml:space="preserve">
+    <value>이미 등록된 이름입니다. 다시 입력해 주세요.</value>
+  </data>
+  <data name="I005" xml:space="preserve">
+    <value>사용가능한 이름입니다.</value>
+  </data>
+  <data name="IDS_DEFAULT_XML" xml:space="preserve">
+    <value>&lt;?xml version='1.0' encoding='utf-8'?&gt;&lt;XMLConfigSettings&gt;&lt;/XMLConfigSettings&gt;</value>
+  </data>
+  <data name="IS001" xml:space="preserve">
+    <value>모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="IV001" xml:space="preserve">
+    <value>이미지를 불러오신 후에 그리기 작업이 가능합니다.</value>
+  </data>
+  <data name="L001" xml:space="preserve">
+    <value>로컬 파일 시스템에 로그를 저장합니다.</value>
+  </data>
+  <data name="L002" xml:space="preserve">
+    <value>로컬 파일 시스템에 로그를 저장하지 않습니다.</value>
+  </data>
+  <data name="M001" xml:space="preserve">
+    <value>새로운 스트립의 이름을 지정해주시기 바랍니다.</value>
+  </data>
+  <data name="M002" xml:space="preserve">
+    <value>등록된 시트 정보가 없습니다.
+새로 생성해 주시기 바랍니다.</value>
+  </data>
+  <data name="M003" xml:space="preserve">
+    <value>등록된 스트립 정보가 없습니다.
+새로 생성해 주시기 바랍니다.</value>
+  </data>
+  <data name="M004" xml:space="preserve">
+    <value>시트 정보가 저장되었습니다.</value>
+  </data>
+  <data name="M005" xml:space="preserve">
+    <value>중복된 이름의 시트가 존재합니다.
+이름을 변경바랍니다.</value>
+  </data>
+  <data name="M006" xml:space="preserve">
+    <value>스트립 정보가 저장되었습니다.</value>
+  </data>
+  <data name="M007" xml:space="preserve">
+    <value>중복된 이름의 스트립이 존재합니다.
+이름을 변경바랍니다.</value>
+  </data>
+  <data name="M008" xml:space="preserve">
+    <value>선택된 항목을 삭제하시겠습니까?</value>
+  </data>
+  <data name="M009" xml:space="preserve">
+    <value>시트 정보가 수정되었습니다.</value>
+  </data>
+  <data name="M010" xml:space="preserve">
+    <value>스트립 정보가 수정되었습니다.</value>
+  </data>
+  <data name="M011" xml:space="preserve">
+    <value>새로운 시트의 이름을 지정해주시기 바랍니다.</value>
+  </data>
+  <data name="M012" xml:space="preserve">
+    <value>새로운 모델의 이름을 지정해주시기 바랍니다.</value>
+  </data>
+  <data name="M013" xml:space="preserve">
+    <value>입력한 내용을 취소하시겠습니까?</value>
+  </data>
+  <data name="M014" xml:space="preserve">
+    <value>변경된 사항을 저장하지 않고 마치시겠습니까?</value>
+  </data>
+  <data name="M015" xml:space="preserve">
+    <value>변경된 사항이 있습니다.
+저장하고 다른 페이지를 탐색하시겠습니까?</value>
+  </data>
+  <data name="M016" xml:space="preserve">
+    <value>중복된 이름의 모델이 존재합니다.
+이름을 변경바랍니다.</value>
+  </data>
+  <data name="M017" xml:space="preserve">
+    <value>모델 정보가 저장되었습니다.</value>
+  </data>
+  <data name="M018" xml:space="preserve">
+    <value>모델 정보가 수정되었습니다.</value>
+  </data>
+  <data name="M019" xml:space="preserve">
+    <value>모든 항목을 입력 바랍니다.</value>
+  </data>
+  <data name="M020" xml:space="preserve">
+    <value>다음 문자를 사용할 수 없습니다.
+
+\ / : * ? " &lt; &gt; |
+
+아래의 시스템 예약어를 사용할 수 없습니다.
+
+"CON", "PRN", "AUX", "NUL"
+"COM1", "COM2", "COM3", "COM4", "COM5"
+"COM6", "COM7", "COM8", "COM9"
+"LPT1", "LPT2", "LPT3", "LPT4", "LPT5"
+"LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="M021" xml:space="preserve">
+    <value>"." 또는 ".."을 이름으로 가질 수 없습니다.</value>
+  </data>
+  <data name="M022" xml:space="preserve">
+    <value>모델이 속할 그룹을 생성하거나 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M023" xml:space="preserve">
+    <value>수정하려는 모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M024" xml:space="preserve">
+    <value>삭제하려는 모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M025" xml:space="preserve">
+    <value>수정하려는 분류를 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M026" xml:space="preserve">
+    <value>삭제하려는 분류를 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M027" xml:space="preserve">
+    <value>분류가 생성되었습니다.</value>
+  </data>
+  <data name="M028" xml:space="preserve">
+    <value>분류명이 변경되었습니다.</value>
+  </data>
+  <data name="M029" xml:space="preserve">
+    <value>선택된 분류가 삭제되었습니다.</value>
+  </data>
+  <data name="M030" xml:space="preserve">
+    <value>제품 폭은 0보다 커야 합니다.</value>
+  </data>
+  <data name="M031" xml:space="preserve">
+    <value>제품 길이는 0보다 커야 합니다.</value>
+  </data>
+  <data name="M032" xml:space="preserve">
+    <value>보정치는 0 이상의 값이 지정되어야 합니다.</value>
+  </data>
+  <data name="M033" xml:space="preserve">
+    <value>보정치는 제품의 크기를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M034" xml:space="preserve">
+    <value>Block은 최소 1개 이상이어야 합니다.
+(원맵 타입인 경우 1로 지정해 주십시오.)</value>
+  </data>
+  <data name="M035" xml:space="preserve">
+    <value>Block 수가 1인 경우 Pitch 값을 제품 크기와 동일하게 적용하여 저장합니다.</value>
+  </data>
+  <data name="M036" xml:space="preserve">
+    <value>Block의 Pitch 값은 0보다 커야 합니다.</value>
+  </data>
+  <data name="M037" xml:space="preserve">
+    <value>Block의 X축 Pitch 값은 제품의 길이를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M038" xml:space="preserve">
+    <value>Block의 Y축 Pitch 값은 제품의 길이를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M039" xml:space="preserve">
+    <value>Unit은 최소 1개 이상이어야 합니다.</value>
+  </data>
+  <data name="M040" xml:space="preserve">
+    <value>Unit X축 개수는 Block X축 개수의 배수여야 합니다.</value>
+  </data>
+  <data name="M041" xml:space="preserve">
+    <value>Unit Y축 개수는 Block Y축 개수의 배수여야 합니다.</value>
+  </data>
+  <data name="M043" xml:space="preserve">
+    <value>Unit의 Pitch 값은 0보다 커야 합니다.</value>
+  </data>
+  <data name="M044" xml:space="preserve">
+    <value>Unit의 X축 Pitch 값은 제품의 길이를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M045" xml:space="preserve">
+    <value>Unit의 Y축 Pitch 값은 제품의 폭을 초과할 수 없습니다.</value>
+  </data>
+  <data name="M046" xml:space="preserve">
+    <value>X축 Unit의 배열이 Block X축 Pitch 길이를 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M047" xml:space="preserve">
+    <value>Y축 Unit의 배열이 Block Y축 Pitch 길이를 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M048" xml:space="preserve">
+    <value>X축 Unit의 배열이 제품의 길이를 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M049" xml:space="preserve">
+    <value>Y축 Unit의 배열이 제품의 폭을 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M050" xml:space="preserve">
+    <value>X축 Block의 배열이 제품의 길이를 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M051" xml:space="preserve">
+    <value>Y축 Block의 배열이 제품의 폭을 초과하였습니다. 확인바랍니다.</value>
+  </data>
+  <data name="M052" xml:space="preserve">
+    <value>저장에 실패하였습니다.</value>
+  </data>
+  <data name="M053" xml:space="preserve">
+    <value>분류 생성에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M054" xml:space="preserve">
+    <value>분류 수정에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M055" xml:space="preserve">
+    <value>분류 삭제에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M056" xml:space="preserve">
+    <value>모델 생성에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M057" xml:space="preserve">
+    <value>모델 수정에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M058" xml:space="preserve">
+    <value>모델 삭제에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="M059" xml:space="preserve">
+    <value>선택된 모델이 삭제되었습니다.</value>
+  </data>
+  <data name="M060" xml:space="preserve">
+    <value>현재 선택된 모델은 삭제할 수 없습니다.</value>
+  </data>
+  <data name="M061" xml:space="preserve">
+    <value>현재 선택된 모델이 속한 그룹은 삭제할 수 없습니다.</value>
+  </data>
+  <data name="M062" xml:space="preserve">
+    <value>'\ / : * ? ' " &lt; &gt; |' 는 사용할 수 없습니다.</value>
+  </data>
+  <data name="M063" xml:space="preserve">
+    <value>시스템 예약어는 사용할 수 없습니다.</value>
+  </data>
+  <data name="M064" xml:space="preserve">
+    <value>Block 열 개수는 Unit 열의 개수를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M065" xml:space="preserve">
+    <value>Block 행 개수는 Unit 행의 개수를 초과할 수 없습니다.</value>
+  </data>
+  <data name="M066" xml:space="preserve">
+    <value>모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M067" xml:space="preserve">
+    <value>로트를 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="M068" xml:space="preserve">
+    <value>제품 길이는 300보다 작아야 합니다.</value>
+  </data>
+  <data name="M069" xml:space="preserve">
+    <value>제품 폭은 150보다 작아야 합니다.</value>
+  </data>
+  <data name="M070" xml:space="preserve">
+    <value>Total Units 는 (Unit X수 X Unit Y수) 와 같거나 이상 이어야  합니다.</value>
+  </data>
+  <data name="M071" xml:space="preserve">
+    <value>관리자 이상 권한에서 접근할 수 있습니다.</value>
+  </data>
+  <data name="M072" xml:space="preserve">
+    <value>값을 입력 바랍니다.</value>
+  </data>
+  <data name="M073" xml:space="preserve">
+    <value>더 이상 Local Align을 만들 수 없습니다.</value>
+  </data>
+  <data name="M074" xml:space="preserve">
+    <value>선택한 {0} ROI를 삭제하시겠습니까?</value>
+  </data>
+  <data name="M075" xml:space="preserve">
+    <value>전체 ROI를 삭제하시겠습니까?</value>
+  </data>
+  <data name="M076" xml:space="preserve">
+    <value>전체 섹션 ROI를 삭제하시겠습니까?</value>
+  </data>
+  <data name="M077" xml:space="preserve">
+    <value>섹션 크기가 변경되었습니다. 적용하시겠습니까?\n(섹션 내부의 ROI가 올바르게 변경되었는지 확인바랍니다.)</value>
+  </data>
+  <data name="M078" xml:space="preserve">
+    <value>잘못 입력된 값이 존재합니다. 확인 바랍니다.</value>
+  </data>
+  <data name="M079" xml:space="preserve">
+    <value>임계 하한 값은 임계 상한 값을 초과할 수 없습니다.</value>
+  </data>
+  <data name="M080" xml:space="preserve">
+    <value>리드 최소 선폭은 리드 최대 선폭을 초과할 수 없습니다.</value>
+  </data>
+  <data name="M081" xml:space="preserve">
+    <value>전체 Mask 하한 값은 전체 Mask 상한 값을 초과할 수 없습니다.</value>
+  </data>
+  <data name="M082" xml:space="preserve">
+    <value>형상 Mask 하한 값은 형상 Mask 상한 값을 초과할 수 없습니다.</value>
+  </data>
+  <data name="M083" xml:space="preserve">
+    <value>검출 사이즈가 0으로 설정되어 있습니다.\n 수정해주세요</value>
+  </data>
+  <data name="M084" xml:space="preserve">
+    <value>이전 자동 검사가 불안정하게 종료되었습니다. \n프로그램을 재실행시켜 주시기 바랍니다.</value>
+  </data>
+  <data name="M085" xml:space="preserve">
+    <value>Verify 에러가 발생하였습니다. Verify PC의 ip설정을 확인해 주세요.</value>
+  </data>
+  <data name="M086" xml:space="preserve">
+    <value>DB 저장오류 또는 이미지 전송오류에 의한 Verify 에러가 발생하였습니다.</value>
+  </data>
+  <data name="M087" xml:space="preserve">
+    <value>비전으로부터 결과를 수신하지 못하였습니다.\n비전 상태를 확인 후 자동 검사를 재개해 주시기 바랍니다.</value>
+  </data>
+  <data name="M088" xml:space="preserve">
+    <value>자동 검사가 강제 종료되었습니다.\n원점복귀 후 다시 시작해 주시기 바랍니다.</value>
+  </data>
+  <data name="MS001" xml:space="preserve">
+    <value>등록된 모델이 없습니다.
+모델 정보를 생성해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT001" xml:space="preserve">
+    <value>ROI는 가로, 세로 30픽셀을 초과할 수 없습니다.</value>
+  </data>
+  <data name="MT002" xml:space="preserve">
+    <value>ROI 숨김 해제를 선택 후 작업을 수행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT003" xml:space="preserve">
+    <value>전체 영상 Section Type에 대해서만 파일로부터 영상을 읽어올 수 있습니다.</value>
+  </data>
+  <data name="MT004" xml:space="preserve">
+    <value>영상이 저장되었습니다. 저장된 영상은 기준영상으로 사용됩니다.</value>
+  </data>
+  <data name="MT005" xml:space="preserve">
+    <value>티칭하려는 모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT006" xml:space="preserve">
+    <value>영상을 저장하는데 실패하였습니다. 잠시 후 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT007" xml:space="preserve">
+    <value>섹션 영역을 생성해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT008" xml:space="preserve">
+    <value>반복 설정이 되지 않은 Unit 영역이 있습니다.
+반복 설정을 진행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT009" xml:space="preserve">
+    <value>영상을 등록 후 Teaching 파일을 열어주시기 바랍니다.</value>
+  </data>
+  <data name="MT010" xml:space="preserve">
+    <value>섹션영상이 저장되었습니다. 저장된 영상은 기준영상으로 사용됩니다.</value>
+  </data>
+  <data name="MT011" xml:space="preserve">
+    <value>기준 영상이 등록되었습니다.</value>
+  </data>
+  <data name="MT020" xml:space="preserve">
+    <value>[상부 반사1]에 생성된 섹션이 없습니다.\n섹션 설정을 진행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT021" xml:space="preserve">
+    <value>[상부 반사2]에 생성된 섹션이 없습니다.\n섹션 설정을 진행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT022" xml:space="preserve">
+    <value>[하부 반사1]에 생성된 섹션이 없습니다.\n섹션 설정을 진행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT023" xml:space="preserve">
+    <value>[하부 반사2]에 생성된 섹션이 없습니다.\n섹션 설정을 진행해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT026" xml:space="preserve">
+    <value>Vision 정보를 전송하지 못하였습니다.</value>
+  </data>
+  <data name="MT027" xml:space="preserve">
+    <value>섹션을 벗어나는 검사 영역이 존재합니다.\n</value>
+  </data>
+  <data name="MT028" xml:space="preserve">
+    <value>수동 검사에 실패하였습니다.\n</value>
+  </data>
+  <data name="MT029" xml:space="preserve">
+    <value>부분 수동 검사에 실패하였습니다.\n</value>
+  </data>
+  <data name="MT030" xml:space="preserve">
+    <value>이미지 취득에 실패하였습니다.\n</value>
+  </data>
+  <data name="MT031" xml:space="preserve">
+    <value>기준 이미지를 변경하려는 Section을 선택 바랍니다.</value>
+  </data>
+  <data name="MT032" xml:space="preserve">
+    <value>모델을 선택해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT033" xml:space="preserve">
+    <value>데이터 복원을 완료하였습니다.</value>
+  </data>
+  <data name="MT034" xml:space="preserve">
+    <value>현재 모델과 일치하는 데이터를 찾지 못하였습니다.</value>
+  </data>
+  <data name="N001" xml:space="preserve">
+    <value>불량이름을 입력 바랍니다.</value>
+  </data>
+  <data name="N002" xml:space="preserve">
+    <value>불량이름 중복확인을 해주시기 바랍니다.</value>
+  </data>
+  <data name="N003" xml:space="preserve">
+    <value>선택된 불량정보를 삭제하시겠습니까?</value>
+  </data>
+  <data name="N004" xml:space="preserve">
+    <value>중복된 이름입니다. 다시 입력해 주세요.</value>
+  </data>
+  <data name="R001" xml:space="preserve">
+    <value>폐기이름을 입력 바랍니다.</value>
+  </data>
+  <data name="R002" xml:space="preserve">
+    <value>폐기이름 중복확인을 해주시기 바랍니다.</value>
+  </data>
+  <data name="R003" xml:space="preserve">
+    <value>선택된 폐기정보를 삭제하시겠습니까?</value>
+  </data>
+  <data name="R004" xml:space="preserve">
+    <value>이미 등록된 이름입니다. 다시 입력해 주세요.</value>
+  </data>
+  <data name="R005" xml:space="preserve">
+    <value>Strip 폐기율을 입력바랍니다.</value>
+  </data>
+  <data name="R006" xml:space="preserve">
+    <value>Unit 폐기율을 입력바랍니다.</value>
+  </data>
+  <data name="R007" xml:space="preserve">
+    <value>날짜를 입력해주세요.</value>
+  </data>
+  <data name="R008" xml:space="preserve">
+    <value>올바른 날짜가 아닙니다.</value>
+  </data>
+  <data name="R009" xml:space="preserve">
+    <value>이미지도 삭제됩니다. 계속하시겠습니까?</value>
+  </data>
+  <data name="S001" xml:space="preserve">
+    <value>불량 이미지를 저장하지 않으시겠습니까?</value>
+  </data>
+  <data name="S002" xml:space="preserve">
+    <value>범위값이 올바르지 않습니다. </value>
+  </data>
+  <data name="U001" xml:space="preserve">
+    <value>ID를 입력 바랍니다.</value>
+  </data>
+  <data name="U002" xml:space="preserve">
+    <value>이름을 입력 바랍니다.</value>
+  </data>
+  <data name="U003" xml:space="preserve">
+    <value>비밀번호를 입력 바랍니다.</value>
+  </data>
+  <data name="U004" xml:space="preserve">
+    <value>ID 중복확인을 해주시기 바랍니다.</value>
+  </data>
+  <data name="U005" xml:space="preserve">
+    <value>새 비밀번호와 비밀번호 확인이 일치하지 않습니다.</value>
+  </data>
+  <data name="U006" xml:space="preserve">
+    <value>비밀번호를 정확히 입력해 주세요.</value>
+  </data>
+  <data name="U007" xml:space="preserve">
+    <value>선택된 항목을 삭제하시겠습니까?</value>
+  </data>
+  <data name="U008" xml:space="preserve">
+    <value>비밀번호 확인을 입력해 주세요.</value>
+  </data>
+  <data name="U009" xml:space="preserve">
+    <value>비밀번호와 비밀번호 확인이 일치하지 않습니다.</value>
+  </data>
+  <data name="U010" xml:space="preserve">
+    <value>이미 등록된 ID입니다. 다시 입력해 주세요.</value>
+  </data>
+  <data name="U011" xml:space="preserve">
+    <value>사용가능한 ID입니다.</value>
+  </data>
+</root>

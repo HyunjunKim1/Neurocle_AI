@@ -1,7 +1,8 @@
 ﻿<Application x:Class="HDSInspector_AI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:HDSInspector_AI">
+             xmlns:local="clr-namespace:HDSInspector_AI"
+             xmlns:hc="http://handyorg.github.io/handycontrol">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -10,8 +11,17 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
 
-                <!-- 테마 (Light.Blue 예시) -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Dark.Blue.xaml" />
+                <!-- HDS Control styles-->
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/ButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/ScrollBarStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/ListBoxStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/TextBoxStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/ToggleButtonStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/SimpleStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/PieDataPoint.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common;component/ControlStyles/TabStyle.xaml"/>
+                
+                <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

@@ -14,7 +14,7 @@ namespace HDSInspector_AI
     /// </summary>
     public partial class App : Application
     {
-        public string Version = "1.0.0";
+        public static string Version = "Version 1.0.0";
 
         Mutex _mutex = null;
 

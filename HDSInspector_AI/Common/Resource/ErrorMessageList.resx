@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="C001" xml:space="preserve">
+    <value>통신을 초기화하지 못하였습니다.</value>
+  </data>
+  <data name="C002" xml:space="preserve">
+    <value>로그를 원격지에 전송하는데 실패하였습니다.</value>
+  </data>
+  <data name="C003" xml:space="preserve">
+    <value>아이디 또는 비밀번호 오류입니다.</value>
+  </data>
+  <data name="C004" xml:space="preserve">
+    <value>데이터베이스 접속에 실패하였습니다.</value>
+  </data>
+  <data name="G001" xml:space="preserve">
+    <value>유효한 Gerber 파일이 아닙니다.</value>
+  </data>
+  <data name="I001" xml:space="preserve">
+    <value>파일이 손상되었거나 너무 커서 뷰어가 이 사진을 열 수 없습니다.</value>
+  </data>
+  <data name="I002" xml:space="preserve">
+    <value>유효한 티칭 파일이 아닙니다.</value>
+  </data>
+  <data name="I003" xml:space="preserve">
+    <value>이미지를 읽어들이는데 실패하였습니다.</value>
+  </data>
+  <data name="L001" xml:space="preserve">
+    <value>잘못된 로그 보관 일수 입력입니다.</value>
+  </data>
+  <data name="M001" xml:space="preserve">
+    <value>디렉터리를 초기화하는데 실패하였습니다.</value>
+  </data>
+  <data name="M002" xml:space="preserve">
+    <value>유효한 Model 파일이 아닙니다.</value>
+  </data>
+  <data name="M003" xml:space="preserve">
+    <value>유효한 Sheet 파일이 아닙니다.</value>
+  </data>
+  <data name="M004" xml:space="preserve">
+    <value>유효한 Strip 파일이 아닙니다.</value>
+  </data>
+  <data name="M005" xml:space="preserve">
+    <value>입력된 값이 허용 범위를 초과하였습니다.</value>
+  </data>
+  <data name="M006" xml:space="preserve">
+    <value>해당 스트립 정보를 찾을 수 없습니다.
+수정할 수 없습니다.</value>
+  </data>
+  <data name="M007" xml:space="preserve">
+    <value>해당 시트 정보를 찾을 수 없습니다.
+수정할 수 없습니다.</value>
+  </data>
+  <data name="M008" xml:space="preserve">
+    <value>해당 모델 정보를 찾을 수 없습니다.
+수정할 수 없습니다.</value>
+  </data>
+  <data name="M009" xml:space="preserve">
+    <value>현재 선택된 모델은 삭제할 수 없습니다.</value>
+  </data>
+  <data name="MC001" xml:space="preserve">
+    <value>PLC와 연결하지 못하였습니다.</value>
+  </data>
+  <data name="MC002" xml:space="preserve">
+    <value>Counter를 초기화하지 못하였습니다.</value>
+  </data>
+  <data name="MC003" xml:space="preserve">
+    <value>조명과 연결하지 못하였습니다.</value>
+  </data>
+  <data name="MC004" xml:space="preserve">
+    <value>POP 연결 실패</value>
+  </data>
+  <data name="MC005" xml:space="preserve">
+    <value>SERVER와 연결할 수 없습니다.</value>
+  </data>
+  <data name="MC006" xml:space="preserve">
+    <value>IGS Server 상태 모니터링 테이블에 현재 설비 정보가 없습니다. 기반기술에 설비등록 의뢰요청해주세요.</value>
+  </data>
+  <data name="MC007" xml:space="preserve">
+    <value>시작 보고를 하지 못했습니다.</value>
+  </data>
+  <data name="MC008" xml:space="preserve">
+    <value>서버 이상으로 시작보고를 하지 못했습니다.</value>
+  </data>
+  <data name="MC009" xml:space="preserve">
+    <value>서버이상으로 자동 시작보고가 비활성화 되어 있습니다.</value>
+  </data>
+  <data name="MC010" xml:space="preserve">
+    <value>POP 비가동 보고 실패 :</value>
+  </data>
+  <data name="MC011" xml:space="preserve">
+    <value>비허가된 사용자의 접근입니다.</value>
+  </data>
+  <data name="MC012" xml:space="preserve">
+    <value>번째 조명이 OFF상태입니다. 프로그램을 재실행 후 진행해 주십시오.</value>
+  </data>
+  <data name="MC013" xml:space="preserve">
+    <value>Error에 의해 자동검사가 종료 되었습니다 :</value>
+  </data>
+  <data name="MC014" xml:space="preserve">
+    <value>Verify PC와 연결이 끊어졌습니다.</value>
+  </data>
+  <data name="MT001" xml:space="preserve">
+    <value>Section 데이터를 DB에 저장하는데 실패하였습니다.
+연결 상태를 확인 후 다시 작업을 요청해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT002" xml:space="preserve">
+    <value>Section 데이터를 전송하는데 실패하였습니다. 
+Vision과의 연결 상태를 확인 후 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT003" xml:space="preserve">
+    <value>Section 이미지를 획득하는데 실패하였습니다.
+Vision과의 연결 상태를 확인 후 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT004" xml:space="preserve">
+    <value>영상 획득에 실패하였습니다. 다시 시도해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT005" xml:space="preserve">
+    <value>Vision과의 연결이 끊어졌습니다.
+문제가 지속되면 Vision을 다시 시작해 주시기 바랍니다.</value>
+  </data>
+  <data name="MT006" xml:space="preserve">
+    <value>읽어오려는 Teaching Data와 현재 선택된 모델이 다릅니다.</value>
+  </data>
+  <data name="MT007" xml:space="preserve">
+    <value>읽어오려는 Teaching Data가 현재 등록된 영상보다 큽니다.</value>
+  </data>
+  <data name="MT008" xml:space="preserve">
+    <value>동일한 시작 위치를 갖는 Section이 존재합니다.</value>
+  </data>
+  <data name="MT009" xml:space="preserve">
+    <value>동일한 위치를 점유하는 Section이 존재합니다.</value>
+  </data>
+  <data name="R001" xml:space="preserve">
+    <value>올바른 값이 아닙니다.</value>
+  </data>
+  <data name="R002" xml:space="preserve">
+    <value>상면 또는 하면을 선택하세요.</value>
+  </data>
+  <data name="R003" xml:space="preserve">
+    <value>색상을 선택하세요.</value>
+  </data>
+</root>

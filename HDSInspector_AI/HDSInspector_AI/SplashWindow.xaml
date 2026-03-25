@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:local="clr-namespace:HDSInspector_AI"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" x:Class="HDSInspector_AI.SplashWindow"
         mc:Ignorable="d"
@@ -10,15 +11,6 @@
         AllowsTransparency="True"
         WindowStyle="None"
         Title="SplashWindow" Height="400" Width="700" Loaded="Window_Loaded">
-
-    <Window.Resources>
-        <Style TargetType="{x:Type Button}">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontFamily" Value="Arial"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-    </Window.Resources>
-
     <Window.Background>
         <SolidColorBrush Color="#242121">
         </SolidColorBrush>
@@ -47,7 +39,7 @@
                         RenderOptions.BitmapScalingMode="HighQuality"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="LF AVI AI Inspector" FontWeight="Bold" FontSize="30" Margin="140,0,-8,0" Foreground="White"/>
                 <TextBlock Grid.Column="1" Name="tbl_Version" HorizontalAlignment="Left" Margin="214,0,0,0" TextWrapping="Wrap" Foreground="White" Text="" VerticalAlignment="Center" Width="200" TextAlignment="Right"/>
-                <GroupBox Grid.Column="1" Header="Program Loading..." Grid.Row="1" FontSize="20" Name="gBox_Status">
+                <GroupBox Grid.Column="1" Header="      Program Loading..." Grid.Row="1" FontWeight="Bold" FontSize="28" Name="gBox_Status">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
@@ -62,37 +54,43 @@
                         <Image Grid.Row="1" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Init"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="20,13,0,12"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Load Initial Files" 
+                        <TextBlock Grid.Row="1" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Load Initial Files" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16" Grid.ColumnSpan="2"/>
-                        <Image Grid.Row="2" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Database"
+                        <Image Grid.Row="2" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" x:Name="iBox_Server"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="20,12,0,12"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Server Open" 
+                        <TextBlock Grid.Row="2" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Server Open" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16" Grid.ColumnSpan="2"/>
-                        <Image Grid.Row="3" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Illuminator"
+                        <Image Grid.Row="3" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" x:Name="iBox_Type"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="20,12,0,13"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Check Cam Type" 
+                        <TextBlock Grid.Row="3" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Check Cam Type" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16" Grid.ColumnSpan="2"/>
                         <Image Grid.Row="1" Grid.Column="2" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Alarmlist"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="24,12,0,13"/>
-                        <TextBlock Grid.Row="1" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Load Alarm List" 
+                        <TextBlock Grid.Row="1" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Load Alarm List" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16"/>
                         <Image Grid.Row="2" Grid.Column="2" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Camera"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="24,12,0,12"/>
-                        <TextBlock Grid.Row="2" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Connect Grabber" 
+                        <TextBlock Grid.Row="2" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Connect Grabber" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16"/>
-                        <Image Grid.Row="3" Grid.Column="2" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Vision"
+                        <Image Grid.Row="3" Grid.Column="2" Width="20" Height="20" HorizontalAlignment="Left" x:Name="iBox_HW"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="24,12,0,13"/>
-                        <TextBlock Grid.Row="3" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Check H/W Devices" 
+                        <TextBlock Grid.Row="3" Grid.Column="2" Width="150" Height="20" HorizontalAlignment="Left" Text="Check H/W Devices" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="53,0,0,5" FontSize="16"/>
                     </Grid>
                 </GroupBox>
-                <Button Grid.Column="1" HorizontalAlignment="Left" Margin="260,5,0,0" Grid.Row="2" VerticalAlignment="Top" 
-                        Name="btn_Close" Cursor="Hand" Height="49" Width="141" />
+                <Button Grid.Column="1" FontSize="16" Content="Close" HorizontalAlignment="Left" Margin="260,5,0,0" Grid.Row="2" VerticalAlignment="Top" Foreground="White"
+                        Name="btn_Close" Cursor="Hand" Height="49" Width="141" Click="btn_Close_Click">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="Background" Value="#223212"/>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
             </Grid>
         </Border>

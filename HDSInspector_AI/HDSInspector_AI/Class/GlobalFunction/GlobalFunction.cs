@@ -6,24 +6,15 @@ using System.Threading.Tasks;
 using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Windows;
+using Common;
+using System.Windows.Threading;
+using System.IO;
+using HDSInspector_AI.GUI.Windows.Popup;
 
 namespace HDSInspector_AI.Class.GlobalFunction
 {
     #region define enums
-    /// <summary>
-    /// Severity Levels 3 Tier
-    /// 
-    /// SEV1 = Critical
-    /// SEV2 = Moderate
-    /// SEV3 = Information
-    /// 
-    /// </summary>
-    public enum E_SERVERITY_LEVELS
-    {
-        Critical,
-        Moderate,
-        Information
-    }
+    
     public enum E_GRAB_STATUS
     {
         GrabReady,
@@ -34,39 +25,93 @@ namespace HDSInspector_AI.Class.GlobalFunction
 
     #endregion
 
-    public class GlobalFunction : IDisposable
+    public class GlobalFunction
     {
         private static readonly Lazy<GlobalFunction> _instance = new Lazy<GlobalFunction>();
         public static GlobalFunction GLB => _instance.Value;
 
-        CustomLog _clsCustomLog = new CustomLog();
+        #region Global Member variables
+
+        DateTime m_StartTime;
+        TimeSpan m_RunTime;
+        DateTime m_NowTime;
+        DateTime m_EndTime;
+
+        public DateTime StartTime
+        {
+            get { return m_StartTime; }
+            set { m_StartTime = value; }
+        }
+
+        public TimeSpan RunTime
+        {
+            get { return m_RunTime; }
+            set { m_RunTime = value; }
+        }
+
+        public DateTime NowTime
+        {
+            get { return m_NowTime; }
+            set { m_NowTime = value; }
+        }
+
+        public DateTime EndTime
+        {
+            get { return m_EndTime; }
+            set { m_EndTime = value; }
+        }
+
+        #endregion
+
+        #region Global Classes
+        /// <summary>
+        /// GlobalFunction Common.dll 응집도 높이기 위한 Singleton Pattern
+        /// Global로 사용하기 위한 Class 정의
+        /// </summary>
+        /// 
+        public Logger   Logger      { get; set; }
+        public Setting  Setting     { get; set; }
+
+        #endregion
 
         public GlobalFunction()
         {
-
-        }
-
-        public void Dispose()
-        {
-            _clsCustomLog.Dispose();
+            Setting = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
+            Logger = Logger.GetLogger();
         }
 
         #region Global Functions
-        public void AddLog(E_SERVERITY_LEVELS level, string log)
+        public void AddLog(string system, string Msg, SeverityLevel lvl, bool IsDirectLog = false)
         {
-            switch(level)
+            Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
             {
-                case E_SERVERITY_LEVELS.Critical:
-                    log = $"[C][{DateTime.Now:HH:mm:ss:fff}] {log}"; // [19:23:34:212] Blah, blah, blah.
-                    break;
-                case E_SERVERITY_LEVELS.Moderate:
-                    log = $"[M][{DateTime.Now:HH:mm:ss:fff}] {log}"; // [19:23:34:212] Blah, blah, blah.
-                    break;
-                case E_SERVERITY_LEVELS.Information:
-                    log = $"[I][{DateTime.Now:HH:mm:ss:fff}] {log}"; // [19:23:34:212] Blah, blah, blah.
-                    break;
+                Msg = $"[{DateTime.Now:HH:mm:ss:fff}] {Msg}"; // [19:23:34:212] Blah, blah, blah.
+                Logger.Log(system, lvl, Msg, IsDirectLog);
+            }));
+        }
+        public void CleanLog()
+        {
+            int nDeleteLogCount = Logger.CleanLog(Setting.General.LogKeepDate);
+            if (nDeleteLogCount > 0)
+            {
+                string amsg = $"최근에 기록된 {nDeleteLogCount}개의 로그 파일을 정리하였습니다.";
+                MessageBox.Show(String.Format(amsg, nDeleteLogCount), "Information");
             }
-            _clsCustomLog?.AddLog(log);
+        }
+
+        public bool WarningMessage(string Message, string Title, Window window)
+        {
+            bool bCheck = false;
+            Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
+            {
+                WarningMessageBox msgBox = new WarningMessageBox(Message, Title);
+                msgBox.Owner = window;
+
+                if (msgBox.ShowDialog() == true) { bCheck = true; }
+                else { bCheck = false; }
+            }));
+
+            return bCheck;
         }
 
         #region Window Animation

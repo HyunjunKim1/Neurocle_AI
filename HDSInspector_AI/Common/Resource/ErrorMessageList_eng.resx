@@ -1,0 +1,259 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="C001" xml:space="preserve">
+    <value>Failed to initialize communication.</value>
+  </data>
+  <data name="C002" xml:space="preserve">
+    <value>Failed to send logs to remote location.</value>
+  </data>
+  <data name="C003" xml:space="preserve">
+    <value>There is an error in your ID or password.</value>
+  </data>
+  <data name="C004" xml:space="preserve">
+    <value>Failed to connect to database.</value>
+  </data>
+  <data name="G001" xml:space="preserve">
+    <value>This is not a valid Gerber file.</value>
+  </data>
+  <data name="I001" xml:space="preserve">
+    <value>The file is corrupted or too large, so the viewer cannot open this photo.</value>
+  </data>
+  <data name="I002" xml:space="preserve">
+    <value>This is not a valid teaching file.</value>
+  </data>
+  <data name="I003" xml:space="preserve">
+    <value>Failed to read image.</value>
+  </data>
+  <data name="L001" xml:space="preserve">
+    <value>Incorrect log retention days input.</value>
+  </data>
+  <data name="M001" xml:space="preserve">
+    <value>Failed to initialize directory.</value>
+  </data>
+  <data name="M002" xml:space="preserve">
+    <value>This is not a valid Model file.</value>
+  </data>
+  <data name="M003" xml:space="preserve">
+    <value>This is not a valid Sheet file.</value>
+  </data>
+  <data name="M004" xml:space="preserve">
+    <value>This is not a valid Strip file.</value>
+  </data>
+  <data name="M005" xml:space="preserve">
+    <value>The entered value exceeds the allowed range.</value>
+  </data>
+  <data name="M006" xml:space="preserve">
+    <value>Could not find the strip information. 
+Cannot edit.</value>
+  </data>
+  <data name="M007" xml:space="preserve">
+    <value>The sheet information could not be found. 
+It cannot be modified.</value>
+  </data>
+  <data name="M008" xml:space="preserve">
+    <value>No model information found. 
+Cannot be modified.</value>
+  </data>
+  <data name="M009" xml:space="preserve">
+    <value>The currently selected model cannot be deleted.</value>
+  </data>
+  <data name="MC001" xml:space="preserve">
+    <value>Failed to connect to PLC.</value>
+  </data>
+  <data name="MC002" xml:space="preserve">
+    <value>Failed to initialize counter.</value>
+  </data>
+  <data name="MC003" xml:space="preserve">
+    <value>Failed to connect to light.</value>
+  </data>
+  <data name="MC004" xml:space="preserve">
+    <value>POP connection failed</value>
+  </data>
+  <data name="MC005" xml:space="preserve">
+    <value>Unable to connect to SERVER.</value>
+  </data>
+  <data name="MC006" xml:space="preserve">
+    <value>There is currently no equipment information in the IGS Server status monitoring table. Please request equipment registration in the base technology.</value>
+  </data>
+  <data name="MC007" xml:space="preserve">
+    <value>Failed to report start.</value>
+  </data>
+  <data name="MC008" xml:space="preserve">
+    <value>Failed to start reporting due to server error.</value>
+  </data>
+  <data name="MC009" xml:space="preserve">
+    <value>Auto-start reporting is disabled due to server failure.</value>
+  </data>
+  <data name="MC010" xml:space="preserve">
+    <value>POP outage report failure: </value>
+  </data>
+  <data name="MC011" xml:space="preserve">
+    <value>Access by unauthorized users.</value>
+  </data>
+  <data name="MC012" xml:space="preserve">
+    <value> light is OFF. Please re-run the program and proceed.</value>
+  </data>
+  <data name="MC013" xml:space="preserve">
+    <value>Automatic inspection terminated with error:</value>
+  </data>
+  <data name="MC014" xml:space="preserve">
+    <value>Verify the connection has been lost.</value>
+  </data>
+  <data name="MT001" xml:space="preserve">
+    <value>Failed to save section data to DB. 
+Please check the connection status and try again.</value>
+  </data>
+  <data name="MT002" xml:space="preserve">
+    <value>Failed to send section data.
+Please check the connection status with Vision and try again.</value>
+  </data>
+  <data name="MT003" xml:space="preserve">
+    <value>Failed to acquire section image. 
+Please check the connection status with Vision and try again.</value>
+  </data>
+  <data name="MT004" xml:space="preserve">
+    <value>Failed to acquire video. Please try again.</value>
+  </data>
+  <data name="MT005" xml:space="preserve">
+    <value>The connection to Vision has been lost. 
+If the problem persists, please restart Vision.</value>
+  </data>
+  <data name="MT006" xml:space="preserve">
+    <value>The Teaching Data you are trying to read is different from the currently selected model.</value>
+  </data>
+  <data name="MT007" xml:space="preserve">
+    <value>The Teaching Data you are trying to read is larger than the currently registered video.</value>
+  </data>
+  <data name="MT008" xml:space="preserve">
+    <value>There are Sections with the same starting position.</value>
+  </data>
+  <data name="MT009" xml:space="preserve">
+    <value>There is a Section occupying the same location.</value>
+  </data>
+  <data name="R001" xml:space="preserve">
+    <value>This is not a valid value.</value>
+  </data>
+  <data name="R002" xml:space="preserve">
+    <value>Select top or bottom.</value>
+  </data>
+  <data name="R003" xml:space="preserve">
+    <value>Please select a color.</value>
+  </data>
+</root>

@@ -58,6 +58,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\BIN_HDSInspector_AI\Common.dll</HintPath>
+    </Reference>
     <Reference Include="DALSA.SaperaLT.SapClassBasic">
       <HintPath>..\..\BIN_HDSInspector_AI\dll\DALSA.SaperaLT.SapClassBasic.dll</HintPath>
     </Reference>
@@ -95,6 +99,9 @@
     <Compile Include="GUI\UserControls\Uc_Vision.xaml.cs">
       <DependentUpon>Uc_Vision.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GUI\Windows\Popup\WarningMessageBox.xaml.cs">
+      <DependentUpon>WarningMessageBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
@@ -114,6 +121,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="GUI\Windows\Popup\WarningMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -124,7 +135,6 @@
     </Compile>
     <Compile Include="Class\Communication\CommTCPIP_Server.cs" />
     <Compile Include="Class\Devices\Camera\devSapera.cs" />
-    <Compile Include="Class\GlobalFunction\CustomLog.cs" />
     <Compile Include="Class\GlobalFunction\CustomDB.cs" />
     <Compile Include="Class\GlobalFunction\CustomThread.cs" />
     <Compile Include="Class\GlobalFunction\CustomTimeout.cs" />
@@ -169,7 +179,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GUI\Pages\" />
-    <Folder Include="GUI\Windows\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusyIndicator\BusyIndicator.csproj">
@@ -178,6 +187,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="HandyControl">
+      <Version>3.5.1</Version>
+    </PackageReference>
     <PackageReference Include="MahApps.Metro">
       <Version>2.4.11</Version>
     </PackageReference>
@@ -206,6 +218,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\AVI.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\WARNING.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,624 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="C001" xml:space="preserve">
+    <value>It has been saved.</value>
+  </data>
+  <data name="C002" xml:space="preserve">
+    <value>It has been deleted.</value>
+  </data>
+  <data name="C003" xml:space="preserve">
+    <value>Deletion failed.</value>
+  </data>
+  <data name="E001" xml:space="preserve">
+    <value>Please enter the equipment name.</value>
+  </data>
+  <data name="E002" xml:space="preserve">
+    <value>Please check for duplicate equipment names.</value>
+  </data>
+  <data name="E003" xml:space="preserve">
+    <value>Are you sure you want to delete the selected machine?</value>
+  </data>
+  <data name="E004" xml:space="preserve">
+    <value>The name has already been registered. Please enter it again.</value>
+  </data>
+  <data name="E005" xml:space="preserve">
+    <value>This is an available name.</value>
+  </data>
+  <data name="G001" xml:space="preserve">
+    <value>Only up to 8 Gerber layers can be registered.</value>
+  </data>
+  <data name="G002" xml:space="preserve">
+    <value>Gerber layer is not registered.</value>
+  </data>
+  <data name="G003" xml:space="preserve">
+    <value>The same operation is currently being performed.
+Please try again later.</value>
+  </data>
+  <data name="I001" xml:space="preserve">
+    <value>Please enter the name of the inspector.</value>
+  </data>
+  <data name="I002" xml:space="preserve">
+    <value>Please check for duplicate inspection names.</value>
+  </data>
+  <data name="I003" xml:space="preserve">
+    <value>Are you sure you want to delete the selected items?</value>
+  </data>
+  <data name="I004" xml:space="preserve">
+    <value>The name has already been registered. Please enter it again.</value>
+  </data>
+  <data name="I005" xml:space="preserve">
+    <value>This is an available name.</value>
+  </data>
+  <data name="IDS_DEFAULT_XML" xml:space="preserve">
+    <value>&lt;?xml version='1.0' encoding='utf-8'?&gt;&lt;XMLConfigSettings&gt;&lt;/XMLConfigSettings&gt;</value>
+  </data>
+  <data name="IS001" xml:space="preserve">
+    <value>Please select a model.</value>
+  </data>
+  <data name="IV001" xml:space="preserve">
+    <value>After loading the image, you can draw on it.</value>
+  </data>
+  <data name="L001" xml:space="preserve">
+    <value>Save logs to the local file system.</value>
+  </data>
+  <data name="L002" xml:space="preserve">
+    <value>Does not store logs on the local file system.</value>
+  </data>
+  <data name="M001" xml:space="preserve">
+    <value>Please give the new strip a name.</value>
+  </data>
+  <data name="M002" xml:space="preserve">
+    <value>There is no registered sheet information. 
+Please create a new one.</value>
+  </data>
+  <data name="M003" xml:space="preserve">
+    <value>There is no registered strip information. 
+Please create a new one.</value>
+  </data>
+  <data name="M004" xml:space="preserve">
+    <value>Sheet information has been saved.</value>
+  </data>
+  <data name="M005" xml:space="preserve">
+    <value>There are sheets with duplicate names. 
+Please change the name.</value>
+  </data>
+  <data name="M006" xml:space="preserve">
+    <value>Strip information has been saved.</value>
+  </data>
+  <data name="M007" xml:space="preserve">
+    <value>There are duplicate strips with the same name. 
+Please change the name.</value>
+  </data>
+  <data name="M008" xml:space="preserve">
+    <value>Are you sure you want to delete the selected items?</value>
+  </data>
+  <data name="M009" xml:space="preserve">
+    <value>The sheet information has been modified.</value>
+  </data>
+  <data name="M010" xml:space="preserve">
+    <value>Strip information has been corrected.</value>
+  </data>
+  <data name="M011" xml:space="preserve">
+    <value>Please give the new sheet a name.</value>
+  </data>
+  <data name="M012" xml:space="preserve">
+    <value>Please give the new model a name.</value>
+  </data>
+  <data name="M013" xml:space="preserve">
+    <value>Do you want to cancel your input?</value>
+  </data>
+  <data name="M014" xml:space="preserve">
+    <value>Do you want to exit without saving changes?</value>
+  </data>
+  <data name="M015" xml:space="preserve">
+    <value>There are changes.
+Do you want to save and navigate to another page?</value>
+  </data>
+  <data name="M016" xml:space="preserve">
+    <value>There is a model with a duplicate name. 
+Please change the name.</value>
+  </data>
+  <data name="M017" xml:space="preserve">
+    <value>Model information has been saved.</value>
+  </data>
+  <data name="M018" xml:space="preserve">
+    <value>Model information has been modified.</value>
+  </data>
+  <data name="M019" xml:space="preserve">
+    <value>Please fill in all fields.</value>
+  </data>
+  <data name="M020" xml:space="preserve">
+    <value>The following characters cannot be used:
+
+\ / : * ? " &lt; &gt; |
+
+The following system reserved words cannot be used.
+
+"CON", "PRN", "AUX", "NUL"
+"COM1", "COM2", "COM3", "COM4", "COM5"
+"COM6", "COM7", "COM8", "COM9"
+"LPT1", "LPT2", "LPT3", "LPT4", "LPT5"
+"LPT6", "LPT7", "LPT8", "LPT9"</value>
+  </data>
+  <data name="M021" xml:space="preserve">
+    <value>Can not be used  "." or ".." as a name.</value>
+  </data>
+  <data name="M022" xml:space="preserve">
+    <value>Please create or select a group to which the model will belong.</value>
+  </data>
+  <data name="M023" xml:space="preserve">
+    <value>Please select the model you wish to modify.</value>
+  </data>
+  <data name="M024" xml:space="preserve">
+    <value>Please select the model you wish to delete.</value>
+  </data>
+  <data name="M025" xml:space="preserve">
+    <value>Please select the category you wish to edit.</value>
+  </data>
+  <data name="M026" xml:space="preserve">
+    <value>Please select the category you wish to delete.</value>
+  </data>
+  <data name="M027" xml:space="preserve">
+    <value>The category has been created.</value>
+  </data>
+  <data name="M028" xml:space="preserve">
+    <value>The category name has been changed.</value>
+  </data>
+  <data name="M029" xml:space="preserve">
+    <value>The selected category has been deleted.</value>
+  </data>
+  <data name="M030" xml:space="preserve">
+    <value>Product width must be larger than 0.</value>
+  </data>
+  <data name="M031" xml:space="preserve">
+    <value>Product length must be larger than 0.</value>
+  </data>
+  <data name="M032" xml:space="preserve">
+    <value>The correction value must be a value greater than or equal to 0.</value>
+  </data>
+  <data name="M033" xml:space="preserve">
+    <value>The compensation value cannot exceed the size of the product.</value>
+  </data>
+  <data name="M034" xml:space="preserve">
+    <value>Block must be at least 1. 
+(If it is a one-map type, specify 1.)</value>
+  </data>
+  <data name="M035" xml:space="preserve">
+    <value>When the number of blocks is 1, the pitch value is saved by applying it in the same way as the product size.</value>
+  </data>
+  <data name="M036" xml:space="preserve">
+    <value>The Pitch value of the Block must be greater than 0.</value>
+  </data>
+  <data name="M037" xml:space="preserve">
+    <value>The X-axis pitch value of the block cannot exceed the length of the product.</value>
+  </data>
+  <data name="M038" xml:space="preserve">
+    <value>The Y-axis pitch value of the Block cannot exceed the length of the product.</value>
+  </data>
+  <data name="M039" xml:space="preserve">
+    <value>Unit must be at least 1.</value>
+  </data>
+  <data name="M040" xml:space="preserve">
+    <value>The number of Unit X-axis must be a multiple of the number of Block X-axis.</value>
+  </data>
+  <data name="M041" xml:space="preserve">
+    <value>The number of Unit Y-axis must be a multiple of the number of Block Y-axis.</value>
+  </data>
+  <data name="M043" xml:space="preserve">
+    <value>The Pitch value of Unit must be greater than 0.</value>
+  </data>
+  <data name="M044" xml:space="preserve">
+    <value>The Unit's X-axis Pitch value cannot exceed the length of the product.</value>
+  </data>
+  <data name="M045" xml:space="preserve">
+    <value>The Unit's Y-axis Pitch value cannot exceed the length of the product.</value>
+  </data>
+  <data name="M046" xml:space="preserve">
+    <value>The arrangement of X-axis Unit exceeds the Block X-axis Pitch length. Please check.</value>
+  </data>
+  <data name="M047" xml:space="preserve">
+    <value>The arrangement of Y-axis Unit exceeds the Block Y-axis Pitch length. Please check.</value>
+  </data>
+  <data name="M048" xml:space="preserve">
+    <value>The array of X-axis Units exceeds the length of the product. Please check.</value>
+  </data>
+  <data name="M049" xml:space="preserve">
+    <value>The arrangement of the Y-axis Unit exceeds the width of the product. Please check.</value>
+  </data>
+  <data name="M050" xml:space="preserve">
+    <value>The arrangement of X-axis Blocks exceeds the length of the product. Please check.</value>
+  </data>
+  <data name="M051" xml:space="preserve">
+    <value>The arrangement of Y-axis Blocks exceeds the width of the product. Please check.</value>
+  </data>
+  <data name="M052" xml:space="preserve">
+    <value>Failed to save.</value>
+  </data>
+  <data name="M053" xml:space="preserve">
+    <value>Failed to create category. Please try again.</value>
+  </data>
+  <data name="M054" xml:space="preserve">
+    <value>Failed to edit category. Please try again.</value>
+  </data>
+  <data name="M055" xml:space="preserve">
+    <value>Failed to delete category. Please try again.</value>
+  </data>
+  <data name="M056" xml:space="preserve">
+    <value>Model creation failed. Please try again.</value>
+  </data>
+  <data name="M057" xml:space="preserve">
+    <value>Model modification failed. Please try again.</value>
+  </data>
+  <data name="M058" xml:space="preserve">
+    <value>Failed to delete model. Please try again.</value>
+  </data>
+  <data name="M059" xml:space="preserve">
+    <value>The selected model has been deleted.</value>
+  </data>
+  <data name="M060" xml:space="preserve">
+    <value>The currently selected model cannot be deleted.</value>
+  </data>
+  <data name="M061" xml:space="preserve">
+    <value>The group to which the currently selected model belongs cannot be deleted.</value>
+  </data>
+  <data name="M062" xml:space="preserve">
+    <value>'\ / : * ? ' " &lt; &gt; |' cannot be used.</value>
+  </data>
+  <data name="M063" xml:space="preserve">
+    <value>System reserved words can not be used.</value>
+  </data>
+  <data name="M064" xml:space="preserve">
+    <value>The number of Block columns cannot exceed the number of Unit columns.</value>
+  </data>
+  <data name="M065" xml:space="preserve">
+    <value>The number of Block rows cannot exceed the number of Unit rows.</value>
+  </data>
+  <data name="M066" xml:space="preserve">
+    <value>Please select a model.</value>
+  </data>
+  <data name="M067" xml:space="preserve">
+    <value>Please select a lot.</value>
+  </data>
+  <data name="M068" xml:space="preserve">
+    <value>Product length must be less than 300.</value>
+  </data>
+  <data name="M069" xml:space="preserve">
+    <value>Product width must be less than 150.</value>
+  </data>
+  <data name="M070" xml:space="preserve">
+    <value>Total Units must be greater than or equal to (Unit X number X Unit Y number).</value>
+  </data>
+  <data name="M071" xml:space="preserve">
+    <value>Accessible to administrators and above.</value>
+  </data>
+  <data name="M072" xml:space="preserve">
+    <value>Please enter a value.</value>
+  </data>
+  <data name="M073" xml:space="preserve">
+    <value>No more Local Aligns can be created.</value>
+  </data>
+  <data name="M074" xml:space="preserve">
+    <value>Are you sure you want to delete the selected {0} ROIs?</value>
+  </data>
+  <data name="M075" xml:space="preserve">
+    <value>Do you want to delete the entire ROI?</value>
+  </data>
+  <data name="M076" xml:space="preserve">
+    <value>Do you want to delete the entire section ROI?</value>
+  </data>
+  <data name="M077" xml:space="preserve">
+    <value>The section size has changed. Do you want to apply it? 
+(Please make sure the ROI inside the section has changed correctly.)</value>
+  </data>
+  <data name="M078" xml:space="preserve">
+    <value>There are incorrectly entered values. Please check.</value>
+  </data>
+  <data name="M079" xml:space="preserve">
+    <value>The lower threshold value cannot exceed the upper threshold value.</value>
+  </data>
+  <data name="M080" xml:space="preserve">
+    <value>The minimum lead line width cannot exceed the maximum lead line width.</value>
+  </data>
+  <data name="M081" xml:space="preserve">
+    <value>The overall Mask lower bound value cannot exceed the overall Mask upper bound value.</value>
+  </data>
+  <data name="M082" xml:space="preserve">
+    <value>The Shape Mask lower bound value cannot exceed the Shape Mask upper bound value.</value>
+  </data>
+  <data name="M083" xml:space="preserve">
+    <value>The detection size is set to 0.\n Please fix it.</value>
+  </data>
+  <data name="M084" xml:space="preserve">
+    <value>The previous automatic check terminated unstably. \nPlease re-run the program.</value>
+  </data>
+  <data name="M085" xml:space="preserve">
+    <value>A Verify error has occurred. Please check the IP settings of your Verify PC.</value>
+  </data>
+  <data name="M086" xml:space="preserve">
+    <value>A Verify error occurred due to a DB storage error or image transmission error.</value>
+  </data>
+  <data name="M087" xml:space="preserve">
+    <value>No results received from Vision.\nPlease check Vision status and resume automatic inspection.</value>
+  </data>
+  <data name="M088" xml:space="preserve">
+    <value>Automatic inspection has been forcibly terminated.\nPlease restore to the origin and start again.</value>
+  </data>
+  <data name="MS001" xml:space="preserve">
+    <value>There are no registered models. 
+Please create model information.</value>
+  </data>
+  <data name="MT001" xml:space="preserve">
+    <value>ROI cannot exceed 30 pixels in width or height.</value>
+  </data>
+  <data name="MT002" xml:space="preserve">
+    <value>Please select Unhide ROI and then perform the task.</value>
+  </data>
+  <data name="MT003" xml:space="preserve">
+    <value>Only for the entire video Section Type, you can read the video from the file.</value>
+  </data>
+  <data name="MT004" xml:space="preserve">
+    <value>The video has been saved. The saved video will be used as a reference image.</value>
+  </data>
+  <data name="MT005" xml:space="preserve">
+    <value>Please select the model you wish to teach.</value>
+  </data>
+  <data name="MT006" xml:space="preserve">
+    <value>Failed to save the image. Please try again later.</value>
+  </data>
+  <data name="MT007" xml:space="preserve">
+    <value>Please create a section area.</value>
+  </data>
+  <data name="MT008" xml:space="preserve">
+    <value>There are Unit areas that are not set to repeat. 
+Please proceed with the repeat settings.</value>
+  </data>
+  <data name="MT009" xml:space="preserve">
+    <value>After registering the image, Please open the Teaching file.</value>
+  </data>
+  <data name="MT010" xml:space="preserve">
+    <value>The section image has been saved. The saved image will be used as the reference image.</value>
+  </data>
+  <data name="MT011" xml:space="preserve">
+    <value>The reference image has been registered.</value>
+  </data>
+  <data name="MT020" xml:space="preserve">
+    <value>"[TOP1] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT021" xml:space="preserve">
+    <value>"[TOP2] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT022" xml:space="preserve">
+    <value>"[BOT1] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT023" xml:space="preserve">
+    <value>"[BOT2] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT024" xml:space="preserve">
+    <value>"[TRANS1] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT025" xml:space="preserve">
+    <value>"[TRANS2] has no sections created.\nPlease set up the sections."</value>
+  </data>
+  <data name="MT026" xml:space="preserve">
+    <value>Failed to send vision information.</value>
+  </data>
+  <data name="MT027" xml:space="preserve">
+    <value>There is an inspection area outside the section.\n</value>
+  </data>
+  <data name="MT028" xml:space="preserve">
+    <value>Manual check failed.\n</value>
+  </data>
+  <data name="MT029" xml:space="preserve">
+    <value>Partial manual inspection failed.\n</value>
+  </data>
+  <data name="MT030" xml:space="preserve">
+    <value>Failed to acquire image.\n</value>
+  </data>
+  <data name="MT031" xml:space="preserve">
+    <value>Please select the Section for which you want to change the reference image.</value>
+  </data>
+  <data name="MT032" xml:space="preserve">
+    <value>Please select a model.</value>
+  </data>
+  <data name="MT033" xml:space="preserve">
+    <value>Data restoration has been completed.</value>
+  </data>
+  <data name="MT034" xml:space="preserve">
+    <value>No data matching the current model was found.</value>
+  </data>
+  <data name="N001" xml:space="preserve">
+    <value>Please enter a defect name.</value>
+  </data>
+  <data name="N002" xml:space="preserve">
+    <value>Please check for duplicate defect names.</value>
+  </data>
+  <data name="N003" xml:space="preserve">
+    <value>Do you want to delete the selected defect information?</value>
+  </data>
+  <data name="N004" xml:space="preserve">
+    <value>Duplicate name. Please enter again.</value>
+  </data>
+  <data name="R001" xml:space="preserve">
+    <value>Please enter the NG name.</value>
+  </data>
+  <data name="R002" xml:space="preserve">
+    <value>Please check for duplicate NG names.</value>
+  </data>
+  <data name="R003" xml:space="preserve">
+    <value>Do you want to delete the selected NG information?</value>
+  </data>
+  <data name="R004" xml:space="preserve">
+    <value>The name has already been registered. Please enter it again.</value>
+  </data>
+  <data name="R005" xml:space="preserve">
+    <value>Please enter the Strip NG rate.</value>
+  </data>
+  <data name="R006" xml:space="preserve">
+    <value>Please enter the Unit NG Rate.</value>
+  </data>
+  <data name="R007" xml:space="preserve">
+    <value>Please enter the date.</value>
+  </data>
+  <data name="R008" xml:space="preserve">
+    <value>This is not a valid date.</value>
+  </data>
+  <data name="R009" xml:space="preserve">
+    <value>The image will also be deleted. Do you want to continue?</value>
+  </data>
+  <data name="S001" xml:space="preserve">
+    <value>Don't want to save defect images?</value>
+  </data>
+  <data name="S002" xml:space="preserve">
+    <value>The range value is incorrect.</value>
+  </data>
+  <data name="U001" xml:space="preserve">
+    <value>Please enter your ID.</value>
+  </data>
+  <data name="U002" xml:space="preserve">
+    <value>Please enter your name.</value>
+  </data>
+  <data name="U003" xml:space="preserve">
+    <value>Please enter your password.</value>
+  </data>
+  <data name="U004" xml:space="preserve">
+    <value>Please check for ID duplication.</value>
+  </data>
+  <data name="U005" xml:space="preserve">
+    <value>New password and password confirmation do not match.</value>
+  </data>
+  <data name="U006" xml:space="preserve">
+    <value>Please enter your password correctly.</value>
+  </data>
+  <data name="U007" xml:space="preserve">
+    <value>Are you sure you want to delete the selected items?</value>
+  </data>
+  <data name="U008" xml:space="preserve">
+    <value>Please enter your password confirmation.</value>
+  </data>
+  <data name="U009" xml:space="preserve">
+    <value>Password and password confirmation do not match.</value>
+  </data>
+  <data name="U010" xml:space="preserve">
+    <value>This ID has already been registered. Please enter it again.</value>
+  </data>
+  <data name="U011" xml:space="preserve">
+    <value>This ID is available for use.</value>
+  </data>
+</root>
