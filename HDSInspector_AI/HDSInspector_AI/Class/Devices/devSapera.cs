@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace HDSInspector_AI.Class.Devices.Camera
+namespace HDSInspector_AI.Class.Devices
 {
     /// <summary>
     /// DALSA Sapera LT Wrapper
@@ -186,6 +186,7 @@ namespace HDSInspector_AI.Class.Devices.Camera
 
             if (!_bufferRGB.Create()) { Logging("Create Interleaved RGB buffer failed"); return false; }
             
+            // 이거 RGB 각각 받아오지말고 한방에 받아오는거로 수정하자 !! 수정필요
             _bufR = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
             _bufG = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
             _bufB = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);

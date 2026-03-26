@@ -10,6 +10,7 @@ using Common;
 using System.Windows.Threading;
 using System.IO;
 using HDSInspector_AI.GUI.Windows.Popup;
+using HDSInspector_AI.Class.Devices;
 
 namespace HDSInspector_AI.Class.GlobalFunction
 {
@@ -68,25 +69,26 @@ namespace HDSInspector_AI.Class.GlobalFunction
         /// GlobalFunction Common.dll 응집도 높이기 위한 Singleton Pattern
         /// Global로 사용하기 위한 Class 정의
         /// </summary>
-        /// 
-        public Logger   Logger      { get; set; }
-        public Setting  Setting     { get; set; }
-
+        
+        public Logger           Logger      { get; set; }
+        public Setting          Setting     { get; set; }
+        public devServerMain    Server      { get; set; }
         #endregion
 
         public GlobalFunction()
         {
             Setting = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
             Logger = Logger.GetLogger();
+            Server = new devServerMain();
         }
 
         #region Global Functions
-        public void AddLog(string system, string Msg, SeverityLevel lvl, bool IsDirectLog = false)
+        public void AddLog(string system, string Msg, SeverityLevel lvl)
         {
             Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
             {
                 Msg = $"[{DateTime.Now:HH:mm:ss:fff}] {Msg}"; // [19:23:34:212] Blah, blah, blah.
-                Logger.Log(system, lvl, Msg, IsDirectLog);
+                Logger.Log(system, lvl, Msg);
             }));
         }
         public void CleanLog()

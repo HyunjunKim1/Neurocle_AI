@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,7 +36,6 @@ namespace HDSInspector_AI
             _threadSplash = new CustomThread(10, SplashLoading);
         }
 
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             this.Opacity = 0;
@@ -52,6 +52,11 @@ namespace HDSInspector_AI
             _threadSplash.Start();
         }
 
+        /// <summary>
+        /// change led images
+        /// </summary>
+        /// <param name="iBox"> iBox : icon box     </param>
+        /// <param name="img">  Resource images     </param>
         private void SetImage(Image iBox, Uri img)
         {
             this.Dispatcher.Invoke(new Action(() =>
@@ -61,7 +66,7 @@ namespace HDSInspector_AI
         }
         private void Logging(string Msg, SeverityLevel lvl)
         {
-            string NowProcess = "Splash";
+            string NowProcess = "[Splash]";
 
             GLB.AddLog(NowProcess, Msg, lvl);
         }
@@ -78,11 +83,99 @@ namespace HDSInspector_AI
         {
             try
             {
+                switch(_step)
+                {
+                    case 0:
+                        Logging($"Loading... {App.Version}", SeverityLevel.INFO);
+                        Logging($"######## Program Start !! ########", SeverityLevel.INFO);
+                        break;
 
+                    case 10:
+                        Logging("Read Ini data", SeverityLevel.INFO);
+
+                        GLB.Setting.Load();
+
+                        Logging("Read Ini data - Success", SeverityLevel.INFO);
+
+                        SetImage(iBox_Init, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+
+                        // Initialize Global Data
+                        // Log 기간 설정 및 삭제
+                        int nDeleteLogCount = Logger.CleanLog(GLB.Setting.General.LogKeepDate);
+                        if (nDeleteLogCount > 0)
+                        {
+                            string msg = $"최근에 기록된 {nDeleteLogCount}개의 로그 파일을 정리하였습니다.";
+                            Logging($"{msg}", SeverityLevel.INFO);
+                        }
+                        break;
+
+                    case 20:
+                        Logging("Load Alarm Data", SeverityLevel.INFO);
+
+                        // Load Alarm Data
+                        SetImage(iBox_Alarmlist, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                        break;
+
+                    case 30:
+                        Logging("Server open.. !", SeverityLevel.INFO);
+                        
+                        try
+                        {
+                            GLB.Server.SetParameter_IP(GLB.Setting.General.DBPort);
+                            GLB.Server.SetParameter_Log(GLB.AddLog);
+                            GLB.Server.StartServer();
+                        }
+
+                        catch(Exception ex)
+                        {
+                            Logging($@"Server open failed - {ex.Message}", SeverityLevel.INFO);
+                            return;
+                        }
+                        break;
+
+                    case 40:
+                        Logging("Try connect with Frame grabber.. !", SeverityLevel.INFO);
+                        
+                        try
+                        {
+
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+
+                        break;
+
+                    case 100:
+                        Logging("############### Complete load of programs ###############", SeverityLevel.INFO);
+
+                        _threadSplash.Stop();
+
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this.Close();
+                        }));
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            var mainWindow = new MainWindow();
+                            mainWindow.Show();
+                        }));
+                        return;
+                }
+                Thread.Sleep(1);
+                _step++;
+
+                this.Dispatcher.Invoke(new Action(() =>
+                {
+                    gBox_Status.Header = $"Program Loading.... {_step}%";
+                }));
             }
             catch (Exception ex)
             {
-
+                Logging($"Exception Error Occur! Please check the log.", SeverityLevel.ERROR);
+                Logging($"Seq No : {_step} - {ex.Message}", SeverityLevel.ERROR);
             }
         }
     }

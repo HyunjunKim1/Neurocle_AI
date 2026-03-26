@@ -1,4 +1,4 @@
-﻿using HDSInspector_AI.Class.Devices.Camera;
+﻿using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.GlobalFunction;
 using HDSInspector_AI.Class.Interface;
 using OpenCvSharp;

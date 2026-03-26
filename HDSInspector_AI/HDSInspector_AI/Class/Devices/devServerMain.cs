@@ -1,4 +1,5 @@
-﻿using HDSInspector_AI.Class.GlobalFunction;
+﻿using Common;
+using HDSInspector_AI.Class.GlobalFunction;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,12 +10,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HDSInspector_AI.Class.Communication
+namespace HDSInspector_AI.Class.Devices
 {
     /// <summary>
     /// 실제로 AI S/W에서 사용
     /// </summary>
-    public class CommTCPIP_Server : IDisposable
+    public class devServerMain : IDisposable
     {
         CustomThread _threadListen;
         CustomThread _threadProcessMessageSend;
@@ -24,7 +25,7 @@ namespace HDSInspector_AI.Class.Communication
 
         bool _isDisposed;
 
-        public delegate void CallBack_Logging(string text);
+        public delegate void CallBack_Logging(string system, string Msg, SeverityLevel lvl);
         CallBack_Logging _callback_Logging = null;
 
         public bool UseLog { get; set; } = false;
@@ -33,7 +34,7 @@ namespace HDSInspector_AI.Class.Communication
 
         bool _clientConnected = false;
 
-        public CommTCPIP_Server()
+        public devServerMain()
         {
             _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -41,9 +42,9 @@ namespace HDSInspector_AI.Class.Communication
             _threadProcessMessageSend = new CustomThread(10, ThreadProcess);
         }
 
-        public void SetParameter_IP(int Port)
+        public void SetParameter_IP(string Port)
         {
-            _server.Bind(new IPEndPoint(IPAddress.Any, Port));
+            _server.Bind(new IPEndPoint(IPAddress.Any, Convert.ToInt32(Port)));
             _server.Listen(10); // 소켓 접속 대기 버퍼 10개까지로 설정
         }
 
@@ -54,9 +55,9 @@ namespace HDSInspector_AI.Class.Communication
         
         private void Logging(string text)
         {
-            if (UseLog) _callback_Logging?.Invoke(text);
+            if (UseLog) _callback_Logging?.Invoke("[Inference Server]", text, SeverityLevel.INFO);
         }
-        ~CommTCPIP_Server()
+        ~devServerMain()
         {
             Dispose();
         }
@@ -91,7 +92,7 @@ namespace HDSInspector_AI.Class.Communication
         {
             try
             {
-                Logging($"[SequencerServer] Client Disconnected!!!");
+                Logging($"[Inference Server] Client Disconnected!!!");
 
                 _clientConnected = false;
                 _client?.Close();
@@ -101,7 +102,7 @@ namespace HDSInspector_AI.Class.Communication
             }
             catch (Exception ex)
             {
-                Logging($"[SequencerServer] CloseClientConnection(): {ex.Message}");
+                Logging($"[Inference Server] CloseClientConnection(): {ex.Message}");
             }
         }
         private void ClearCommand()

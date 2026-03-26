@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 
-namespace HDSInspector_AI.Class.Devices.AI_Lib
+namespace HDSInspector_AI.Class.Devices
 {
     /// <summary>   Easy for use neuro-r functions. </summary>
     /// <remarks>   hjkim, 2026-03-26.              </remarks>
@@ -20,7 +21,8 @@ namespace HDSInspector_AI.Class.Devices.AI_Lib
         private nrt.Status _status;
         private string _modelPath = "~~.net";
         private string _predictorPath = "~~.nrpd";
-        static List<string> infFiles = new List<string>();
+        static List<string> clf_infFiles = new List<string>();
+        static List<string> seg_infFiles = new List<string>();
 
         public nrt.Status Status    { get { return _status; } set { _status = value; } }
         public string ModelPath     { get { return _modelPath; } set { _modelPath = value; } }
@@ -41,7 +43,7 @@ namespace HDSInspector_AI.Class.Devices.AI_Lib
             {
                 nrt.Class cla = res.classes.get(i);
                 float prob = res.probs.get(i, cla.idx);
-                Console.Write($"File name : {infFiles[i]} ");
+                Console.Write($"File name : {clf_infFiles[i]} ");
                 Console.WriteLine($"- Class: {pred.get_class_name(cla.idx)}, Prob : {prob}");
 
                 /*
@@ -112,7 +114,81 @@ namespace HDSInspector_AI.Class.Devices.AI_Lib
         #endregion
 
         #region Segmentation
+        /// <summary>
+        /// Segmentation result output
+        /// </summary>
+        /// <param name="res">  0 : Success, 1 : Invalid value, 2 : error_system, 3 : error_unknown. </param>
+        /// <param name="pred"> 예측된 데이터 저장하고 있는 변수. </param>
+        public void SegmentationResult(nrt.Result res, nrt.Predictor pred)
+        {
+            List<bool> isDetected = Enumerable.Repeat(false, seg_infFiles.Count).ToList();
 
+            for (int i = 0; i < (int)res.blobs.get_count(); i++)
+            {
+                nrt.Blob blob = res.blobs.get(i);
+                int batchIdx = blob.batch_idx;
+                int clsIdx = blob.class_idx;
+                float prob = blob.prob;
+                isDetected[batchIdx] = true;
+
+                // Test용 Console log
+                Console.WriteLine($"{batchIdx} th Image");
+                Console.WriteLine($"[{i}]th blob Class : {pred.get_class_name(clsIdx)}, Prob : {prob}");
+                Console.WriteLine($"Class number: {blob.class_idx}");
+                Console.WriteLine($"Bounding left top X: {blob.rect.x}");
+                Console.WriteLine($"Bounding box center Y: {blob.rect.y}");
+                Console.WriteLine($"Bounding box width: {blob.rect.width}");
+                Console.WriteLine($"Bounding box height: {blob.rect.height}");
+                Console.WriteLine($"Bounding box area: {blob.area}");
+                Console.WriteLine($"Bounding box gray: {blob.gray}");
+            }
+            for (int i = 0; i < isDetected.Count; i++)
+                if (isDetected[i] != true) Console.WriteLine($"File name : {seg_infFiles[i]} - There are no Objects in this image.");
+        }
+        
+        /// <summary>
+        /// Get image patch size.
+        /// </summary>
+        /// <param name="imgPath">  path of image</param>
+        /// <param name="model"> model </param>
+        public int GetPatchSize(string imgPath, nrt.Model model)
+        {
+            int batchUnit = 1;
+            if (model.is_patch_mode(0))
+            {
+                nrt.Shape modelInputShape = model.get_input_shape(0);
+                nrt.InterpolationType resizeMethod = model.get_InterpolationType(0);
+                float scaleFactor = model.get_scale_factor();
+
+                nrt.NDBuffer ndImage = nrt.NDBuffer.load_image(imgPath);
+                nrt.NDBuffer resizedNdImage = new nrt.NDBuffer();
+                _status = nrt.nrt.resize(ndImage, resizedNdImage, scaleFactor, resizeMethod);
+                if (_status != nrt.Status.STATUS_SUCCESS)
+                {
+                    Console.WriteLine("Resize failed.  : " + nrt.nrt.get_last_error_msg());
+                    throw new Exception("Resize failed");
+                }
+
+                nrt.NDBuffer imagePatchBuff = new nrt.NDBuffer();
+                nrt.NDBuffer patchInfo = new nrt.NDBuffer();
+                _status = nrt.nrt.extract_patches_to_target_shape(resizedNdImage, modelInputShape, imagePatchBuff, patchInfo);
+                if (_status != nrt.Status.STATUS_SUCCESS)
+                {
+                    Console.WriteLine("Extract patches failed.  : " + nrt.nrt.get_last_error_msg());
+                    throw new Exception("Extract patches failed");
+                }
+                nrt.Shape patchShape = patchInfo.get_shape();
+                batchUnit = patchShape.get_dim(0);
+            }
+            return batchUnit;
+        }
+
+        /// <summary>   inference for segmentation.     </summary>
+        /// <remarks>   hjkim, 2026-03-26.              </remarks>
+        public void Inference_Segmentation()
+        {
+
+        }
         #endregion
     }
 }
