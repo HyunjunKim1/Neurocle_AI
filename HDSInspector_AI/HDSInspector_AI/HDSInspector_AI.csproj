@@ -87,6 +87,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Class\Devices\AI_Lib\devNeurocle.cs" />
+    <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
     <Compile Include="GUI\UserControls\Uc_Communication.xaml.cs">
       <DependentUpon>Uc_Communication.xaml</DependentUpon>
     </Compile>
