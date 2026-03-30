@@ -15,9 +15,8 @@ namespace HDSInspector_AI.Class.Devices
     /// <summary>
     /// DALSA Sapera LT Wrapper
     /// IS C++ 코드와 유사하나, Interface화, 9.11 ver 신규 옵션 Flag 추가
-    /// Auto-Exporsure, Flat-Field, HDF5, GPU사용 
     /// </summary>
-    partial class devSapera : IDisposable
+    partial class devSapera : IDisposable, ICameraController
     {
         #region Sapera 멤버 변수
         private SapAcquisition      _acq = null;        // Frame 획득 객체
@@ -28,40 +27,29 @@ namespace HDSInspector_AI.Class.Devices
 
         // 상태 플래그
         private bool _bAcquisitionCreated = false;
-        private bool _bAcqDeviceCreated = false;
         private bool _bIsDisposed = false;
+        private const int _bufferCount = 4;
         #endregion
 
         #region 옵션 (필요에 다라 true 로 바꾸면서 사용해보자~) -> SaperaLT SDK 9.11 버전에선 제공이 되는것들임
         /// <summary>
         /// 외부 CameraManager에서 제어
         /// </summary>
-        public bool EnableAutoExposure { get; set; } = true;   // 자동 노출 (기본 on)
+        public bool EnableAutoExposure { get; set; } = false;   // 자동 노출
         public bool EnableFlatField    { get; set; } = false;  // Flat‑Field 보정
         public bool EnableHdf5Save     { get; set; } = false;  // HDF5 파일 저장
         public bool EnableGpuRender    { get; set; } = false;  // GPU Zero‑Copy 렌더링
         #endregion
 
         #region 콜백, 로그, UI 스레드 등
-        private CallBack_Grabbed _callback_Grabbed = null;
-        private CallBack_Logging _callback_Logging = null;
-
-        //Frame Callback (Xfer -> Split -> 전달)
-        private void XferNotifyHandler(object sender, SapXferNotifyEventArgs e)
-        {
-            var transfer = sender as SapTransfer;
-            if (transfer == null) return;
-
-            var self = e.Context as devSapera;
-            if (self == null) return;
-
-            int bufferIdx = e.GenericParamValue0;
-            self.OnXferCallback(bufferIdx);
-        }
+        private CallBack_Grabbed_Color          _callback_Grabbed           = null;
+        private CallBack_Grabbed_SplitChannels  _callback_Grabbed_Channels  = null;
+        private CallBack_Logging                _callback_Logging           = null;
+        private CallBack_Status                 _callback_Status            = null;
 
         #endregion
 
-        #region ICamera Interface 구현 (public)
+        #region ICamera Interface 선언
 
         public bool IsConnected { get; set; }
         public int HeartBeat { get; set; }
@@ -70,17 +58,28 @@ namespace HDSInspector_AI.Class.Devices
         public int ImageWidth => _imageWidth;
 
         private int _imageHeight, _imageWidth;
-        public void SetGrabbedCallBackFunction(CallBack_Grabbed cb) => _callback_Grabbed = cb;
-        public void SetLoggingCallBackFunction(CallBack_Logging cb) => _callback_Logging = cb;
+
+        public void SetGrabbedCallBackFunction_Color(CallBack_Grabbed_Color func) => _callback_Grabbed = func;
+
+        public void SetGrabbedCallBackFunction_SplitChannels(CallBack_Grabbed_SplitChannels func) => _callback_Grabbed_Channels = func;
+
+        public void SetLoggingCallBackFunction(CallBack_Logging func) => _callback_Logging = func;
 
         #endregion
-        
+
         public devSapera() { }
         // Camera 기타 필요 함수 작성
         ~devSapera()
         {
             Dispose();
         }
+
+        public void Logging(string text)
+        {
+            _callback_Logging?.Invoke(text);
+        }
+
+        #region IDisposable
         public void Dispose()
         {
             if (_bIsDisposed) return;
@@ -122,10 +121,10 @@ namespace HDSInspector_AI.Class.Devices
             }
         }
 
-        public void Logging(string text)
-        {
-            _callback_Logging?.Invoke(text);
-        }
+        #endregion
+
+
+        #region Camera Control
 
         public bool Open()
         {
@@ -136,19 +135,20 @@ namespace HDSInspector_AI.Class.Devices
 
                 var loc = new SapLocation(deviceName, 1);
                 _acq = new SapAcquisition(loc, camFile);
+
                 if (!_acq.Create()) {  Logging("Create SapAcquisition failed"); return false; }
                 
                 _acqDevice = new SapAcqDevice(new SapLocation(deviceName, 0));
                 if(!_acqDevice.Create()) { Logging("Create SapAcqDevice failed"); return false; }
 
-                // 기본 트리거랑 게인 설정
-                _acqDevice.SetFeatureValue("TriggerMode", "External");  // 임시설정임. 수정필요
-                _acqDevice.SetFeatureValue("AnalogGain", "One");        // 임시설정임. 수정필요
-
                 _acq.GetParameter(SapAcquisition.Prm.SCALE_HORZ, out int w);
                 _acq.GetParameter(SapAcquisition.Prm.SCALE_VERT, out int h);
                 _imageWidth = w;
                 _imageHeight = h;
+
+                // 기본 트리거랑 게인 설정
+                _acqDevice.SetFeatureValue("TriggerMode", "External");  // 임시설정임. 수정필요
+                _acqDevice.SetFeatureValue("AnalogGain", "One");        // 임시설정임. 수정필요
 
                 IsConnected = true;
                 Logging("[Sapera] Open succeeded");
@@ -168,47 +168,14 @@ namespace HDSInspector_AI.Class.Devices
 
             try
             {
-                StopAcquisition();
                 IsConnected = false;
+                Dispose();
                 Logging($@"[Sapera] Closed");
             }
             catch(Exception ex)
             {
                 Logging($@"[Sapera] Close() exception: {ex.Message}");
             }
-        }
-
-        private bool AllocateBuffers()
-        {
-            const int bufferCount = 4;
-
-            _bufferRGB = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.RGBP8, SapBuffer.MemoryType.ScatterGather);
-
-            if (!_bufferRGB.Create()) { Logging("Create Interleaved RGB buffer failed"); return false; }
-            
-            // 이거 RGB 각각 받아오지말고 한방에 받아오는거로 수정하자 !! 수정필요
-            _bufR = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
-            _bufG = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
-            _bufB = new SapBuffer(bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
-
-            if (!(_bufR.Create() && _bufG.Create() && _bufB.Create())) { Logging("Create Interleaved buffers failed"); return false; }
-
-            Logging($@"[Sapera] Buffers allocated.");
-            return true;
-        }
-
-        private bool CreateTransfer()
-        {
-            _xfer = new SapAcqToBuf(_acq, _bufferRGB);
-            var pair = _xfer.Pairs.First();
-            pair.FramesOnBoard = 2;
-            pair.FramesPerCallback = 1;
-
-            int Timeout = 10000000;
-            SapManager.CommandTimeout = Timeout; // 이거 단위도 모르겠고 타임아웃은 필요하고.. 일단 걍 크게해놔버리자
-            
-            Logging($@"[Sapera] Transfer created.");
-            return true;
         }
 
         public void StartAcquistion()
@@ -218,13 +185,13 @@ namespace HDSInspector_AI.Class.Devices
             if(!_bAcquisitionCreated)
             {
                 // 처음에만 버퍼, 파이프라인을 만듦.
-                AllocateBuffers();
-                CreateTransfer();
+                if (!AllocateBuffers()) return;
+                if (!CreateTransfer()) return;
                 _bAcquisitionCreated = true;
             }
 
             // 옵션들을 최신상태로 반영해놓자.
-            ApplyOptionsToDevice();
+            //ApplyOptionsToDevice();
 
             // Image Grab 시작 (Snap은 지정한 수 만큼 프레임을 요청한다고함)
             _xfer.Snap(_bufferRGB.Count);
@@ -275,43 +242,115 @@ namespace HDSInspector_AI.Class.Devices
             // 옵션을 켜면 FrameCallBack 에서 GPURenderer 로 렌더링함
             // 여기서는 설정만 저장하고 실제 렌더링은 FrameCallBack 에서 수행
         }
-        private void OnXferCallback(int bufferIdx)
+
+        #endregion
+
+        #region 버퍼 생성 & 전송
+        private bool AllocateBuffers()
         {
-            int frameCount = _bufferRGB.Count;
+            _bufR = new SapBuffer(_bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
+            _bufG = new SapBuffer(_bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
+            _bufB = new SapBuffer(_bufferCount, _imageWidth, _imageHeight, SapFormat.Mono8, SapBuffer.MemoryType.ScatterGather);
 
-            _bufferRGB.SplitComponents(_bufR, _bufG, _bufB);
+            if (!(_bufR.Create() && _bufG.Create() && _bufB.Create()))
+            {
+                Logging("Failed to create R/G/B buffers");
+                return false;
+            }
 
-            FrameCallBack(bufferIdx, frameCount);
+            _bufferRGB = new SapBuffer(_bufferCount, _imageWidth, _imageHeight, SapFormat.RGBP8, SapBuffer.MemoryType.ScatterGather);
+            if (!_bufferRGB.Create())
+            {
+                Logging("Failed to create interleaved RGB buffer");
+                return false;
+            }
+
+            Logging($"[Sapera] Buffers allocated: {_bufferCount} x {_imageWidth}x{_imageHeight}");
+            return true;
         }
 
-        private void FrameCallBack(int bufferIdx, int bufferCount)
+        private bool CreateTransfer()
         {
-            // Manager에서 리셋을 하지만, 여기선 그냥 0으로 초기화만 시켜주기
-            HeartBeat = 0;
+            _xfer = new SapAcqToBuf(_acq, _bufferRGB);
+            var pair = _xfer.Pairs.First();
+            pair.FramesOnBoard = 2;
+            pair.FramesPerCallback = 1;
 
+            int oldTimeout = SapManager.CommandTimeout;
+            SapManager.CommandTimeout = Math.Max(SapManager.CommandTimeout, 100 * _bufferCount);
+
+            if (!_xfer.Create())
+            {
+                Logging("Failed to create transfer pipeline");
+                SapManager.CommandTimeout = oldTimeout;
+                return false;
+            }
+
+            SapManager.CommandTimeout = oldTimeout;
+            _xfer.XferNotify += XferNotifyHandler;
+
+            Logging($@"[Sapera] Transfer created.");
+            return true;
+        }
+        #endregion
+
+        #region Callback 처리 
+
+        // Frame Lost 관련 Callback 처리 해야할것 같은데, SapAcqCallback이 Internal로 설정되어있음.
+        // 방법을 찾아보자....
+        /*
+        private void AcqCallback(SapAcqCallbackInfo info)
+        {
+
+        }
+        private void XferCallback(SapXferCallbackInfo info)
+        {
+
+        }
+        */
+
+        private void XferNotifyHandler(object sender, SapXferNotifyEventArgs e)
+        {
+            int bufferIdx = e.GenericParamValue0;
+            OnXferCallback(bufferIdx);
+        }
+
+        private void OnXferCallback(int bufferIdx)
+        {
+            // Split Components
+            _bufferRGB.SplitComponents(_bufR, _bufG, _bufB);
+
+            // Get pointers
             IntPtr pR = GetPlanePtr(_bufR, bufferIdx);
             IntPtr pG = GetPlanePtr(_bufG, bufferIdx);
             IntPtr pB = GetPlanePtr(_bufB, bufferIdx);
+
+            // Create Mats (no ownership)
 
             Mat matR = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pR);
             Mat matG = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pG);
             Mat matB = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pB);
 
-            var planes = new[] { matB, matG, matR };
+            // Merge to BGR
             Mat bgr = new Mat();
-            Cv2.Merge(planes, bgr);
+            Cv2.Merge(new[] { matB, matG, matR }, bgr);
 
-            // Grabbed 콜백 (UI 혹은 상위 매니저가 구독)
+            // 두 개의 콜백 전달
             _callback_Grabbed?.Invoke(bgr.Clone());
+            _callback_Grabbed_Channels?.Invoke(new[] { matB.Clone(), matG.Clone(), matR.Clone() });
 
-            // 현재 프레임 수집이 끝났으니 메모리 해제
+            // Cleanup
             bgr.Dispose();
-            foreach (var p in planes) p.Dispose();
+            matR.Dispose();
+            matG.Dispose();
+            matB.Dispose();
         }
+
         private static IntPtr GetPlanePtr(SapBuffer buf, int idx)
         {
             buf.GetAddress(idx, out IntPtr ptr);
             return ptr;
         }
+        #endregion
     }
 }

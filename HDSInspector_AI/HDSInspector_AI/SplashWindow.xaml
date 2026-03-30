@@ -61,10 +61,10 @@
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="20,12,0,12"/>
                         <TextBlock Grid.Row="2" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Server Open" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16" Grid.ColumnSpan="2"/>
-                        <Image Grid.Row="3" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" x:Name="iBox_Type"
+                        <Image Grid.Row="3" Grid.Column="0" Width="20" Height="20" HorizontalAlignment="Left" x:Name="iBox_Func"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"
                                 RenderOptions.BitmapScalingMode="HighQuality" Margin="20,12,0,13"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Check Cam Type" Foreground="White"
+                        <TextBlock Grid.Row="3" Grid.Column="0" Width="150" Height="20" HorizontalAlignment="Left" Text="Initialize Functions" Foreground="White"
                                 FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,5" FontSize="16" Grid.ColumnSpan="2"/>
                         <Image Grid.Row="1" Grid.Column="2" Width="20" Height="20" HorizontalAlignment="Left" Name="iBox_Alarmlist"
                                 Source="/HDSInspector_AI;component/Resources/LED_RED.png"

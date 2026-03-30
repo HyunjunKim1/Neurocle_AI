@@ -44,7 +44,7 @@ namespace HDSInspector_AI
             SetImage(iBox_Alarmlist,    new Uri("pack://application:,,,/Resources/LED_RED.png"));
             SetImage(iBox_Server,       new Uri("pack://application:,,,/Resources/LED_RED.png"));
             SetImage(iBox_Camera,       new Uri("pack://application:,,,/Resources/LED_RED.png"));
-            SetImage(iBox_Type,         new Uri("pack://application:,,,/Resources/LED_RED.png"));
+            SetImage(iBox_Func,         new Uri("pack://application:,,,/Resources/LED_RED.png"));
             SetImage(iBox_HW,           new Uri("pack://application:,,,/Resources/LED_RED.png"));
 
             GLB.ApplyFadeAndZoomAnimation(this, GridSplash, durationMs:500);
@@ -124,11 +124,13 @@ namespace HDSInspector_AI
                             GLB.Server.SetParameter_IP(GLB.Setting.General.DBPort);
                             GLB.Server.SetParameter_Log(GLB.AddLog);
                             GLB.Server.StartServer();
+
+                            SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
 
                         catch(Exception ex)
                         {
-                            Logging($@"Server open failed - {ex.Message}", SeverityLevel.INFO);
+                            Logging($@"Server open failed - {ex.Message}", SeverityLevel.ERROR);
                             return;
                         }
                         break;
@@ -138,11 +140,42 @@ namespace HDSInspector_AI
                         
                         try
                         {
+                            SetImage(iBox_Camera, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                        }
+                        catch(Exception ex)
+                        {
+                            Logging($@"Failed framegrabber connection. - {ex.Message}", SeverityLevel.ERROR);
+                            return;
+                        }
+
+                        break;
+
+                    case 60:
+                        Logging("Initialize necessary functions.. ", SeverityLevel.INFO);
+
+                        try
+                        {
+                            SetImage(iBox_Func, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                        }
+                        catch(Exception ex)
+                        {
+                            Logging($@"Fail initialized necessary functions.. - {ex.Message}", SeverityLevel.ERROR);
+                            return;
+                        }
+
+                        break;
+
+                    case 80:
+                        Logging("Try connect with hardwares.. ", SeverityLevel.INFO);
+
+                        try
+                        {
+                            SetImage(iBox_HW, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
 
                         }
                         catch(Exception ex)
                         {
-
+                            Logging($@"Failed hardware connections.. - {ex.Message}", SeverityLevel.ERROR);
                         }
 
                         break;
