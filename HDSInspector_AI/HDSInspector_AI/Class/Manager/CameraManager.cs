@@ -1,5 +1,5 @@
 ﻿using HDSInspector_AI.Class.Devices;
-using HDSInspector_AI.Class.GlobalFunction;
+using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.Class.Interface;
 using OpenCvSharp;
 using System;
@@ -13,7 +13,7 @@ namespace HDSInspector_AI.Class.Manager
     /// <summary>
     /// 여러 카메라를 사용할 수 있는 확장성을 고려하여, Interface화 시킴
     /// </summary>
-    partial class CameraManager
+    public class CameraManager
     {
         CustomThread _threadAutoConnect;
 
@@ -33,7 +33,10 @@ namespace HDSInspector_AI.Class.Manager
             {
                 Camera.Logging($"[Sapera] Trying to camera auto connect...");
                 if (Camera.Open())
+                {
                     Camera.StartAcquistion();
+                    Camera.HeartBeat = 0;
+                }
             }
             else if(Camera.HeartBeat++ > 3)
             {

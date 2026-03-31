@@ -1,4 +1,5 @@
-﻿using DALSA.SaperaLT.SapClassBasic;
+﻿using ControlzEx.Behaviors;
+using DALSA.SaperaLT.SapClassBasic;
 using HDSInspector_AI.Class.Interface;
 using OpenCvSharp;
 using System;
@@ -16,7 +17,7 @@ namespace HDSInspector_AI.Class.Devices
     /// DALSA Sapera LT Wrapper
     /// IS C++ 코드와 유사하나, Interface화, 9.11 ver 신규 옵션 Flag 추가
     /// </summary>
-    partial class devSapera : IDisposable, ICameraController
+    public class devSapera : IDisposable, ICameraController
     {
         #region Sapera 멤버 변수
         private SapAcquisition      _acq = null;        // Frame 획득 객체
@@ -122,7 +123,6 @@ namespace HDSInspector_AI.Class.Devices
         }
 
         #endregion
-
 
         #region Camera Control
 
@@ -326,7 +326,6 @@ namespace HDSInspector_AI.Class.Devices
             IntPtr pB = GetPlanePtr(_bufB, bufferIdx);
 
             // Create Mats (no ownership)
-
             Mat matR = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pR);
             Mat matG = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pG);
             Mat matB = Mat.FromPixelData(_imageHeight, _imageWidth, MatType.CV_8UC1, pB);
@@ -338,6 +337,8 @@ namespace HDSInspector_AI.Class.Devices
             // 두 개의 콜백 전달
             _callback_Grabbed?.Invoke(bgr.Clone());
             _callback_Grabbed_Channels?.Invoke(new[] { matB.Clone(), matG.Clone(), matR.Clone() });
+
+            HeartBeat = 0;
 
             // Cleanup
             bgr.Dispose();

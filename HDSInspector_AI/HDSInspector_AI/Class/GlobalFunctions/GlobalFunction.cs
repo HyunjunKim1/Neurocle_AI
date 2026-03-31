@@ -11,8 +11,9 @@ using System.Windows.Threading;
 using System.IO;
 using HDSInspector_AI.GUI.Windows.Popup;
 using HDSInspector_AI.Class.Devices;
+using HDSInspector_AI.Class.Manager;
 
-namespace HDSInspector_AI.Class.GlobalFunction
+namespace HDSInspector_AI.Class.GlobalFunctions
 {
     #region define enums
     
@@ -73,6 +74,11 @@ namespace HDSInspector_AI.Class.GlobalFunction
         public Logger           Logger      { get; set; }
         public Setting          Setting     { get; set; }
         public devServerMain    Server      { get; set; }
+
+        // Class Manager
+        public SequenceManager  SequenceManager { get; set; }
+        public CameraManager    CameraManager   { get; set; }
+        public UIManager        UIManager       { get; set; }
         #endregion
 
         public GlobalFunction()
@@ -87,7 +93,6 @@ namespace HDSInspector_AI.Class.GlobalFunction
         {
             Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
             {
-                Msg = $"[{DateTime.Now:HH:mm:ss:fff}] {Msg}"; // [19:23:34:212] Blah, blah, blah.
                 Logger.Log(system, lvl, Msg);
             }));
         }

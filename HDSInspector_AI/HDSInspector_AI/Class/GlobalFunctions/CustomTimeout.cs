@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HDSInspector_AI.Class.GlobalFunction
+namespace HDSInspector_AI.Class.GlobalFunctions
 {
     class CustomTimeout
     {

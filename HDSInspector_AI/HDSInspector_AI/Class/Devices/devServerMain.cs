@@ -1,5 +1,5 @@
 ﻿using Common;
-using HDSInspector_AI.Class.GlobalFunction;
+using HDSInspector_AI.Class.GlobalFunctions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

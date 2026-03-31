@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HDSInspector_AI.Class.GlobalFunction
+namespace HDSInspector_AI.Class.GlobalFunctions
 {
     /// <summary>
     /// ## 260312_hjkim ##

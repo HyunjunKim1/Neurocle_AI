@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HDSInspector_AI.Class.Manager
 {
-    internal class UIManager
+    public class UIManager
     {
     }
 }

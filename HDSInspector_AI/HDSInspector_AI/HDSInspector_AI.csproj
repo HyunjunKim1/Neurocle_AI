@@ -89,6 +89,7 @@
     </ApplicationDefinition>
     <Compile Include="Class\Devices\devNeurocle.cs" />
     <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
+    <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="GUI\UserControls\Uc_Communication.xaml.cs">
       <DependentUpon>Uc_Communication.xaml</DependentUpon>
     </Compile>
@@ -137,10 +138,10 @@
     </Compile>
     <Compile Include="Class\Devices\devServerMain.cs" />
     <Compile Include="Class\Devices\devSapera.cs" />
-    <Compile Include="Class\GlobalFunction\CustomDB.cs" />
-    <Compile Include="Class\GlobalFunction\CustomThread.cs" />
-    <Compile Include="Class\GlobalFunction\CustomTimeout.cs" />
-    <Compile Include="Class\GlobalFunction\GlobalFunction.cs" />
+    <Compile Include="Class\GlobalFunctions\CustomDB.cs" />
+    <Compile Include="Class\GlobalFunctions\CustomThread.cs" />
+    <Compile Include="Class\GlobalFunctions\CustomTimeout.cs" />
+    <Compile Include="Class\GlobalFunctions\GlobalFunction.cs" />
     <Compile Include="Class\Manager\CameraManager.cs" />
     <Compile Include="Class\Interface\ICameraController.cs" />
     <Compile Include="Class\Manager\UIManager.cs" />

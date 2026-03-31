@@ -1,5 +1,5 @@
 ﻿using Common;
-using HDSInspector_AI.Class.GlobalFunction;
+using HDSInspector_AI.Class.GlobalFunctions;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
@@ -66,7 +66,7 @@ namespace HDSInspector_AI
         }
         private void Logging(string Msg, SeverityLevel lvl)
         {
-            string NowProcess = "[Splash]";
+            string NowProcess = "Splash";
 
             GLB.AddLog(NowProcess, Msg, lvl);
         }
