@@ -32,16 +32,6 @@ namespace HDSInspector_AI.Class.Devices
         private const int _bufferCount = 4;
         #endregion
 
-        #region 옵션 (필요에 다라 true 로 바꾸면서 사용해보자~) -> SaperaLT SDK 9.11 버전에선 제공이 되는것들임
-        /// <summary>
-        /// 외부 CameraManager에서 제어
-        /// </summary>
-        public bool EnableAutoExposure { get; set; } = false;   // 자동 노출
-        public bool EnableFlatField    { get; set; } = false;  // Flat‑Field 보정
-        public bool EnableHdf5Save     { get; set; } = false;  // HDF5 파일 저장
-        public bool EnableGpuRender    { get; set; } = false;  // GPU Zero‑Copy 렌더링
-        #endregion
-
         #region 콜백, 로그, UI 스레드 등
         private CallBack_Grabbed_Color          _callback_Grabbed           = null;
         private CallBack_Grabbed_SplitChannels  _callback_Grabbed_Channels  = null;
@@ -222,13 +212,13 @@ namespace HDSInspector_AI.Class.Devices
         internal void ApplyOptionsToDevice()
         {
             // ---- 자동 노출 ----
-            if (EnableAutoExposure)
-            {
-                // 자동 노출을 직접 구현하고 싶다면 여기서 스레드/타이머를 시작해야한다는데 대충 선언 ㄱㄱ
-                // 간단히 ExposureTime 를 고정값(예: 5 ms) 으로 두어도 무방함
-                _acqDevice?.SetFeatureValue("ExposureMode", "Timed");
-                _acqDevice?.SetFeatureValue("ExposureTime", 0.005); // 5 ms 기본값
-            }
+            //if (EnableAutoExposure)
+            //{
+            //    // 자동 노출을 직접 구현하고 싶다면 여기서 스레드/타이머를 시작해야한다는데 대충 선언 ㄱㄱ
+            //    // 간단히 ExposureTime 를 고정값(예: 5 ms) 으로 두어도 무방함
+            //    _acqDevice?.SetFeatureValue("ExposureMode", "Timed");
+            //    _acqDevice?.SetFeatureValue("ExposureTime", 0.005); // 5 ms 기본값
+            //}
 
             // ---- Flat‑Field ----
             // 실제 보정은 FrameCallBack 에서 적용하도록 플래그만 저장하자

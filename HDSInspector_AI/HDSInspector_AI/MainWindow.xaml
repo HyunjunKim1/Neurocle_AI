@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDSInspector_AI"
+        xmlns:UserCtrl="clr-namespace:HDSInspector_AI.GUI.UserControls"
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
         WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
@@ -11,6 +12,9 @@
         HorizontalAlignment="Center" VerticalAlignment="Center"
         WindowState="Maximized" Height="1080" Width="1920" Title="Haesung DS LF AVI Version 1.0.0">
 
+    <Window.Background>
+        <SolidColorBrush Color="#242121"/>
+    </Window.Background>
     <Window.Resources>
         <LinearGradientBrush
         x:Key="IndicatorForeground"
@@ -41,18 +45,14 @@
             </LinearGradientBrush.GradientStops>
         </LinearGradientBrush>
     </Window.Resources>
-    
+
     <Grid Name="GridMain">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.5*"/>
             <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height=".5*"/>
-            <RowDefinition Height="9*"/>
-        </Grid.RowDefinitions>
-        
+
         <!-- Grid Left -->
         <Grid x:Name="GridLeft" Grid.Column="0">
             <Grid.RowDefinitions>
@@ -60,23 +60,27 @@
                 <RowDefinition Height="300"/>
                 <RowDefinition Height="480"/>
             </Grid.RowDefinitions>
+            <Border Padding="2">
+                <UserCtrl:Uc_Status Grid.Row="0"/>
+            </Border>
+                
         </Grid>
 
         <!-- Grid Middle -->
         <Grid x:Name="GridMiddle" Grid.Column="1">
-            
+
         </Grid>
 
         <!-- Grid Right -->
         <Grid x:Name="GridRight" Grid.Column="2">
-            
+
         </Grid>
-        
-        <busyIndicator:BusyMask Grid.RowSpan="3" Width="1920" Height="1080" Visibility="Visible"
+
+        <busyIndicator:BusyMask Width="1920" Height="1080" Visibility="Visible"
         x:Name="BusyIndicator"
         BusyContent="검사를 종료하고 있습니다. 서버 연결 상태에 따라 시간이 소요될 수 있습니다."
         IndicatorType="Ring"
         IsBusy="False"
-        Background="#D8FFFFFF" Grid.ColumnSpan="3" Margin="0,0,0,-16"/>
+        Background="#D8FFFFFF" Grid.ColumnSpan="3" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>

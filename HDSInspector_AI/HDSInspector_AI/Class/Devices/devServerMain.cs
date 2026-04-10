@@ -187,6 +187,8 @@ namespace HDSInspector_AI.Class.Devices
                     break;
                 case "Location":
                     break;
+                case "Result":
+                    break;
                 default:
                     Logging($"[Inference Server] Undefined command : {command}");
                     break;

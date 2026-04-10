@@ -110,74 +110,115 @@ namespace HDSInspector_AI
                         break;
 
                     case 20:
-                        Logging("Load Alarm Data", SeverityLevel.INFO);
+                        if (GLB.Setting.General.Simulation == true)
+                        {
+                            Logging("Simulation skip - Load Alarm Data", SeverityLevel.INFO);
 
-                        // Load Alarm Data
-                        SetImage(iBox_Alarmlist, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                            // Load Alarm Data
+                            SetImage(iBox_Alarmlist, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                        }
+                        else
+                        {
+                            Logging("Load Alarm Data", SeverityLevel.INFO);
+
+                            // Load Alarm Data
+                            SetImage(iBox_Alarmlist, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                        }
                         break;
 
                     case 30:
-                        Logging("Server open.. !", SeverityLevel.INFO);
-                        
-                        try
+                        if (GLB.Setting.General.Simulation == true)
                         {
-                            GLB.Server.SetParameter_IP(GLB.Setting.General.DBPort);
-                            GLB.Server.SetParameter_Log(GLB.AddLog);
-                            GLB.Server.StartServer();
-
+                            Logging("Simulation skip - Server open.. !", SeverityLevel.INFO);
                             SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
-
-                        catch(Exception ex)
+                        else
                         {
-                            Logging($@"Server open failed - {ex.Message}", SeverityLevel.ERROR);
-                            return;
+                            Logging("Server open.. !", SeverityLevel.INFO);
+
+                            try
+                            {
+                                GLB.Server.SetParameter_IP("500");
+                                GLB.Server.SetParameter_Log(GLB.AddLog);
+                                GLB.Server.StartServer();
+
+                                SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                            }
+
+                            catch (Exception ex)
+                            {
+                                Logging($@"Server open failed - {ex.Message}", SeverityLevel.ERROR);
+                                return;
+                            }
                         }
                         break;
 
                     case 40:
-                        Logging("Try connect with Frame grabber.. !", SeverityLevel.INFO);
-                        
-                        try
+                        if (GLB.Setting.General.Simulation == true)
                         {
+                            Logging("Simulation skip - Try connect with Frame grabber.. !", SeverityLevel.INFO);
                             SetImage(iBox_Camera, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
-                        catch(Exception ex)
+                        else
                         {
-                            Logging($@"Failed framegrabber connection. - {ex.Message}", SeverityLevel.ERROR);
-                            return;
-                        }
+                            Logging("Try connect with Frame grabber.. !", SeverityLevel.INFO);
 
+                            try
+                            {
+
+
+                                SetImage(iBox_Camera, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging($@"Failed framegrabber connection. - {ex.Message}", SeverityLevel.ERROR);
+                                return;
+                            }
+                        }
                         break;
 
                     case 60:
-                        Logging("Initialize necessary functions.. ", SeverityLevel.INFO);
-
-                        try
+                        if (GLB.Setting.General.Simulation == true)
                         {
+                            Logging("Simulation skip - Initialize necessary functions.. ", SeverityLevel.INFO);
                             SetImage(iBox_Func, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
-                        catch(Exception ex)
+                        else
                         {
-                            Logging($@"Fail initialized necessary functions.. - {ex.Message}", SeverityLevel.ERROR);
-                            return;
-                        }
+                            Logging("Initialize necessary functions.. ", SeverityLevel.INFO);
 
+                            try
+                            {
+                                SetImage(iBox_Func, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging($@"Fail initialized necessary functions.. - {ex.Message}", SeverityLevel.ERROR);
+                                return;
+                            }
+                        }
                         break;
 
                     case 80:
-                        Logging("Try connect with hardwares.. ", SeverityLevel.INFO);
-
-                        try
+                        if (GLB.Setting.General.Simulation == true)
                         {
+                            Logging("Simulation skip - Try connect with hardwares.. ", SeverityLevel.INFO);
                             SetImage(iBox_HW, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
-
                         }
-                        catch(Exception ex)
+                        else
                         {
-                            Logging($@"Failed hardware connections.. - {ex.Message}", SeverityLevel.ERROR);
-                        }
+                            Logging("Try connect with hardwares.. ", SeverityLevel.INFO);
 
+                            try
+                            {
+                                SetImage(iBox_HW, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Logging($@"Failed hardware connections.. - {ex.Message}", SeverityLevel.ERROR);
+                            }
+                        }
                         break;
 
                     case 100:

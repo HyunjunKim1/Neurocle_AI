@@ -46,7 +46,6 @@ namespace Common
         private static SettingSubSystem m_SubSystem;
         private static SettingDevice m_Device;
         private static SettingLog m_Log;
-        private static SettingMTS m_MTS;
         //private static SettingMachines m_Machines; 
         #endregion
 
@@ -76,8 +75,6 @@ namespace Common
             General.Load();
             Device.Load();
             SubSystem.Load();
-            MTS.Load();
-            //Machines.Load();
 
             return true;
         }
@@ -87,8 +84,6 @@ namespace Common
             General.Save();
             Device.Save();
             SubSystem.Save();
-            MTS.Save();
-            //Machines.Save();
             
             m_XmlSetting.Flush();
         }
@@ -171,41 +166,6 @@ namespace Common
             }
         }
 
-        // mts setting.
-        public SettingMTS MTS
-        {
-            get
-            {
-                if (m_MTS == null)
-                {
-                    m_MTS = new SettingMTS(m_XmlSetting);
-                }
-
-                return m_MTS;
-            }
-            set
-            {
-                m_MTS = value;
-            }
-        }
-
-        // machines setting.
-        //public SettingMachines Machines
-        //{
-        //    get
-        //    {
-        //        if (m_Machines == null)
-        //        {
-        //            m_Machines = new SettingMachines(m_XmlSetting);
-        //        }
-
-        //        return m_Machines;
-        //    }
-        //    set
-        //    {
-        //        m_Machines = value;
-        //    }
-        //}
         #endregion
     }
 }

@@ -26,7 +26,6 @@ namespace Common
     {
         상부검사 = 11,
         하부검사 = 21,
-        투과검사 = 31,
     }
 
     public enum ChannelType

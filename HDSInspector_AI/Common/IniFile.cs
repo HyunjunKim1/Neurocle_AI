@@ -197,6 +197,8 @@ namespace Common
 
         #region New
 
+        /// <remarks> Refactoring by hjkim, 26.04.08 </remarks>
+
         public string Read(string section, string key, string value)
         {
             // capa = 255

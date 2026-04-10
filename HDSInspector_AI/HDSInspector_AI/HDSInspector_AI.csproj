@@ -90,6 +90,9 @@
     <Compile Include="Class\Devices\devNeurocle.cs" />
     <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
+    <Compile Include="GUI\UserControls\SubUc_StatusCtrl.xaml.cs">
+      <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GUI\UserControls\Uc_Communication.xaml.cs">
       <DependentUpon>Uc_Communication.xaml</DependentUpon>
     </Compile>
@@ -108,6 +111,10 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="GUI\UserControls\SubUc_StatusCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GUI\UserControls\Uc_Communication.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -279,8 +279,6 @@ namespace Common
                     return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelName), ((short)Surface.상부검사) + "-Based.bmp");
                 case Surface.하부검사:
                     return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelName), ((short)Surface.하부검사) + "-Based.bmp");
-                case Surface.투과검사:
-                    return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelName), ((short)Surface.투과검사) + "-Based.bmp");
                 default:
                     return string.Empty;
             }
@@ -294,8 +292,6 @@ namespace Common
                     return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelname), @"CenterLine\View" + ((short)Surface.상부검사) + ".txt");
                 case Surface.하부검사:
                     return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelname), @"CenterLine\View" + ((short)Surface.하부검사)  + ".txt");
-                case Surface.투과검사:
-                    return Path.Combine(GetModelImagePath(aszModelPath, aszGroupName, aszModelname), @"CenterLine\View" + ((short)Surface.투과검사) + ".txt");
                 default:
                     return string.Empty;
             }
@@ -310,8 +306,6 @@ namespace Common
                     return Path.Combine(GetOfflineModelImagePath(aszModelPath, aszMachineName, aszGroupName, aszModelName), ((short)Surface.상부검사) + "-Based.bmp");
                 case Surface.하부검사:
                     return Path.Combine(GetOfflineModelImagePath(aszModelPath, aszMachineName, aszGroupName, aszModelName), ((short)Surface.하부검사) + "-Based.bmp");
-                case Surface.투과검사:
-                    return Path.Combine(GetOfflineModelImagePath(aszModelPath, aszMachineName, aszGroupName, aszModelName), ((short)Surface.투과검사) + "-Based.bmp");
                 default:
                     return string.Empty;
             }
@@ -329,9 +323,6 @@ namespace Common
                     break;
                 case Surface.하부검사:
                     szImagePath += "/21-";
-                    break;
-                case Surface.투과검사:
-                    szImagePath += "/31-";
                     break;
                 default:
                     szImagePath += "/00-";
@@ -353,9 +344,6 @@ namespace Common
                     break;
                 case Surface.하부검사:
                     szImagePath += "/21-";
-                    break;
-                case Surface.투과검사:
-                    szImagePath += "/31-";
                     break;
                 default:
                     szImagePath += "/00-";
