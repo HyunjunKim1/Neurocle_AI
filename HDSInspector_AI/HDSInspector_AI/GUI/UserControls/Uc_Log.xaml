@@ -5,8 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls"
              mc:Ignorable="d" 
-             d:DesignHeight="380" d:DesignWidth="1152">
-    <Grid>
-            
-    </Grid>
+             d:DesignHeight="400" d:DesignWidth="384">
+    <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
+        </Border.Effect>
+        <Border Padding="8">
+            <Grid>
+
+            </Grid>
+        </Border>
+    </Border>
 </UserControl>

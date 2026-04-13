@@ -6,8 +6,79 @@
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls"
              xmlns:hc="https://handyorg.github.io/handycontrol" x:Class="HDSInspector_AI.GUI.UserControls.Uc_Status"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="384" Background="#242120">
+             d:DesignHeight="300" d:DesignWidth="384" Background="#121d2f">
+    <UserControl.Resources>
+        <Style x:Key="RoundedLabelStyle" TargetType="Label">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="13"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Label">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
+        <Style x:Key="RoundedGreenButton" TargetType="Button">
+            <Setter Property="Background" Value="#238636"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="7"
+                        Padding="{TemplateBinding Padding}">
+                            <ContentPresenter 
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        RecognizesAccessKey="True"/>
+                        </Border>
+
+                        <!-- 트리거들 -->
+                        <ControlTemplate.Triggers>
+                            <!-- 마우스 오버: 은색 배경 + 검은 글자 -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="LightGray"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+
+                            <!-- 클릭 중 -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="Gray"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+    
     <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
         <Border.Effect>
             <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
@@ -25,9 +96,39 @@
                     <RowDefinition Height="2*"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Column="0" Grid.Row="0" Content="Product Name" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                <Label Grid.Column="0" Grid.Row="1" Content="Model Name" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                <Label Grid.Column="0" Grid.Row="2" Content="Connection" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                <Label Grid.Column="0" Grid.Row="0" Content="Product Name" FontSize="14" Style="{StaticResource RoundedLabelStyle}"/>
+                <hc:ComboBox x:Name="cb_ProductName" Grid.Column="1" Grid.Row="0" Width="170" Height="45"/>
+                <Label Grid.Column="0" Grid.Row="1" Content="Model Name" FontSize="14" Style="{StaticResource RoundedLabelStyle}"/>
+                <hc:ComboBox x:Name="cb_ModelName" Grid.Column="1" Grid.Row="1" Width="170" Height="45"/>
+
+                <StackPanel Grid.Column="0" Grid.Row="2">
+                    <Grid Height="55">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="4*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Width="25" Height="25" HorizontalAlignment="Center" x:Name="iBox_Grabber"
+                               Source="/HDSInspector_AI;component/Resources/CHECK_OFF.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                        <Label Grid.Column="1" Grid.Row="0" Content="Grabber" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+                        <Button Grid.Column="1" HorizontalAlignment="Right" FontSize="12" FontFamily="Arial" Content="Connect" Margin="0,0,10,0" Style="{StaticResource RoundedGreenButton}"/>
+                    </Grid>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Grid.Row="2">
+                    <Grid Height="55">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="4*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Width="25" Height="25" HorizontalAlignment="Center" x:Name="iBox_MainSW"
+                               Source="/HDSInspector_AI;component/Resources/CHECK_OFF.png"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                        <Label Grid.Column="1" Grid.Row="0" Content="Main S/W" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+                        <Button Grid.Column="1" HorizontalAlignment="Right" FontSize="12" FontFamily="Arial" Content="Connect" Style="{StaticResource RoundedGreenButton}"/>
+                    </Grid>
+                </StackPanel>
+
                 <local:SubUc_StatusCtrl Grid.Row="3" Grid.ColumnSpan="2"/>
             </Grid>
         </Border>

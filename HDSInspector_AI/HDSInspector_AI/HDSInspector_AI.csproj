@@ -89,12 +89,13 @@
     </ApplicationDefinition>
     <Compile Include="Class\Devices\devNeurocle.cs" />
     <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
+    <Compile Include="Class\GlobalFunctions\ImageProcessing.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="GUI\UserControls\SubUc_StatusCtrl.xaml.cs">
       <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Uc_Communication.xaml.cs">
-      <DependentUpon>Uc_Communication.xaml</DependentUpon>
+    <Compile Include="GUI\UserControls\Uc_Control.xaml.cs">
+      <DependentUpon>Uc_Control.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\UserControls\Uc_Log.xaml.cs">
       <DependentUpon>Uc_Log.xaml</DependentUpon>
@@ -115,7 +116,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Uc_Communication.xaml">
+    <Page Include="GUI\UserControls\Uc_Control.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -231,6 +232,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\WARNING.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\CHECK_OFF.png" />
+    <Resource Include="Resources\CHECK_ON.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

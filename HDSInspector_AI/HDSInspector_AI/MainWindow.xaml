@@ -60,8 +60,11 @@
                 <RowDefinition Height="300"/>
                 <RowDefinition Height="480"/>
             </Grid.RowDefinitions>
-            <Border Padding="2">
-                <UserCtrl:Uc_Status Grid.Row="0"/>
+            <Border Padding="2"  Grid.Row="0">
+                <UserCtrl:Uc_Status/>
+            </Border>
+            <Border Padding="2" Grid.Row="2">
+                <UserCtrl:Uc_Log HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             </Border>
                 
         </Grid>
@@ -81,6 +84,8 @@
         BusyContent="검사를 종료하고 있습니다. 서버 연결 상태에 따라 시간이 소요될 수 있습니다."
         IndicatorType="Ring"
         IsBusy="False"
-        Background="#D8FFFFFF" Grid.ColumnSpan="3" VerticalAlignment="Bottom"/>
+        Background="#D8FFFFFF" Grid.ColumnSpan="3" VerticalAlignment="Bottom">
+            <Button Content="TEST BUTTON" FontSize="40" Foreground="White" Click="Button_Click" HorizontalAlignment="Left" Margin="755,340,0,0" VerticalAlignment="Top" Height="100" Width="450"/>
+        </busyIndicator:BusyMask>
     </Grid>
 </Window>

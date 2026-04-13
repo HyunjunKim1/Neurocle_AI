@@ -1,4 +1,6 @@
-﻿using MahApps.Metro.Controls;
+﻿using ControlzEx.Behaviors;
+using HDSInspector_AI.Class.GlobalFunctions;
+using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +23,17 @@ namespace HDSInspector_AI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly GlobalFunction GLB = GlobalFunction.GLB;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            GLB.ImgProc.ImageMerge("D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_R.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_G.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_B.bmp");
+            //GLB.ImgProc.ExtractUnits("D:\\ftp\\Images\\Detection_AI\\SourceImages\\Merged.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\Unit.bmp");
         }
     }
 }
