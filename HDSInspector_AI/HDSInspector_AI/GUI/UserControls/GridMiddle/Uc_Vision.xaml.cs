@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HDSInspector_AI.GUI.UserControls
+namespace HDSInspector_AI.GUI.UserControls.GridMiddle
 {
     /// <summary>
-    /// Uc_Control.xaml에 대한 상호 작용 논리
+    /// Uc_Vision.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class Uc_Control : UserControl
+    public partial class Uc_Vision : UserControl
     {
-        public Uc_Control()
+        public Uc_Vision()
         {
             InitializeComponent();
         }

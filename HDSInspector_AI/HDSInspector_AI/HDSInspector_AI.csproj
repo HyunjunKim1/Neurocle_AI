@@ -91,20 +91,32 @@
     <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
     <Compile Include="Class\GlobalFunctions\ImageProcessing.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
-    <Compile Include="GUI\UserControls\SubUc_StatusCtrl.xaml.cs">
+    <Compile Include="GUI\UserControls\GridLeft\SubUc_StatusCtrl.xaml.cs">
       <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Uc_Control.xaml.cs">
+    <Compile Include="GUI\UserControls\GridRight\Uc_Control.xaml.cs">
       <DependentUpon>Uc_Control.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Uc_Log.xaml.cs">
+    <Compile Include="GUI\UserControls\GridLeft\Uc_HW.xaml.cs">
+      <DependentUpon>Uc_HW.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\GridLeft\Uc_Log.xaml.cs">
       <DependentUpon>Uc_Log.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Uc_Status.xaml.cs">
+    <Compile Include="GUI\UserControls\GridLeft\Uc_Status.xaml.cs">
       <DependentUpon>Uc_Status.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Uc_Vision.xaml.cs">
+    <Compile Include="GUI\UserControls\GridMiddle\Uc_Vision.xaml.cs">
       <DependentUpon>Uc_Vision.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\GridRight\Uc_DefectCount.xaml.cs">
+      <DependentUpon>Uc_DefectCount.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\GridRight\Uc_DefectMap.xaml.cs">
+      <DependentUpon>Uc_DefectMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Windows\ImageReivewWindow.xaml.cs">
+      <DependentUpon>ImageReivewWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\Windows\Popup\WarningMessageBox.xaml.cs">
       <DependentUpon>WarningMessageBox.xaml</DependentUpon>
@@ -112,23 +124,39 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="GUI\UserControls\SubUc_StatusCtrl.xaml">
+    <Page Include="GUI\UserControls\GridLeft\SubUc_StatusCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Uc_Control.xaml">
+    <Page Include="GUI\UserControls\GridRight\Uc_Control.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Uc_Log.xaml">
+    <Page Include="GUI\UserControls\GridLeft\Uc_HW.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Uc_Status.xaml">
+    <Page Include="GUI\UserControls\GridLeft\Uc_Log.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Uc_Vision.xaml">
+    <Page Include="GUI\UserControls\GridLeft\Uc_Status.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\GridMiddle\Uc_Vision.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\GridRight\Uc_DefectCount.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\GridRight\Uc_DefectMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\Windows\ImageReivewWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
