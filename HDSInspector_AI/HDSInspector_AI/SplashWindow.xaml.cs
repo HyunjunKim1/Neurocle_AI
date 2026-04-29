@@ -1,5 +1,9 @@
 ﻿using Common;
 using HDSInspector_AI.Class.GlobalFunctions;
+using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
+using HDSInspector_AI.GUI.UserControls.Main.GridMiddle;
+using HDSInspector_AI.GUI.UserControls.Main.GridRight;
+using HDSInspector_AI.GUI.Windows;
 using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
@@ -219,6 +223,32 @@ namespace HDSInspector_AI
                                 Logging($@"Failed hardware connections.. - {ex.Message}", SeverityLevel.ERROR);
                             }
                         }
+                        break;
+
+                    case 90:
+                        // Initialize Classes
+                        GLB.Windows     = new Class.Manager.WindowManager();
+                        GLB.Sequence    = new Class.Manager.SequenceManager();
+
+                        // Initialize Windows & UserControls
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            GLB.Windows.Review  = GLB.Windows.CreateWindows<ImageReviewWindow>();
+
+                            // Grid Left uc
+                            GLB.Windows.HW      = GLB.Windows.CreateUserControl<Uc_HW>();
+                            GLB.Windows.Log     = GLB.Windows.CreateUserControl<Uc_Log>();
+                            GLB.Windows.Status  = GLB.Windows.CreateUserControl<Uc_Status>();
+
+                            // Grid Middle uc
+                            GLB.Windows.Vision  = GLB.Windows.CreateUserControl<Uc_Vision>();
+
+                            // Grid Right uc
+                            GLB.Windows.Control = GLB.Windows.CreateUserControl<Uc_Control>();
+                            GLB.Windows.DefectCount = GLB.Windows.CreateUserControl<Uc_DefectCount>();
+                            GLB.Windows.DefectMap = GLB.Windows.CreateUserControl<Uc_DefectMap>();
+
+                        });
                         break;
 
                     case 100:

@@ -34,6 +34,8 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         #region Global Member variables
 
+        public string StartupPath = Directory.GetCurrentDirectory();
+
         DateTime m_StartTime;
         TimeSpan m_RunTime;
         DateTime m_NowTime;
@@ -77,9 +79,10 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public devServerMain    Server      { get; set; }
 
         // Class Manager
-        public SequenceManager  SequenceManager { get; set; }
-        public CameraManager    CameraManager   { get; set; }
-        public UIManager        UIManager       { get; set; }
+        public SequenceManager  Sequence { get; set; }
+        public CameraManager    Cameras   { get; set; }
+        public UIManager        UIs      { get; set; }
+        public WindowManager    Windows  { get; set; }
         #endregion
 
         public GlobalFunction()
