@@ -97,6 +97,12 @@
     <Compile Include="Class\Interface\IWindowService.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
+    <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
+      <DependentUpon>Uc_Histogram.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\ImageReivew\Uc_LineProfile.xaml.cs">
+      <DependentUpon>Uc_LineProfile.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GUI\UserControls\Main\GridLeft\SubUc_StatusCtrl.xaml.cs">
       <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
     </Compile>
@@ -130,6 +136,14 @@
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\ImageReivew\Uc_LineProfile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="GUI\UserControls\Main\GridLeft\SubUc_StatusCtrl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

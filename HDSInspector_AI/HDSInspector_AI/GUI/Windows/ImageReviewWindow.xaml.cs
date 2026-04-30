@@ -141,6 +141,7 @@ namespace HDSInspector_AI.GUI.Windows
             this.cvsCross.MouseEnter += CrossCanvas_MouseEnter;
             this.cvsCross.MouseLeave += CrossCanvas_MouseLeave;
         }
+
         public void ToolChange(ToolType newTool)
         {
             if (BasedCanvas == null) return;
@@ -349,13 +350,31 @@ namespace HDSInspector_AI.GUI.Windows
                 BasedCanvas.Height = BasedImage.Height = aBitmapSource.PixelHeight;
                 BasedImage.Source = aBitmapSource;
                 CalculateZoomToFitScale();
+                LineProfileCtrl.SetLineProfileSource(BaseImageSource); 
+                LineProfileCtrl.Refresh();
             }
             else
             {
+                
                 BasedCanvas.Width = BasedImage.Width = 0;
                 BasedCanvas.Height = BasedImage.Height = 0;
                 BasedImage.Source = null;
             }
+
+            BasedCanvas.GraphicsList.Clear();
+            BasedCanvas.SelectedGraphic = null;
+            SetScrollViewerToHome();
+
+            pnlInner.Children.Clear();
+            pnlInner.Children.Add(BasedImage);
+            pnlInner.Children.Add(BasedCanvas);
+
+            ToolChange(ToolType.Pointer);
+        }
+        public void SetScrollViewerToHome()
+        {
+            svTeaching.ScrollToHorizontalOffset(0.0);
+            svTeaching.ScrollToVerticalOffset(0.0);
         }
 
         public void Binarization()

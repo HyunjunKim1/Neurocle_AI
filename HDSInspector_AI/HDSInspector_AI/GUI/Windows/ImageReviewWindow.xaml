@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HDSInspector_AI.GUI.Windows"
         xmlns:common="clr-namespace:Common;assembly=Common"
+        xmlns:myCtrl="clr-namespace:HDSInspector_AI.GUI.UserControls.ImageReivew"
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -369,6 +370,95 @@
                 </Grid>
             </Border>
         </Border>
+        <Grid Grid.Row="1" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="300"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
+                </Border.Effect>
+                <Border Padding="2.2">
+                    <Grid>
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                                <GradientStop Color="#242121" Offset="0.0"/>
+                                <GradientStop Color="#2A252E" Offset="0.35"/>
+                                <GradientStop Color="#2D2B34" Offset="0.5"/>
+                                <GradientStop Color="#262A2F" Offset="0.7"/>
+                                <GradientStop Color="#1F1E22" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </Border>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
+                </Border.Effect>
+                <Border Padding="2.2">
+                    <Grid>
+                        <Grid.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                                <GradientStop Color="#242121" Offset="0.0"/>
+                                <GradientStop Color="#2A252E" Offset="0.35"/>
+                                <GradientStop Color="#2D2B34" Offset="0.5"/>
+                                <GradientStop Color="#262A2F" Offset="0.7"/>
+                                <GradientStop Color="#1F1E22" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border BorderBrush="#FF919191" CornerRadius="6,6,0,0" Grid.Row="0">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#4A4A5A" Offset="0.0"/>
+                                    <!-- 밝은 회갈색 계열 -->
+                                    <GradientStop Color="#3A3A4A" Offset="0.5"/>
+                                    <GradientStop Color="#2E2E3E" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="12" FontFamily="Arial" FontWeight="Bold" Width="80" VerticalAlignment="Center" Foreground="GhostWhite" Margin="15, 0, 0, 0">ROI Histogram</TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Background="White" BorderBrush="Silver" BorderThickness="1, 1, 0, 1">
+                            <myCtrl:Uc_Histogram x:Name="HistogramCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top"/>
+                        </Border>
+                        <Border BorderBrush="#FF919191" CornerRadius="6,6,0,0" Grid.Row="0" Grid.Column="2">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                    <GradientStop Color="#4A4A5A" Offset="0.0"/>
+                                    <!-- 밝은 회갈색 계열 -->
+                                    <GradientStop Color="#3A3A4A" Offset="0.5"/>
+                                    <GradientStop Color="#2E2E3E" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontSize="12" FontFamily="Arial" FontWeight="Bold" Width="80" VerticalAlignment="Center" Foreground="GhostWhite" Margin="15, 0, 0, 0">Line Profile</TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="2" Background="White" BorderBrush="Silver" BorderThickness="1, 1, 0, 1">
+                            <myCtrl:Uc_LineProfile x:Name="LineProfileCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Border>
+        </Grid>
         
         <!-- 우측 -->
         <Border Grid.Row="0" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
