@@ -10,7 +10,7 @@
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="ImageReivewWindow" Height="980" Width="1300">
+        Title="ImageReivewWindow" Height="980" Width="1300" x:Name="ReviewWindow">
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
     </Window.Background>
@@ -373,7 +373,7 @@
         <Grid Grid.Row="1" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="300"/>
+                <RowDefinition Height="240"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Grid.Column="0" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
                 <Border.Effect>
@@ -437,7 +437,7 @@
                             </StackPanel>
                         </Border>
                         <Border Grid.Row="1" Background="White" BorderBrush="Silver" BorderThickness="1, 1, 0, 1">
-                            <myCtrl:Uc_Histogram x:Name="HistogramCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top"/>
+                            <myCtrl:Uc_Histogram x:Name="HistogramCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top" Margin="0, 0, 10, 0" Height="200"/>
                         </Border>
                         <Border BorderBrush="#FF919191" CornerRadius="6,6,0,0" Grid.Row="0" Grid.Column="2">
                             <Border.Background>
@@ -453,7 +453,7 @@
                             </StackPanel>
                         </Border>
                         <Border Grid.Row="1" Grid.Column="2" Background="White" BorderBrush="Silver" BorderThickness="1, 1, 0, 1">
-                            <myCtrl:Uc_LineProfile x:Name="LineProfileCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top"/>
+                            <myCtrl:Uc_LineProfile x:Name="LineProfileCtrl" HorizontalContentAlignment="Stretch" VerticalAlignment="Top" Margin="0, 0, 10, 0" Height="200"/>
                         </Border>
                     </Grid>
                 </Border>

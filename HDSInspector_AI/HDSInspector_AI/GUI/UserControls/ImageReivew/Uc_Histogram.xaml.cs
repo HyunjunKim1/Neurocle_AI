@@ -19,6 +19,16 @@ using System.Windows.Shapes;
 
 namespace HDSInspector_AI.GUI.UserControls.ImageReivew
 {
+    public struct Histogram_struct
+    {
+        public long[] Pixel_Datas { get; set; }
+
+        public System.Windows.Point[] Point_Datas { get; set; }
+
+        public System.Windows.Shapes.Path Path_Data { get; set; }
+
+    }
+
     /// <summary>
     /// Uc_Histogram.xaml에 대한 상호 작용 논리
     /// </summary>
@@ -36,12 +46,40 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
         private Line m_DivideLeft = new Line();
         private Line m_DivideRight = new Line();
         private Rectangle m_DivideMiddle = new Rectangle();
+        #region Mono Member variables.
+        public Histogram_struct Mono_Histogram = new Histogram_struct();
+        public Histogram_struct Mono_Ref_Histogram = new Histogram_struct();
+
+        public long[] Mono_Histogram_All_Pixel = new long[256]; // [0~255]
+        public long[] Mono_Ref_All_Pixel = new long[256];       // [0~255]    
+        #endregion
+
+
+        #region Color Member variables.
+        public Histogram_struct[] Color_Histogram = new Histogram_struct[3];
+        public Histogram_struct[] Color_Ref_Histogram = new Histogram_struct[3];
+
+        public long[,] Color_Histogram_All_Pixel = new long[3, 256]; // [RGB, 0~255]
+        public long[,] Color_Ref_All_Pixel = new long[3, 256];       // [RGB, 0~255]
+
+
+
+        public int R = 0;
+        public int G = 1;
+        public int B = 2;
+
+        public int RGB = 3;
+        #endregion
+
 
         #region Member variables.
-        private long[] m_HistogramData = new long[256];
-        private long[] m_RefData = new long[256];
-        private Point[] m_ptHistogramData = new Point[256];
-        private Point[] m_ptRefData = new Point[256];
+        //private long[] m_HistogramData = new long[256];
+        //private long[] m_RefData = new long[256];
+        //private Point[] m_ptHistogramData = new Point[256];
+        //private Point[] m_ptRefData = new Point[256];
+
+        //private static Path m_HistogramPath = new Path();
+        //private static Path m_RefPath = new Path();
 
         private double m_fIntervalX = 0.0;
         private double m_fIntervalY = 0.0;
@@ -49,11 +87,7 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
         private double m_fMarginX = 30.0;
         private static readonly double m_fMarginY = 20.0;
         private static readonly double m_XMarginOffset = 2.0;
-
-        private static Path m_HistogramPath = new Path();
-        private static Path m_RefPath = new Path();
         #endregion
-
         #region Constructor & InitializeDialog
         public Uc_Histogram()
         {
@@ -64,7 +98,7 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
         private void InitializeEvent()
         {
             // SelectedGraphic 변화 시점.
-            DrawingCanvas.SelectedGraphicChangeEvent += DrawingCanvas_SelectedGraphicChangeEvent;
+            //DrawingCanvas.SelectedGraphicChangeEvent += DrawingCanvas_SelectedGraphicChangeEvent;
 
             this.SizeChanged += (s, e) =>
             {
@@ -74,6 +108,29 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
 
         private void InitializeDialog()
         {
+            Mono_Histogram.Pixel_Datas = new long[256];
+            Mono_Histogram.Point_Datas = new System.Windows.Point[256];
+            Mono_Histogram.Path_Data = new System.Windows.Shapes.Path();
+
+            Mono_Ref_Histogram.Pixel_Datas = new long[256];
+            Mono_Ref_Histogram.Point_Datas = new System.Windows.Point[256];
+            Mono_Ref_Histogram.Path_Data = new System.Windows.Shapes.Path();
+
+            for (int color = 0; color < RGB; color++)
+            {
+                Color_Histogram[color].Pixel_Datas = new long[256];
+                Color_Histogram[color].Point_Datas = new System.Windows.Point[256];
+                Color_Histogram[color].Path_Data = new System.Windows.Shapes.Path();
+            }
+
+            for (int color = 0; color < RGB; color++)
+            {
+                Color_Ref_Histogram[color].Pixel_Datas = new long[256];
+                Color_Ref_Histogram[color].Point_Datas = new System.Windows.Point[256];
+                Color_Ref_Histogram[color].Path_Data = new System.Windows.Shapes.Path();
+            }
+
+
             m_DivideSingle.StrokeThickness = 1;
             m_DivideSingle.Stroke = new SolidColorBrush(Colors.Red);
 
@@ -139,7 +196,7 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             DotLine.Y2 = m_fMarginY;
             DotLine.StrokeThickness = 2;
             DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
-            DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
+            DotLine.Stroke = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
             Histogram.Children.Add(DotLine);
 
             // Draw axis lines.
@@ -174,19 +231,31 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             InitializeDialog();
         }
 
-        public void SetRefImage(BitmapSource refImage)
+        public void Histogram_Calculate(BitmapSource ref_Image, BitmapSource histogram_Image)
         {
-            m_RefData = BitmapSourceHelper.CalculateHistogramData(refImage);
-        }
-
-        public void ImageChanged(BitmapSource refImage, BitmapSource currImage)
-        {
-            m_RefData = BitmapSourceHelper.CalculateHistogramData(refImage);
-
             try
             {
-                DrawHistogram2(BitmapSourceHelper.CalculateHistogramData(currImage));
+                if (ref_Image != null)
+                {
+                    if (ref_Image.Format.BitsPerPixel == 24) Color_Ref_All_Pixel = BitmapSourceHelper.Color_CalculateHistogramData(ref_Image);
+                    if (ref_Image.Format.BitsPerPixel == 8) Mono_Ref_All_Pixel = BitmapSourceHelper.Mono_CalculateHistogramData(ref_Image);
+                }
+                else
+                {
+                    Color_Ref_All_Pixel = new long[3, 256];
+                    Mono_Ref_All_Pixel = new long[256];
+                }
 
+                if (histogram_Image != null)
+                {
+                    if (histogram_Image.Format.BitsPerPixel == 24) Color_Histogram_All_Pixel = BitmapSourceHelper.Color_CalculateHistogramData(histogram_Image);
+                    if (histogram_Image.Format.BitsPerPixel == 8) Mono_Histogram_All_Pixel = BitmapSourceHelper.Mono_CalculateHistogramData(histogram_Image);
+                }
+                else
+                {
+                    Color_Histogram_All_Pixel = new long[3, 256];
+                    Mono_Histogram_All_Pixel = new long[256];
+                }
             }
             catch
             {
@@ -194,53 +263,51 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             }
         }
 
-        // Redraws histogram.
-        private void DrawingCanvas_SelectedGraphicChangeEvent(GraphicsBase newGraphic)
+        public void ImageChanged(ChannelType channel)
         {
-            BitmapSource teachingImage = GLB.Windows.Review.BaseImageSource;
-            if (teachingImage == null || newGraphic == null)
-            {
-                return;
-            }
-
             try
             {
-                CroppedBitmap croppedBitmap; // Histogram 수행 단위.
-                int nWidth;
-                int nHeight;
+                Histogram.Children.Clear();
 
-                if (newGraphic is GraphicsRectangleBase)
+                if (GLB.Windows.Review.chkBinarization.IsChecked == true)
                 {
-                    GraphicsRectangleBase graphic = newGraphic as GraphicsRectangleBase;
-                    nWidth = Convert.ToInt32(graphic.WidthProperty);
-                    nHeight = Convert.ToInt32(graphic.HeightProperty);
-
-                    if (nWidth < 1 || nHeight < 1)
+                    if (GLB.Windows.Review.radSingleThreshold.IsChecked == true)
                     {
-                        return;
+                        if (!Histogram.Children.Contains(m_DivideSingle))
+                        {
+                            this.Histogram.Children.Add(m_DivideSingle);
+                        }
                     }
-
-                    croppedBitmap = new CroppedBitmap(teachingImage, new Int32Rect(graphic.LeftProperty, graphic.TopProperty, nWidth, nHeight));
-                    DrawHistogram(BitmapSourceHelper.CalculateHistogramData(croppedBitmap));
+                    else
+                    {
+                        if (!Histogram.Children.Contains(m_DivideLeft))
+                        {
+                            this.Histogram.Children.Add(m_DivideLeft);
+                            this.Histogram.Children.Add(m_DivideRight);
+                            this.Histogram.Children.Add(m_DivideMiddle);
+                        }
+                    }
                 }
-                else if (newGraphic is GraphicsPolyLine)
+
+                if (channel == ChannelType.Mono)
                 {
-                    GraphicsPolyLine graphic = newGraphic as GraphicsPolyLine;
-                    nWidth = Convert.ToInt32(graphic.WidthProperty);
-                    nHeight = Convert.ToInt32(graphic.HeightProperty);
+                    Mono_Histogram.Pixel_Datas = (long[])Mono_Histogram_All_Pixel.Clone();
+                    Mono_Ref_Histogram.Pixel_Datas = (long[])Mono_Ref_All_Pixel.Clone();
 
-                    if (nWidth < 1 || nHeight < 1)
-                    {
-                        return;
-                    }
-
-                    croppedBitmap = new CroppedBitmap(teachingImage, new Int32Rect(graphic.LeftProperty, graphic.TopProperty, nWidth, nHeight));
-                    DrawHistogram(BitmapSourceHelper.CalculateHistogramData(croppedBitmap));
+                    Mono_DrawHistogram(Mono_Ref_All_Pixel, Mono_Histogram_All_Pixel);
                 }
-                //else // newGraphic is GraphicsLine
-                //{
-                //    DrawHistogram(new byte[256]);
-                //}
+                else
+                {
+                    Color_Histogram[R].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Histogram_All_Pixel[R, i]).ToArray();
+                    Color_Histogram[G].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Histogram_All_Pixel[G, i]).ToArray();
+                    Color_Histogram[B].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Histogram_All_Pixel[B, i]).ToArray();
+
+                    Color_Ref_Histogram[R].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Ref_All_Pixel[R, i]).ToArray();
+                    Color_Ref_Histogram[G].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Ref_All_Pixel[G, i]).ToArray();
+                    Color_Ref_Histogram[B].Pixel_Datas = Enumerable.Range(0, 256).Select(i => Color_Ref_All_Pixel[B, i]).ToArray();
+
+                    Color_DrawHistogram(Color_Ref_All_Pixel, Color_Histogram_All_Pixel, channel);
+                }
             }
             catch
             {
@@ -248,40 +315,77 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             }
         }
 
-        public void DrawHistogram(byte[] pixelData)
+        public void Color_DrawHistogram(long[,] Ref_Data, long[,] Histogram_Data, ChannelType channel)
         {
-            if (pixelData == null)
-            {
-                return;
-            }
 
-            this.Histogram.Children.Clear();
-            if (GLB.Windows.Review.chkBinarization.IsChecked == true)
+            long max = new long();
+
+            long[] Ref_R_Data = new long[256];
+            long[] Ref_G_Data = new long[256];
+            long[] Ref_B_Data = new long[256];
+
+            long[] Histogram_R_Data = new long[256];
+            long[] Histogram_G_Data = new long[256];
+            long[] Histogram_B_Data = new long[256];
+
+            if (Histogram_Data == null && Ref_R_Data == null) return;
+
+            if (Histogram_Data != null)
             {
-                if (GLB.Windows.Review.radSingleThreshold.IsChecked == true)
+                for (int i = 0; i < 256; i++)
                 {
-                    if (!Histogram.Children.Contains(m_DivideSingle))
-                    {
-                        this.Histogram.Children.Add(m_DivideSingle);
-                    }
-                }
-                else
-                {
-                    if (!Histogram.Children.Contains(m_DivideLeft))
-                    {
-                        this.Histogram.Children.Add(m_DivideLeft);
-                        this.Histogram.Children.Add(m_DivideRight);
-                        this.Histogram.Children.Add(m_DivideMiddle);
-                    }
+                    Histogram_R_Data[i] = Histogram_Data[R, i];
+                    Histogram_G_Data[i] = Histogram_Data[G, i];
+                    Histogram_B_Data[i] = Histogram_Data[B, i];
                 }
             }
 
-            foreach (byte data in pixelData)
-            {
-                m_HistogramData[data]++;
-            }
-            long lMaxValue = m_HistogramData.Max();
 
+            if (Ref_Data != null)
+            {
+                for (int i = 0; i < 256; i++)
+                {
+                    Ref_R_Data[i] = Ref_Data[R, i];
+                    Ref_G_Data[i] = Ref_Data[G, i];
+                    Ref_B_Data[i] = Ref_Data[B, i];
+                }
+            }
+
+
+            long histo_max = 0;
+            long ref_max = 0;
+
+            if (Histogram_Data != null && Ref_R_Data != null)
+            {
+                histo_max = (Histogram_R_Data.Max() > Histogram_G_Data.Max()) ? Histogram_R_Data.Max() : Histogram_G_Data.Max();
+                histo_max = (Histogram_B_Data.Max() > histo_max) ? Histogram_B_Data.Max() : histo_max;
+
+                ref_max = (Ref_R_Data.Max() > Ref_G_Data.Max()) ? Ref_R_Data.Max() : Ref_G_Data.Max();
+                ref_max = (Ref_B_Data.Max() > ref_max) ? Ref_B_Data.Max() : ref_max;
+
+
+                max = (histo_max >= ref_max) ? histo_max : ref_max;
+
+            }
+            else if (Histogram_Data != null && Ref_R_Data == null)
+            {
+                histo_max = (Histogram_R_Data.Max() > Histogram_G_Data.Max()) ? Histogram_R_Data.Max() : Histogram_G_Data.Max();
+                histo_max = (Histogram_B_Data.Max() > histo_max) ? Histogram_B_Data.Max() : histo_max;
+                max = histo_max;
+            }
+            else if (Histogram_Data == null && Ref_R_Data != null)
+            {
+                ref_max = (Ref_R_Data.Max() > Ref_G_Data.Max()) ? Ref_R_Data.Max() : Ref_G_Data.Max();
+                ref_max = (Ref_B_Data.Max() > ref_max) ? Ref_B_Data.Max() : ref_max;
+                max = ref_max;
+            }
+            else
+            {
+                max = 0;
+            }
+
+
+            long lMaxValue = max;
             // Y축 점선 간격 & 점선 갯수 정하기
             int nIndex = 0;
             int nRemain = 0;
@@ -316,59 +420,145 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             m_fMarginX = m_XMarginOffset + nPlusOffset * 0.6; // 자리수에 따라 offset * 0.6만큼 Y축 밀기
             m_fIntervalX = 1.0 / 257.0 * (CONTROL_WIDTH - (m_fMarginX + 2) * 10);
             m_fIntervalY = 1.0 / nMaxHeight * (CONTROL_HEIGHT - m_fMarginY);
+
+
             for (nIndex = 0; nIndex < 256; nIndex++)
             {
-                m_ptHistogramData[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
-                m_ptHistogramData[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - m_HistogramData[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Color_Histogram[R].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Histogram[R].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Histogram_R_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Color_Histogram[G].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Histogram[G].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Histogram_G_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Color_Histogram[B].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Histogram[B].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Histogram_B_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+
+
+                Color_Ref_Histogram[R].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Ref_Histogram[R].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Ref_R_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Color_Ref_Histogram[G].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Ref_Histogram[G].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Ref_G_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Color_Ref_Histogram[B].Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Color_Ref_Histogram[B].Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Ref_B_Data[nIndex] * m_fIntervalY - m_fMarginY);
             }
+
 
             #region Draw Lines & Texts.
             // Draw X-axis labels.
-            TextBlock Label = new TextBlock();
-            Label.Text = "0";
-            Canvas.SetLeft(Label, m_ptHistogramData[0].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
 
-            Label = new TextBlock();
-            Label.Text = "100";
-            Canvas.SetLeft(Label, m_ptHistogramData[92].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "200";
-            Canvas.SetLeft(Label, m_ptHistogramData[192].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "255";
-            Canvas.SetLeft(Label, m_ptHistogramData[246].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            // Draw Y-axis label & dotted lines.
-            for (int i = 0; i < nDottedLineCnt; i++)
+            if (Histogram_Data != null)
             {
-                Line DotLine = new Line();
-                DotLine.X1 = m_fMarginX * 10 - 1;
-                DotLine.X2 = CONTROL_WIDTH - 1;
-                DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.StrokeThickness = 2;
-                DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
-                DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
-                this.Histogram.Children.Add(DotLine);
+                TextBlock Label = new TextBlock();
+                Label.Text = "0";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Histogram[R].Point_Datas[0].X - 3);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
 
-                if (i != 0)
+                Label = new TextBlock();
+                Label.Text = "100";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Histogram[R].Point_Datas[92].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "200";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Histogram[R].Point_Datas[192].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "255";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Histogram[R].Point_Datas[246].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                //Draw Y-axis label & dotted lines.
+                for (int i = 0; i < nDottedLineCnt; i++)
                 {
-                    Label = new TextBlock();
-                    Label.Text = (nDottedLineGap * i).ToString();
-                    Canvas.SetLeft(Label, 5);
-                    Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
-                    this.Histogram.Children.Add(Label);
+                    Line DotLine = new Line();
+                    DotLine.X1 = m_fMarginX * 10 - 1;
+                    DotLine.X2 = CONTROL_WIDTH - 1;
+                    DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.StrokeThickness = 2;
+                    DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
+                    //DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
+                    this.Histogram.Children.Add(DotLine);
+
+                    if (i != 0)
+                    {
+                        Label = new TextBlock();
+                        Label.Text = (nDottedLineGap * i).ToString();
+                        Label.Foreground = new SolidColorBrush(Colors.White);
+                        Canvas.SetLeft(Label, 5);
+                        Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
+                        this.Histogram.Children.Add(Label);
+                    }
                 }
+
+            }
+            else
+            {
+                TextBlock Label = new TextBlock();
+                Label.Text = "0";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Ref_Histogram[R].Point_Datas[0].X - 3);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "100";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Ref_Histogram[R].Point_Datas[92].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "200";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Ref_Histogram[R].Point_Datas[192].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "255";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Color_Ref_Histogram[R].Point_Datas[246].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                //Draw Y-axis label & dotted lines.
+                for (int i = 0; i < nDottedLineCnt; i++)
+                {
+                    Line DotLine = new Line();
+                    DotLine.X1 = m_fMarginX * 10 - 1;
+                    DotLine.X2 = CONTROL_WIDTH - 1;
+                    DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.StrokeThickness = 2;
+                    DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
+                    // DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
+                    this.Histogram.Children.Add(DotLine);
+
+                    if (i != 0)
+                    {
+                        Label = new TextBlock();
+                        Label.Text = (nDottedLineGap * i).ToString();
+                        Label.Foreground = new SolidColorBrush(Colors.White);
+                        Canvas.SetLeft(Label, 5);
+                        Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
+                        this.Histogram.Children.Add(Label);
+                    }
+                }
+
             }
 
             // Draw axis lines.
@@ -378,7 +568,7 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             AxisX.Y1 = CONTROL_HEIGHT - m_fMarginY;
             AxisX.Y2 = CONTROL_HEIGHT - m_fMarginY;
             AxisX.StrokeThickness = 2;
-            AxisX.Stroke = new SolidColorBrush(Colors.Black);
+            AxisX.Stroke = new SolidColorBrush(Colors.White);
             this.Histogram.Children.Add(AxisX);
 
             Line AxisY = new Line();
@@ -387,401 +577,398 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
             AxisY.Y1 = m_fMarginY;
             AxisY.Y2 = CONTROL_HEIGHT - m_fMarginY;
             AxisY.StrokeThickness = 2;
-            AxisY.Stroke = new SolidColorBrush(Colors.Black);
+            AxisY.Stroke = new SolidColorBrush(Colors.White);
             this.Histogram.Children.Add(AxisY);
             #endregion
 
             #region Draw histogram.
-            StreamGeometry historgamGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = historgamGeometry.Open())
-            {
-                ctx.BeginFigure(new Point(m_ptHistogramData[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
-                for (int k = 0; k < m_HistogramData.Length; k++)
-                {
-                    ctx.LineTo(m_ptHistogramData[k], true, true);
-                }
-                ctx.LineTo(new Point(m_ptHistogramData[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
-            }
-            historgamGeometry.Freeze();
+            StreamGeometry R_historgamGeometry = new StreamGeometry();
+            StreamGeometry G_historgamGeometry = new StreamGeometry();
+            StreamGeometry B_historgamGeometry = new StreamGeometry();
 
-            m_HistogramPath.Data = historgamGeometry;
-            m_HistogramPath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
-            m_HistogramPath.StrokeThickness = m_fIntervalX / 2;
-            this.Histogram.Children.Add(m_HistogramPath);
-            #endregion
-            #region Draw Reference histogram.
-            StreamGeometry RefGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = RefGeometry.Open())
+            using (StreamGeometryContext ctx = R_historgamGeometry.Open())
             {
-                ctx.BeginFigure(new Point(m_ptHistogramData[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.BeginFigure(new System.Windows.Point(Color_Histogram[R].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
                 for (int k = 0; k < 256; k++)
                 {
-                    ctx.LineTo(m_ptHistogramData[k], true, true);
+                    ctx.LineTo(Color_Histogram[R].Point_Datas[k], true, true);
                 }
-                ctx.LineTo(new Point(m_ptHistogramData[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.LineTo(new System.Windows.Point(Color_Histogram[R].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
             }
-            RefGeometry.Freeze();
+            R_historgamGeometry.Freeze();
 
-            m_RefPath.Data = RefGeometry;
-            //m_HistogramPath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
-            m_RefPath.Stroke = new SolidColorBrush(Colors.Red);
-            m_RefPath.StrokeThickness = m_fIntervalX;
-            this.Histogram.Children.Add(m_RefPath);
-            #endregion
-        }
-
-        public void DrawHistogram(long[] pixelData)
-        {
-            if (pixelData == null)
+            using (StreamGeometryContext ctx = G_historgamGeometry.Open())
             {
-                return;
-            }
-
-            this.Histogram.Children.Clear();
-            if (GLB.Windows.Review.chkBinarization.IsChecked == true)
-            {
-                if (GLB.Windows.Review.radSingleThreshold.IsChecked == true)
-                {
-                    if (!Histogram.Children.Contains(m_DivideSingle))
-                    {
-                        this.Histogram.Children.Add(m_DivideSingle);
-                    }
-                }
-                else
-                {
-                    if (!Histogram.Children.Contains(m_DivideLeft))
-                    {
-                        this.Histogram.Children.Add(m_DivideLeft);
-                        this.Histogram.Children.Add(m_DivideRight);
-                        this.Histogram.Children.Add(m_DivideMiddle);
-                    }
-                }
-            }
-
-            long lMaxValue = pixelData.Max();
-            //long lMaxValue = m_RefData.Max();
-            // Y축 점선 간격 & 점선 갯수 정하기
-            int nIndex = 0;
-            int nRemain = 0;
-            int nShare = 10;
-            do
-            {
-                nIndex++;
-                nRemain = (int)lMaxValue / (nShare * nIndex);
-
-                if (nRemain > 100)
-                {
-                    nShare *= 10;
-                }
-            }
-            while (nRemain > 10);
-            int nDottedLineCnt = ++nRemain;
-            int nDottedLineGap = nIndex * nShare;
-            int nMaxHeight = nDottedLineCnt * nDottedLineGap;
-
-            // Y축 Value-Text 길이에 따른 Left-offset값 설정
-            int nOffset = 0;
-            int nDivideValue = 1;
-            int nPlusOffset = 0;
-            do
-            {
-                nDivideValue *= 10;
-                nPlusOffset++;
-                nOffset = (int)lMaxValue / nDivideValue;
-            }
-            while (nOffset != 0);
-
-            m_fMarginX = m_XMarginOffset + nPlusOffset * 0.6; // 자리수에 따라 offset * 0.6만큼 Y축 밀기
-            m_fIntervalX = 1.0 / 257.0 * (CONTROL_WIDTH - (m_fMarginX + 2) * 10);
-            m_fIntervalY = 1.0 / nMaxHeight * (CONTROL_HEIGHT - m_fMarginY);
-            for (nIndex = 0; nIndex < 256; nIndex++)
-            {
-                m_ptHistogramData[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
-                m_ptHistogramData[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - pixelData[nIndex] * m_fIntervalY - m_fMarginY);
-            }
-
-            #region Draw Lines & Texts.
-            // Draw X-axis labels.
-            TextBlock Label = new TextBlock();
-            Label.Text = "0";
-            Canvas.SetLeft(Label, m_ptHistogramData[0].X - 3);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "100";
-            Canvas.SetLeft(Label, m_ptHistogramData[92].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "200";
-            Canvas.SetLeft(Label, m_ptHistogramData[192].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "255";
-            Canvas.SetLeft(Label, m_ptHistogramData[246].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            // Draw Y-axis label & dotted lines.
-            for (int i = 0; i < nDottedLineCnt; i++)
-            {
-                Line DotLine = new Line();
-                DotLine.X1 = m_fMarginX * 10 - 1;
-                DotLine.X2 = CONTROL_WIDTH - 1;
-                DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.StrokeThickness = 2;
-                DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
-                DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
-                this.Histogram.Children.Add(DotLine);
-
-                if (i != 0)
-                {
-                    Label = new TextBlock();
-                    Label.Text = (nDottedLineGap * i).ToString();
-                    Canvas.SetLeft(Label, 5);
-                    Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
-                    this.Histogram.Children.Add(Label);
-                }
-            }
-
-            // Draw axis lines.
-            Line AxisX = new Line();
-            AxisX.X1 = m_fMarginX * 10 - 1;
-            AxisX.X2 = CONTROL_WIDTH - 1;
-            AxisX.Y1 = CONTROL_HEIGHT - m_fMarginY;
-            AxisX.Y2 = CONTROL_HEIGHT - m_fMarginY;
-            AxisX.StrokeThickness = 2;
-            AxisX.Stroke = new SolidColorBrush(Colors.Black);
-            this.Histogram.Children.Add(AxisX);
-
-            Line AxisY = new Line();
-            AxisY.X1 = m_fMarginX * 10 - 1;
-            AxisY.X2 = m_fMarginX * 10 - 1;
-            AxisY.Y1 = m_fMarginY;
-            AxisY.Y2 = CONTROL_HEIGHT - m_fMarginY;
-            AxisY.StrokeThickness = 2;
-            AxisY.Stroke = new SolidColorBrush(Colors.Black);
-            this.Histogram.Children.Add(AxisY);
-            #endregion
-
-            #region Draw histogram.
-            StreamGeometry historgamGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = historgamGeometry.Open())
-            {
-                ctx.BeginFigure(new Point(m_ptHistogramData[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.BeginFigure(new System.Windows.Point(Color_Histogram[G].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
                 for (int k = 0; k < 256; k++)
                 {
-                    ctx.LineTo(m_ptHistogramData[k], true, true);
+                    ctx.LineTo(Color_Histogram[G].Point_Datas[k], true, true);
                 }
-                ctx.LineTo(new Point(m_ptHistogramData[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.LineTo(new System.Windows.Point(Color_Histogram[G].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
             }
-            historgamGeometry.Freeze();
+            G_historgamGeometry.Freeze();
 
-            m_HistogramPath.Data = historgamGeometry;
-            m_HistogramPath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
-            m_HistogramPath.StrokeThickness = m_fIntervalX;
-            this.Histogram.Children.Add(m_HistogramPath);
-            #endregion
-        }
-
-        public void DrawHistogram2(long[] pixelData)
-        {
-            if (pixelData == null)
+            using (StreamGeometryContext ctx = B_historgamGeometry.Open())
             {
-                return;
-            }
-
-            this.Histogram.Children.Clear();
-            if (GLB.Windows.Review.chkBinarization.IsChecked == true)
-            {
-                if (GLB.Windows.Review.radSingleThreshold.IsChecked == true)
-                {
-                    if (!Histogram.Children.Contains(m_DivideSingle))
-                    {
-                        this.Histogram.Children.Add(m_DivideSingle);
-                    }
-                }
-                else
-                {
-                    if (!Histogram.Children.Contains(m_DivideLeft))
-                    {
-                        this.Histogram.Children.Add(m_DivideLeft);
-                        this.Histogram.Children.Add(m_DivideRight);
-                        this.Histogram.Children.Add(m_DivideMiddle);
-                    }
-                }
-            }
-
-            //long lMaxValue = pixelData.Max();
-            long lMaxValue = m_RefData.Max();
-            // Y축 점선 간격 & 점선 갯수 정하기
-            int nIndex = 0;
-            int nRemain = 0;
-            int nShare = 10;
-            do
-            {
-                nIndex++;
-                nRemain = (int)lMaxValue / (nShare * nIndex);
-
-                if (nRemain > 100)
-                {
-                    nShare *= 10;
-                }
-            }
-            while (nRemain > 10);
-            int nDottedLineCnt = ++nRemain;
-            int nDottedLineGap = nIndex * nShare;
-            int nMaxHeight = nDottedLineCnt * nDottedLineGap;
-
-            // Y축 Value-Text 길이에 따른 Left-offset값 설정
-            int nOffset = 0;
-            int nDivideValue = 1;
-            int nPlusOffset = 0;
-            do
-            {
-                nDivideValue *= 10;
-                nPlusOffset++;
-                nOffset = (int)lMaxValue / nDivideValue;
-            }
-            while (nOffset != 0);
-
-            m_fMarginX = m_XMarginOffset + nPlusOffset * 0.6; // 자리수에 따라 offset * 0.6만큼 Y축 밀기
-            m_fIntervalX = 1.0 / 257.0 * (CONTROL_WIDTH - (m_fMarginX + 2) * 10);
-            m_fIntervalY = 1.0 / nMaxHeight * (CONTROL_HEIGHT - m_fMarginY);
-            for (nIndex = 0; nIndex < 256; nIndex++)
-            {
-                m_ptHistogramData[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
-                m_ptHistogramData[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - pixelData[nIndex] * m_fIntervalY - m_fMarginY);
-            }
-
-            for (nIndex = 0; nIndex < 256; nIndex++)
-            {
-                m_ptRefData[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
-                m_ptRefData[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - m_RefData[nIndex] * m_fIntervalY - m_fMarginY);
-            }
-
-            #region Draw Lines & Texts.
-            // Draw X-axis labels.
-            TextBlock Label = new TextBlock();
-            Label.Text = "0";
-            Canvas.SetLeft(Label, m_ptHistogramData[0].X - 3);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "100";
-            Canvas.SetLeft(Label, m_ptHistogramData[92].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "200";
-            Canvas.SetLeft(Label, m_ptHistogramData[192].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            Label = new TextBlock();
-            Label.Text = "255";
-            Canvas.SetLeft(Label, m_ptHistogramData[246].X);
-            Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
-            this.Histogram.Children.Add(Label);
-
-            // Draw Y-axis label & dotted lines.
-            for (int i = 0; i < nDottedLineCnt; i++)
-            {
-                Line DotLine = new Line();
-                DotLine.X1 = m_fMarginX * 10 - 1;
-                DotLine.X2 = CONTROL_WIDTH - 1;
-                DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
-                DotLine.StrokeThickness = 2;
-                DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
-                DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
-                this.Histogram.Children.Add(DotLine);
-
-                if (i != 0)
-                {
-                    Label = new TextBlock();
-                    Label.Text = (nDottedLineGap * i).ToString();
-                    Canvas.SetLeft(Label, 5);
-                    Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
-                    this.Histogram.Children.Add(Label);
-                }
-            }
-
-            // Draw axis lines.
-            Line AxisX = new Line();
-            AxisX.X1 = m_fMarginX * 10 - 1;
-            AxisX.X2 = CONTROL_WIDTH - 1;
-            AxisX.Y1 = CONTROL_HEIGHT - m_fMarginY;
-            AxisX.Y2 = CONTROL_HEIGHT - m_fMarginY;
-            AxisX.StrokeThickness = 2;
-            AxisX.Stroke = new SolidColorBrush(Colors.Black);
-            this.Histogram.Children.Add(AxisX);
-
-            Line AxisY = new Line();
-            AxisY.X1 = m_fMarginX * 10 - 1;
-            AxisY.X2 = m_fMarginX * 10 - 1;
-            AxisY.Y1 = m_fMarginY;
-            AxisY.Y2 = CONTROL_HEIGHT - m_fMarginY;
-            AxisY.StrokeThickness = 2;
-            AxisY.Stroke = new SolidColorBrush(Colors.Black);
-            this.Histogram.Children.Add(AxisY);
-            #endregion
-
-            #region Draw histogram.
-            StreamGeometry historgamGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = historgamGeometry.Open())
-            {
-                ctx.BeginFigure(new Point(m_ptHistogramData[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.BeginFigure(new System.Windows.Point(Color_Histogram[B].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
                 for (int k = 0; k < 256; k++)
                 {
-                    ctx.LineTo(m_ptHistogramData[k], true, true);
+                    ctx.LineTo(Color_Histogram[B].Point_Datas[k], true, true);
                 }
-                ctx.LineTo(new Point(m_ptHistogramData[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.LineTo(new System.Windows.Point(Color_Histogram[B].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
             }
-            historgamGeometry.Freeze();
+            B_historgamGeometry.Freeze();
 
-            m_HistogramPath.Data = historgamGeometry;
-            m_HistogramPath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
-            m_HistogramPath.StrokeThickness = m_fIntervalX;
-            this.Histogram.Children.Add(m_HistogramPath);
+            Color_Histogram[R].Path_Data.Data = R_historgamGeometry;
+            Color_Histogram[R].Path_Data.Fill = new SolidColorBrush(Colors.Red);
+            Color_Histogram[R].Path_Data.Opacity = 0.6;
+
+
+            Color_Histogram[G].Path_Data.Data = G_historgamGeometry;
+            Color_Histogram[G].Path_Data.Fill = new SolidColorBrush(Colors.Green);
+            Color_Histogram[G].Path_Data.Opacity = 0.6;
+
+
+            Color_Histogram[B].Path_Data.Data = B_historgamGeometry;
+            Color_Histogram[B].Path_Data.Fill = new SolidColorBrush(Colors.Blue);
+            Color_Histogram[B].Path_Data.Opacity = 0.6;
+
+            if (channel == ChannelType.Color)
+            {
+                this.Histogram.Children.Add(Color_Histogram[R].Path_Data);
+                this.Histogram.Children.Add(Color_Histogram[G].Path_Data);
+                this.Histogram.Children.Add(Color_Histogram[B].Path_Data);
+            }
+
+            if (channel == ChannelType.RED) this.Histogram.Children.Add(Color_Histogram[R].Path_Data);
+            if (channel == ChannelType.GREEN) this.Histogram.Children.Add(Color_Histogram[G].Path_Data);
+            if (channel == ChannelType.BLUE) this.Histogram.Children.Add(Color_Histogram[B].Path_Data);
+
+
+
             #endregion
 
             #region Draw Reference histogram.
-            StreamGeometry RefGeometry = new StreamGeometry();
-            using (StreamGeometryContext ctx = RefGeometry.Open())
+            StreamGeometry R_RefGeometry = new StreamGeometry();
+            StreamGeometry G_RefGeometry = new StreamGeometry();
+            StreamGeometry B_RefGeometry = new StreamGeometry();
+
+
+            using (StreamGeometryContext ctx = R_RefGeometry.Open())
             {
-                ctx.BeginFigure(new Point(m_ptRefData[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.BeginFigure(new System.Windows.Point(Color_Ref_Histogram[R].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
                 for (int k = 0; k < 256; k++)
                 {
-                    ctx.LineTo(m_ptRefData[k], true, true);
+                    ctx.LineTo(Color_Ref_Histogram[R].Point_Datas[k], true, true);
                 }
-                ctx.LineTo(new Point(m_ptRefData[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                ctx.LineTo(new System.Windows.Point(Color_Ref_Histogram[R].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+            }
+            R_RefGeometry.Freeze();
+
+            using (StreamGeometryContext ctx = G_RefGeometry.Open())
+            {
+                ctx.BeginFigure(new System.Windows.Point(Color_Ref_Histogram[G].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                for (int k = 0; k < 256; k++)
+                {
+                    ctx.LineTo(Color_Ref_Histogram[G].Point_Datas[k], true, true);
+                }
+                ctx.LineTo(new System.Windows.Point(Color_Ref_Histogram[G].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+            }
+            G_RefGeometry.Freeze();
+
+            using (StreamGeometryContext ctx = B_RefGeometry.Open())
+            {
+                ctx.BeginFigure(new System.Windows.Point(Color_Ref_Histogram[B].Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                for (int k = 0; k < 256; k++)
+                {
+                    ctx.LineTo(Color_Ref_Histogram[B].Point_Datas[k], true, true);
+                }
+                ctx.LineTo(new System.Windows.Point(Color_Ref_Histogram[B].Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+            }
+            B_RefGeometry.Freeze();
+
+
+            Color_Ref_Histogram[R].Path_Data.Data = R_RefGeometry;
+            Color_Ref_Histogram[R].Path_Data.Stroke = new SolidColorBrush(Colors.Red);
+            Color_Ref_Histogram[R].Path_Data.StrokeThickness = m_fIntervalX;
+
+
+            Color_Ref_Histogram[G].Path_Data.Data = G_RefGeometry;
+            Color_Ref_Histogram[G].Path_Data.Stroke = new SolidColorBrush(Colors.Green);
+            Color_Ref_Histogram[G].Path_Data.StrokeThickness = m_fIntervalX;
+
+
+            Color_Ref_Histogram[B].Path_Data.Data = B_RefGeometry;
+            Color_Ref_Histogram[B].Path_Data.Stroke = new SolidColorBrush(Colors.Blue);
+            Color_Ref_Histogram[B].Path_Data.StrokeThickness = m_fIntervalX;
+
+
+
+            if (channel == ChannelType.Color)
+            {
+                this.Histogram.Children.Add(Color_Ref_Histogram[R].Path_Data);
+                this.Histogram.Children.Add(Color_Ref_Histogram[G].Path_Data);
+                this.Histogram.Children.Add(Color_Ref_Histogram[B].Path_Data);
+            }
+
+            if (channel == ChannelType.RED) this.Histogram.Children.Add(Color_Ref_Histogram[R].Path_Data);
+            if (channel == ChannelType.GREEN) this.Histogram.Children.Add(Color_Ref_Histogram[G].Path_Data);
+            if (channel == ChannelType.BLUE) this.Histogram.Children.Add(Color_Ref_Histogram[B].Path_Data);
+
+            #endregion
+        }
+
+        public void Mono_DrawHistogram(long[] Ref_Data, long[] Histogram_Data)
+        {
+
+            long lMaxValue = Ref_Data.Max() >= Histogram_Data.Max() ? Ref_Data.Max() : Histogram_Data.Max();
+            // Y축 점선 간격 & 점선 갯수 정하기
+            int nIndex = 0;
+            int nRemain = 0;
+            int nShare = 10;
+            do
+            {
+                nIndex++;
+                nRemain = (int)lMaxValue / (nShare * nIndex);
+
+                if (nRemain > 100)
+                {
+                    nShare *= 10;
+                }
+            }
+            while (nRemain > 10);
+            int nDottedLineCnt = ++nRemain;
+            int nDottedLineGap = nIndex * nShare;
+            int nMaxHeight = nDottedLineCnt * nDottedLineGap;
+
+            // Y축 Value-Text 길이에 따른 Left-offset값 설정
+            int nOffset = 0;
+            int nDivideValue = 1;
+            int nPlusOffset = 0;
+            do
+            {
+                nDivideValue *= 10;
+                nPlusOffset++;
+                nOffset = (int)lMaxValue / nDivideValue;
+            }
+            while (nOffset != 0);
+
+            m_fMarginX = m_XMarginOffset + nPlusOffset * 0.6; // 자리수에 따라 offset * 0.6만큼 Y축 밀기
+            m_fIntervalX = 1.0 / 257.0 * (CONTROL_WIDTH - (m_fMarginX + 2) * 10);
+            m_fIntervalY = 1.0 / nMaxHeight * (CONTROL_HEIGHT - m_fMarginY);
+
+
+            for (nIndex = 0; nIndex < 256; nIndex++)
+            {
+                Mono_Histogram.Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Mono_Histogram.Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Histogram_Data[nIndex] * m_fIntervalY - m_fMarginY);
+
+                Mono_Ref_Histogram.Point_Datas[nIndex].X = Math.Round(nIndex * m_fIntervalX + (m_fMarginX + 1) * 10);
+                Mono_Ref_Histogram.Point_Datas[nIndex].Y = Math.Round(CONTROL_HEIGHT - 1 - Ref_Data[nIndex] * m_fIntervalY - m_fMarginY);
+            }
+
+
+            #region Draw Lines & Texts.
+            // Draw X-axis labels.
+
+            if (Histogram_Data != null)
+            {
+                TextBlock Label = new TextBlock();
+                Label.Text = "0";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Histogram.Point_Datas[0].X - 3);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "100";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Histogram.Point_Datas[92].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "200";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Histogram.Point_Datas[192].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "255";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Histogram.Point_Datas[246].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                // Draw Y-axis label & dotted lines.
+                for (int i = 0; i < nDottedLineCnt; i++)
+                {
+                    Line DotLine = new Line();
+                    DotLine.X1 = m_fMarginX * 10 - 1;
+                    DotLine.X2 = CONTROL_WIDTH - 1;
+                    DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.StrokeThickness = 2;
+                    DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
+                    //DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
+                    this.Histogram.Children.Add(DotLine);
+
+                    if (i != 0)
+                    {
+                        Label = new TextBlock();
+                        Label.Text = (nDottedLineGap * i).ToString();
+                        Label.Foreground = new SolidColorBrush(Colors.White);
+                        Canvas.SetLeft(Label, 5);
+                        Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
+                        this.Histogram.Children.Add(Label);
+                    }
+                }
+
+            }
+            else
+            {
+                TextBlock Label = new TextBlock();
+                Label.Text = "0";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Ref_Histogram.Point_Datas[0].X - 3);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "100";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Ref_Histogram.Point_Datas[92].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "200";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Ref_Histogram.Point_Datas[192].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                Label = new TextBlock();
+                Label.Text = "255";
+                Label.Foreground = new SolidColorBrush(Colors.White);
+                Canvas.SetLeft(Label, Mono_Ref_Histogram.Point_Datas[246].X);
+                Canvas.SetTop(Label, CONTROL_HEIGHT - m_fMarginY);
+                this.Histogram.Children.Add(Label);
+
+                // Draw Y-axis label & dotted lines.
+                for (int i = 0; i < nDottedLineCnt; i++)
+                {
+                    Line DotLine = new Line();
+                    DotLine.X1 = m_fMarginX * 10 - 1;
+                    DotLine.X2 = CONTROL_WIDTH - 1;
+                    DotLine.Y1 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.Y2 = (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt));
+                    DotLine.StrokeThickness = 2;
+                    DotLine.StrokeDashArray = new DoubleCollection() { 1, 1 };
+                    //DotLine.Stroke = new SolidColorBrush(Colors.DarkGray);
+                    this.Histogram.Children.Add(DotLine);
+
+                    if (i != 0)
+                    {
+                        Label = new TextBlock();
+                        Label.Text = (nDottedLineGap * i).ToString();
+                        Label.Foreground = new SolidColorBrush(Colors.White);
+                        Canvas.SetLeft(Label, 5);
+                        Canvas.SetTop(Label, (CONTROL_HEIGHT - m_fMarginY) * (1 - (i * 1 / (double)nDottedLineCnt)));
+                        this.Histogram.Children.Add(Label);
+                    }
+                }
+
+            }
+
+            // Draw axis lines.
+            Line AxisX = new Line();
+            AxisX.X1 = m_fMarginX * 10 - 1;
+            AxisX.X2 = CONTROL_WIDTH - 1;
+            AxisX.Y1 = CONTROL_HEIGHT - m_fMarginY;
+            AxisX.Y2 = CONTROL_HEIGHT - m_fMarginY;
+            AxisX.StrokeThickness = 2;
+            AxisX.Stroke = new SolidColorBrush(Colors.Black);
+            this.Histogram.Children.Add(AxisX);
+
+            Line AxisY = new Line();
+            AxisY.X1 = m_fMarginX * 10 - 1;
+            AxisY.X2 = m_fMarginX * 10 - 1;
+            AxisY.Y1 = m_fMarginY;
+            AxisY.Y2 = CONTROL_HEIGHT - m_fMarginY;
+            AxisY.StrokeThickness = 2;
+            AxisY.Stroke = new SolidColorBrush(Colors.Black);
+            this.Histogram.Children.Add(AxisY);
+            #endregion
+
+            #region Draw histogram.
+            StreamGeometry historgamGeometry = new StreamGeometry();
+
+            using (StreamGeometryContext ctx = historgamGeometry.Open())
+            {
+                ctx.BeginFigure(new System.Windows.Point(Mono_Histogram.Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                for (int k = 0; k < 256; k++)
+                {
+                    ctx.LineTo(Mono_Histogram.Point_Datas[k], true, true);
+                }
+                ctx.LineTo(new System.Windows.Point(Mono_Histogram.Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+            }
+            historgamGeometry.Freeze();
+
+
+            Mono_Histogram.Path_Data.Data = historgamGeometry;
+            Mono_Histogram.Path_Data.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
+            Mono_Histogram.Path_Data.StrokeThickness = m_fIntervalX;
+            this.Histogram.Children.Add(Mono_Histogram.Path_Data);
+
+            #endregion
+
+            #region Draw Reference histogram.
+            StreamGeometry RefGeometry = new StreamGeometry();
+
+            using (StreamGeometryContext ctx = RefGeometry.Open())
+            {
+                ctx.BeginFigure(new System.Windows.Point(Mono_Ref_Histogram.Point_Datas[0].X, CONTROL_HEIGHT - m_fMarginY), true, true);
+                for (int k = 0; k < 256; k++)
+                {
+                    ctx.LineTo(Mono_Ref_Histogram.Point_Datas[k], true, true);
+                }
+                ctx.LineTo(new System.Windows.Point(Mono_Ref_Histogram.Point_Datas[255].X, CONTROL_HEIGHT - m_fMarginY), true, true);
             }
             RefGeometry.Freeze();
 
-            m_RefPath.Data = RefGeometry;
-            //m_HistogramPath.Fill = new SolidColorBrush(Colors.Transparent);
-            m_RefPath.Stroke = new SolidColorBrush(Colors.Red);
-            m_RefPath.StrokeThickness = m_fIntervalX;
-            this.Histogram.Children.Add(m_RefPath);
+            Mono_Ref_Histogram.Path_Data.Data = RefGeometry;
+            Mono_Ref_Histogram.Path_Data.Stroke = new SolidColorBrush(Colors.Red);
+            Mono_Ref_Histogram.Path_Data.StrokeThickness = m_fIntervalX;
+            this.Histogram.Children.Add(Mono_Ref_Histogram.Path_Data);
             #endregion
         }
 
         #region Supports binarization
-        public void EnableBinarization(int lowerThreshold, int upperThreshold, bool IsSingleMode)
+        public void EnableBinarization(int lowerThreshold, int upperThreshold, bool IsSingleMode, bool isReference, bool isColor, ChannelType channel)
         {
+            Point[] HistogramData = new Point[256];
+            if (channel == ChannelType.Color) return;
+
+            if (isReference)
+            {
+                if (isColor) HistogramData = (Point[])Color_Ref_Histogram[(int)channel].Point_Datas.Clone();
+                else HistogramData = (Point[])Mono_Ref_Histogram.Point_Datas.Clone();
+            }
+            else
+            {
+                if (isColor) HistogramData = (Point[])Color_Histogram[(int)channel].Point_Datas.Clone();
+                else HistogramData = (Point[])Mono_Histogram.Point_Datas.Clone();
+            }
+
+
+
             if (GLB.Windows.Review.BaseImageSource != null)
             {
                 if (IsSingleMode)
                 {
-                    m_DivideSingle.X1 = m_ptHistogramData[lowerThreshold].X;
+                    m_DivideSingle.X1 = HistogramData[lowerThreshold].X;
                     m_DivideSingle.X2 = m_DivideSingle.X1;
 
                     m_DivideSingle.Y1 = CONTROL_HEIGHT - m_fMarginY;
@@ -794,10 +981,10 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
                 }
                 else
                 {
-                    m_DivideLeft.X1 = m_ptHistogramData[lowerThreshold].X;
+                    m_DivideLeft.X1 = HistogramData[lowerThreshold].X;
                     m_DivideLeft.X2 = m_DivideLeft.X1;
 
-                    m_DivideRight.X1 = m_ptHistogramData[upperThreshold].X;
+                    m_DivideRight.X1 = HistogramData[upperThreshold].X;
                     m_DivideRight.X2 = m_DivideRight.X1;
 
                     if (m_DivideLeft.X1 >= m_fMarginX || m_DivideRight.X1 >= m_fMarginX)

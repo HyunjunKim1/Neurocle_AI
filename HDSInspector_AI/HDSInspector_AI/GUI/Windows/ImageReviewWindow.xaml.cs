@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.Drawing;
+using ControlzEx.Standard;
 using HDSInspector_AI.Class.GlobalFunctions;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -37,7 +39,6 @@ namespace HDSInspector_AI.GUI.Windows
         private System.Windows.Point? _ptLastCenterOfViewport;
 
         private Point _tmpPoint;
-
         private Algo _algo = new Algo();
 
         #region Properties
@@ -128,6 +129,8 @@ namespace HDSInspector_AI.GUI.Windows
 
             sldrLowerThreshold.Value = 100;
             sldrUpperThreshold.Value = 200;
+
+            HistogramCtrl.Refresh();
         }
 
         private void InitializeEvents()
@@ -140,6 +143,29 @@ namespace HDSInspector_AI.GUI.Windows
 
             this.cvsCross.MouseEnter += CrossCanvas_MouseEnter;
             this.cvsCross.MouseLeave += CrossCanvas_MouseLeave;
+
+            #region About Binariztation.
+            this.sldrLowerThreshold.ValueChanged    += sldrLowerThreshold_ValueChanged;
+            this.sldrUpperThreshold.ValueChanged    += sldrUpperThreshold_ValueChanged;
+            this.sldrThreshold.ValueChanged         += sldrThreshold_ValueChanged;
+            this.sldrErosionIter.ValueChanged       += sldrErosionIter_ValueChanged;
+            this.sldrDilationIter.ValueChanged      += sldrDilationIter_ValueChanged;
+
+            this.sldrLowerThreshold.PreviewMouseUp  += sldrProcessing_MouseUp;
+            this.sldrUpperThreshold.PreviewMouseUp  += sldrProcessing_MouseUp;
+            this.sldrThreshold.PreviewMouseUp       += sldrProcessing_MouseUp;
+            this.sldrErosionIter.PreviewMouseUp     += sldrProcessing_MouseUp;
+            this.sldrDilationIter.PreviewMouseUp    += sldrProcessing_MouseUp;
+
+            this.txtLowerThreshold.LostFocus    += txtLowerThreshold_LostFocus;
+            this.txtUpperThreshold.LostFocus    += txtUpperThreshold_LostFocus;
+            this.txtErosionIter.LostFocus       += txtErosionIter_LostFocus;
+            this.txtDialtionIter.LostFocus      += txtDialtionIter_LostFocus;
+            this.radMultiThreshold.Checked      += radThreshold_Checked;
+            this.radSingleThreshold.Checked     += radThreshold_Checked;
+            #endregion
+
+            this.chkResize.Checked += chkResize_Checked;
         }
 
         public void ToolChange(ToolType newTool)
@@ -341,6 +367,176 @@ namespace HDSInspector_AI.GUI.Windows
         }
         #endregion
 
+        #region Binarization-Controller Event Handler.
+
+        private void radThreshold_Checked(object sender, RoutedEventArgs e)
+        {
+            if (this.radSingleThreshold.IsChecked == true)
+            {
+                this.pnlMultiBinarization.Visibility = Visibility.Hidden;
+                this.pnlSingleBinarization.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.pnlMultiBinarization.Visibility = Visibility.Visible;
+                this.pnlSingleBinarization.Visibility = Visibility.Hidden;
+            }
+            GLB.Windows.Review.HistogramCtrl.HideThresholdGuideLine();
+            chkBinarization_Click(null, null);
+        }
+
+        private void txtUpperThreshold_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtUpperThreshold.Text == "")
+                txtUpperThreshold.Text = "0";
+        }
+
+        private void txtLowerThreshold_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtLowerThreshold.Text == "")
+                txtLowerThreshold.Text = "0";
+        }
+
+        private void chkBinarization_Click(object sender, RoutedEventArgs e)
+        {
+            if (chkBinarization.IsChecked == true)
+            {
+                //단일 스레시
+                if (radSingleThreshold.IsChecked == true)
+                {
+                    try
+                    {
+                        int threshold = Convert.ToInt32(txtThreshold.Text);
+                        if (threshold >= 0 && threshold <= 255)
+                        {
+                            this.HistogramCtrl.EnableBinarization(threshold, threshold, IsSingleMode:true, isReference:false, isColor:true, ChannelType.Color);
+                            Binarization();
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+                else //멀티 스레시
+                {
+                    try
+                    {
+                        int lowerThreshold = Convert.ToInt32(txtLowerThreshold.Text);
+                        int upperThreshold = Convert.ToInt32(txtUpperThreshold.Text);
+
+                        if (lowerThreshold <= upperThreshold &&
+                            lowerThreshold >= 0 &&
+                            upperThreshold <= 255)
+                        {
+                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperThreshold, IsSingleMode:false, isReference:false, isColor:true, ChannelType.Color);
+                            Binarization();
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            else this.HistogramCtrl.HideThresholdGuideLine();
+        }
+        private void sldrLowerThreshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sldrLowerThreshold.Value >= 0 && sldrLowerThreshold.Value <= sldrUpperThreshold.Value)
+            {
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode:false, isReference:false, isColor:true, ChannelType.Color);
+
+                if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                    Binarization();
+                else
+                {
+                    // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
+                    BitmapSource source = BaseImageSource;
+                    if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
+                        Binarization();
+                }
+            }
+        }
+
+        private void sldrUpperThreshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sldrUpperThreshold.Value >= sldrLowerThreshold.Value && sldrUpperThreshold.Value <= 255)
+            {
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode:false, isReference:false, isColor: true, ChannelType.Color);
+
+                if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                    Binarization();
+                else
+                {
+                    // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
+                    BitmapSource source = BaseImageSource;
+                    if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
+                        Binarization();
+                }
+            }
+        }
+
+        private void sldrThreshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sldrThreshold.Value >= 0 && sldrThreshold.Value <= 255)
+            {
+                this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, isReference: false, isColor: true, ChannelType.Color);
+
+                if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                    Binarization();
+                else
+                {
+                    // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
+                    BitmapSource source = BaseImageSource;
+                    if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
+                        Binarization();
+                }
+            }
+        }
+        private void sldrDilationIter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                Binarization();
+            else
+            {
+                // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
+                BitmapSource source = BaseImageSource;
+                if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
+                    Binarization();
+            }
+        }
+
+        private void sldrErosionIter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                Binarization();
+            else
+            {
+                // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
+                BitmapSource source = BaseImageSource;
+                if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
+                    Binarization();
+            }
+        }
+
+        private void sldrProcessing_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Binarization();
+        }
+
+        private void txtDialtionIter_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtDialtionIter.Text == "")
+                txtDialtionIter.Text = "0";
+        }
+
+        private void txtErosionIter_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtErosionIter.Text == "")
+                txtErosionIter.Text = "0";
+        }
+
+        #endregion
+
         #region Other func
         public void UpdateViewerSource(BitmapSource aBitmapSource)
         {
@@ -496,5 +692,11 @@ namespace HDSInspector_AI.GUI.Windows
             dlg.InitialDirectory = strOldInitialDirectory;
         }
         #endregion
+
+
+        private void chkResize_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

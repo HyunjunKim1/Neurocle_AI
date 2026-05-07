@@ -30,11 +30,11 @@ namespace Common
 
     public enum ChannelType
     {
-        RED = 1,                // Red
-        GREEN = 2,             // Green 
-        BLUE = 3,               // Blue 
-
-        GRAY = 0        // Gray
+        RED = 0,        // Red
+        GREEN = 1,        // Green 
+        BLUE = 2,        // Blue 
+        Color = 3,        // Color
+        Mono = 4,         // Gray
     }
 
     /// <summary>   Values that represent NG Image Rectangle fill.  </summary>
