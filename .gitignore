@@ -2,11 +2,9 @@
 temp_update/
 temp_update_/
 **/bin/
-config/
 *.opensdf
 *.sdf
 *.db
-*.dll
 *.pdb
 obj
 packages
