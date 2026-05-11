@@ -35,7 +35,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            GLB.Windows.ShowWindows(GLB.Windows.Review);
+            GLB.Windows.ShowWindows<ImageReviewWindow>();
         }
     }
 }

@@ -166,6 +166,13 @@ namespace HDSInspector_AI.GUI.Windows
             #endregion
 
             this.chkResize.Checked += chkResize_Checked;
+
+            this.Closed += ImageReviewWindow_Closed;
+        }
+
+        private void ImageReviewWindow_Closed(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         public void ToolChange(ToolType newTool)

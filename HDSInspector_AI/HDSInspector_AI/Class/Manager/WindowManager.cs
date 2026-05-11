@@ -15,8 +15,9 @@ namespace HDSInspector_AI.Class.Manager
 {
     public class WindowManager : IWindowService
     {
-        private readonly List<Window> _openedWindows = new List<Window>();
-        
+        private readonly List<WeakReference<Window>> _openedWindows = new List<WeakReference<Window>>();
+        private readonly Dictionary<Type, object> _windowInstances = new Dictionary<Type, object>();
+
         // 기능 동작하는 Windows
         public ImageReviewWindow Review;
 
@@ -44,31 +45,73 @@ namespace HDSInspector_AI.Class.Manager
             return new T();
         }
 
-        public void ShowWindows(Window window, bool asDialog = false)
+        public void ShowWindows<T>(bool asDialog = false) where T : Window, new()
         {
-            if (!_openedWindows.Contains(window))
-            {
-                _openedWindows.Add(window);
-                window.Closed += (s, e) => _openedWindows.Remove(window);
+            // 기존에 열려 있는 윈도우 중 동일한 타입이 있는지 확인
+            Window window = FindWindow<T>();
 
-                if (asDialog)
-                    window.ShowDialog();
-                else
-                    window.Show();
-            }
-            else
+            if (window != null)
             {
+                // 이미 열려 있으면 활성화
                 window.Activate();
+                return;
+            }
+
+            // 새로 생성
+            window = new T();
+            AddWindowReference(window);
+
+            window.Closed += (s, e) =>
+            {
+                RemoveWindowReference((Window)s);
+            };
+
+            if (asDialog)
+                window.ShowDialog();
+            else
+                window.Show();
+        }
+
+        public void CloseWindows<T>() where T : Window
+        {
+            Window window = FindWindow<T>();
+            window?.Close();
+        }
+
+        public void CloseAllWindows()
+        {
+            // 열려 있는 모든 창 닫기 (WeakReference 처리)
+            var toClose = _openedWindows
+                .Select(wr => wr.TryGetTarget(out var w) ? w : null)
+                .Where(w => w != null)
+                .ToList();
+
+            foreach (var window in toClose)
+            {
+                window?.Close();
             }
         }
 
-        public void CloseWindows(Window window)
+        private Window FindWindow<T>() where T : Window
         {
-            if (_openedWindows.Contains(window))
+            foreach (var wr in _openedWindows)
             {
-                window.Close();
-                _openedWindows.Remove(window);
+                if (wr.TryGetTarget(out var window) && window is T)
+                {
+                    return window;
+                }
             }
+            return null;
+        }
+
+        private void AddWindowReference(Window window)
+        {
+            _openedWindows.Add(new WeakReference<Window>(window));
+        }
+
+        private void RemoveWindowReference(Window window)
+        {
+            _openedWindows.RemoveAll(wr => wr.TryGetTarget(out var w) && w == window);
         }
     }
 }

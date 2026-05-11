@@ -10,8 +10,8 @@ namespace HDSInspector_AI.Class.Interface
     public interface IWindowService
     {
         T CreateWindows<T>() where T : Window, new();
-        void ShowWindows(Window window, bool asDialog = false);
-        void CloseWindows(Window window);
+        void ShowWindows<T>(bool asDialog = false) where T : Window, new();
+        void CloseWindows<T>() where T : Window;
 
     }
 }
