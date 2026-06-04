@@ -846,8 +846,12 @@ namespace HDSInspector_AI.GUI.Windows
             }
         }
 
+
         #endregion
 
-        
+        private void sldrScale_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+        }
     }
 }
