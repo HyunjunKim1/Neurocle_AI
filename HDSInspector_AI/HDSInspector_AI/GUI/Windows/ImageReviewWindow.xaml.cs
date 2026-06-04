@@ -1,6 +1,7 @@
 ﻿using Common;
 using Common.Drawing;
 using ControlzEx.Standard;
+using HandyControl.Controls;
 using HDSInspector_AI.Class.GlobalFunctions;
 using System;
 using System.Collections.Generic;
@@ -21,13 +22,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static System.Collections.Specialized.BitVector32;
 
+
 namespace HDSInspector_AI.GUI.Windows
 {
     public delegate void ToolTypeChangeEventHandler(ToolType newToolType);
     /// <summary>
     /// ImageReivewWindow.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class ImageReviewWindow : Window
+    public partial class ImageReviewWindow : System.Windows.Window //애매한 참조 오류로 Window->System.Windows.Window로 수정
     {
         private readonly GlobalFunction GLB = GlobalFunction.GLB;
 
@@ -40,6 +42,7 @@ namespace HDSInspector_AI.GUI.Windows
 
         private Point _tmpPoint;
         private Algo _algo = new Algo();
+        private double zoomFactor = 1.1; //확대, 축소 비율
 
         #region Properties
 
@@ -100,6 +103,8 @@ namespace HDSInspector_AI.GUI.Windows
             InitializeComponent();
             InitializeEvents();
             InitializeDialogs();
+
+            this.PreviewMouseWheel += MainWindow_PreviewMouseWheel;
         }
 
         private void InitializeDialogs()
@@ -635,7 +640,8 @@ namespace HDSInspector_AI.GUI.Windows
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.DefaultExt = ".bmp";
-            dlg.Filter = "Bitmap Images (.bmp) | *.bmp";
+            dlg.Filter = "Bitmap Images (.bmp; .png; .jpg; .jpeg; .gif; .tiff; .tif) | *.bmp; *.png; *.jpg; *.jpeg; *.gif; *.tiff; .tif";
+
 
             // Save Initial directory.
             string strOldInitialDirectory = dlg.InitialDirectory;
@@ -666,9 +672,11 @@ namespace HDSInspector_AI.GUI.Windows
             }
             catch
             {
-                MessageBox.Show(ResourceStringHelper.GetErrorMessage("I001", false), "Error");
+                System.Windows.MessageBox.Show(ResourceStringHelper.GetErrorMessage("I001", false), "Error"); //애매한 참조 오류로 messagebox->System.Windows.messagebox로 수정
             }
         }
+
+        
 
         public void SaveImage()
         {
@@ -705,5 +713,141 @@ namespace HDSInspector_AI.GUI.Windows
         {
 
         }
+
+        
+
+        private void chkErosion_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkResize_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void ApplyPreprocessing()
+        {
+
+            if (BaseImageSource == null)
+                return;
+
+            BitmapSource result = BaseImageSource;
+
+
+            if (chkErosion.IsChecked == false)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyErosion(result);
+                    
+            }
+
+            if (chkResize.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyResize(result);
+            }
+            UpdateViewerSource(result);
+           
+        }
+
+
+        #region MouseEvent
+        
+
+        private void cvsCross_MouseEnter(object sender, MouseEventArgs e)
+        {
+            VerticalLine.Visibility = Visibility.Visible;
+            HorizontalLine.Visibility = Visibility.Visible;
+        }
+
+        private void cvsCross_MouseLeave(object sender, MouseEventArgs e)
+        {
+            VerticalLine.Visibility = Visibility.Collapsed;
+            HorizontalLine.Visibility = Visibility.Collapsed;
+        }
+
+        private void MainWindow_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            // 휠의 회전 방향에 따라 배율 설정
+            double zoom = e.Delta > 0 ? zoomFactor : 1.0 / zoomFactor;
+
+            // 새로운 스케일 계산
+            double newScaleX = imageScale.ScaleX * zoom;
+            double newScaleY = imageScale.ScaleY * zoom;
+
+            // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
+            if (newScaleX < 0.25 || newScaleX > 10.0)
+                return;
+
+            // 마우스 포인트 기준 확대/축소
+            Point mousePosition = e.GetPosition(svTeaching);
+
+            imageScale.ScaleX = newScaleX;
+            imageScale.ScaleY = newScaleY;
+
+            // ScrollViewer의 스크롤 위치 조정
+            svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset + (mousePosition.X * (zoom - 1)));
+            svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset + (mousePosition.Y * (zoom - 1)));
+
+            e.Handled = true; // 이벤트가 다른 곳으로 전파되는 것을 막음
+        }
+
+        bool mousing = false; //현재 마우스가 클릭 상태인지에 대한 변수
+        int startX = 0; //클릭 시 마우스 x좌표 위치 저장 변수
+        int startY = 0; //클릭 시 마우스 y좌표 위치 저장 변수
+
+        private void cvsCross_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            mousing = true; //마우스 눌린 상태
+
+            string position = e.GetPosition(svTeaching).ToString(); //현재 클릭된 이미지 위치 가져옴
+
+            string[] split = position.Split(','); // 이미지 위치 문자열인 position을 ',' 단위로 split
+            startX = Int32.Parse(split[0]); //x좌표 저장
+            startY = Int32.Parse(split[1]); //y좌표 저장
+        }
+
+        private void cvsCross_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            mousing = false; //마우스 뗀 상태 저장
+        }
+        
+
+        private void cvsCross_MouseMove(object sender, MouseEventArgs e)
+        {
+            // Canvas 기준 현재 마우스 포지션 가져오기
+            Point mousePos = e.GetPosition(cvsCross);
+
+            // 수직선 위치 조정 (X좌표 고정)
+            VerticalLine.X1 = mousePos.X;
+            VerticalLine.X2 = mousePos.X;
+            VerticalLine.Y1 = 0;
+            VerticalLine.Y2 = cvsCross.ActualHeight;
+
+            // 수평선 위치 조정 (Y좌표 고정)
+            HorizontalLine.X1 = 0;
+            HorizontalLine.X2 = cvsCross.ActualWidth;
+            HorizontalLine.Y1 = mousePos.Y;
+            HorizontalLine.Y2 = mousePos.Y;
+
+
+            if (mousing) //마우스 클릭 시
+            {
+                string position = e.GetPosition(this).ToString(); //현재 마우스 위치 가져옴
+
+                string[] split = position.Split(',');
+                int changeX = Int32.Parse(split[0]) - startX;
+                int changeY = Int32.Parse(split[1]) - startY; //변경된 좌표값 저장
+
+                startX = Int32.Parse(split[0]);
+                startY = Int32.Parse(split[1]); //처음 시작 좌표를 현재 좌표로 교체
+
+                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - changeX);
+                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - changeY);
+            }
+        }
+
+        #endregion
+
+        
     }
 }
