@@ -279,6 +279,17 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
+        public static BitmapSource ApplyCanny(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Cv2.Canny(src, dst, 50, 150, 3, false);//CannyEdge 수행(입력,출력,하위 임계, 상위 임계, 소벨 마스크 크기, gradient)
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+        }
+
         public static BitmapSource ApplyResize(BitmapSource bitmapSource)
         {
             double width = bitmapSource.PixelWidth;

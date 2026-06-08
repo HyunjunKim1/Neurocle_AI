@@ -1,26 +1,14 @@
 ﻿using Common;
 using Common.Drawing;
-using ControlzEx.Standard;
-using HandyControl.Controls;
 using HDSInspector_AI.Class.GlobalFunctions;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using static System.Collections.Specialized.BitVector32;
 
 
 namespace HDSInspector_AI.GUI.Windows
@@ -47,7 +35,7 @@ namespace HDSInspector_AI.GUI.Windows
         #region Properties
 
         // index 0 : origin, 1 : 25% resize
-        private int NowImageIndex 
+        private int NowImageIndex
         {
             get
             {
@@ -61,7 +49,7 @@ namespace HDSInspector_AI.GUI.Windows
         public double ViewerWidth { get; set; }
         public DrawingCanvas BasedCanvas { get; set; }  // Drawing Canvas
         public AntiAliasedImage BasedImage { get; set; } // Image Control
-        public BitmapSource BaseImageSource{ get; set; } // Origin Image
+        public BitmapSource BaseImageSource { get; set; } // Origin Image
 
 
         private int SourceHeight
@@ -128,7 +116,7 @@ namespace HDSInspector_AI.GUI.Windows
 
             ToolChange(ToolType.Pointer);
 
-            pnlMultiBinarization.Visibility = Visibility.Hidden; 
+            pnlMultiBinarization.Visibility = Visibility.Hidden;
             radSingleThreshold.IsChecked = true;
             chkBinarization.IsChecked = false;
 
@@ -150,24 +138,24 @@ namespace HDSInspector_AI.GUI.Windows
             this.cvsCross.MouseLeave += CrossCanvas_MouseLeave;
 
             #region About Binariztation.
-            this.sldrLowerThreshold.ValueChanged    += sldrLowerThreshold_ValueChanged;
-            this.sldrUpperThreshold.ValueChanged    += sldrUpperThreshold_ValueChanged;
-            this.sldrThreshold.ValueChanged         += sldrThreshold_ValueChanged;
-            this.sldrErosionIter.ValueChanged       += sldrErosionIter_ValueChanged;
-            this.sldrDilationIter.ValueChanged      += sldrDilationIter_ValueChanged;
+            this.sldrLowerThreshold.ValueChanged += sldrLowerThreshold_ValueChanged;
+            this.sldrUpperThreshold.ValueChanged += sldrUpperThreshold_ValueChanged;
+            this.sldrThreshold.ValueChanged += sldrThreshold_ValueChanged;
+            this.sldrErosionIter.ValueChanged += sldrErosionIter_ValueChanged;
+            this.sldrDilationIter.ValueChanged += sldrDilationIter_ValueChanged;
 
-            this.sldrLowerThreshold.PreviewMouseUp  += sldrProcessing_MouseUp;
-            this.sldrUpperThreshold.PreviewMouseUp  += sldrProcessing_MouseUp;
-            this.sldrThreshold.PreviewMouseUp       += sldrProcessing_MouseUp;
-            this.sldrErosionIter.PreviewMouseUp     += sldrProcessing_MouseUp;
-            this.sldrDilationIter.PreviewMouseUp    += sldrProcessing_MouseUp;
+            this.sldrLowerThreshold.PreviewMouseUp += sldrProcessing_MouseUp;
+            this.sldrUpperThreshold.PreviewMouseUp += sldrProcessing_MouseUp;
+            this.sldrThreshold.PreviewMouseUp += sldrProcessing_MouseUp;
+            this.sldrErosionIter.PreviewMouseUp += sldrProcessing_MouseUp;
+            this.sldrDilationIter.PreviewMouseUp += sldrProcessing_MouseUp;
 
-            this.txtLowerThreshold.LostFocus    += txtLowerThreshold_LostFocus;
-            this.txtUpperThreshold.LostFocus    += txtUpperThreshold_LostFocus;
-            this.txtErosionIter.LostFocus       += txtErosionIter_LostFocus;
-            this.txtDialtionIter.LostFocus      += txtDialtionIter_LostFocus;
-            this.radMultiThreshold.Checked      += radThreshold_Checked;
-            this.radSingleThreshold.Checked     += radThreshold_Checked;
+            this.txtLowerThreshold.LostFocus += txtLowerThreshold_LostFocus;
+            this.txtUpperThreshold.LostFocus += txtUpperThreshold_LostFocus;
+            this.txtErosionIter.LostFocus += txtErosionIter_LostFocus;
+            this.txtDialtionIter.LostFocus += txtDialtionIter_LostFocus;
+            this.radMultiThreshold.Checked += radThreshold_Checked;
+            this.radSingleThreshold.Checked += radThreshold_Checked;
             #endregion
 
             this.chkResize.Checked += chkResize_Checked;
@@ -421,7 +409,7 @@ namespace HDSInspector_AI.GUI.Windows
                         int threshold = Convert.ToInt32(txtThreshold.Text);
                         if (threshold >= 0 && threshold <= 255)
                         {
-                            this.HistogramCtrl.EnableBinarization(threshold, threshold, IsSingleMode:true, isReference:false, isColor:true, ChannelType.Color);
+                            this.HistogramCtrl.EnableBinarization(threshold, threshold, IsSingleMode: true, isReference: false, isColor: true, ChannelType.Color);
                             Binarization();
                         }
                     }
@@ -440,7 +428,7 @@ namespace HDSInspector_AI.GUI.Windows
                             lowerThreshold >= 0 &&
                             upperThreshold <= 255)
                         {
-                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperThreshold, IsSingleMode:false, isReference:false, isColor:true, ChannelType.Color);
+                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperThreshold, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
                             Binarization();
                         }
                     }
@@ -455,7 +443,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (sldrLowerThreshold.Value >= 0 && sldrLowerThreshold.Value <= sldrUpperThreshold.Value)
             {
-                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode:false, isReference:false, isColor:true, ChannelType.Color);
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
 
                 if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
                     Binarization();
@@ -473,7 +461,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (sldrUpperThreshold.Value >= sldrLowerThreshold.Value && sldrUpperThreshold.Value <= 255)
             {
-                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode:false, isReference:false, isColor: true, ChannelType.Color);
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
 
                 if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
                     Binarization();
@@ -558,12 +546,12 @@ namespace HDSInspector_AI.GUI.Windows
                 BasedCanvas.Height = BasedImage.Height = aBitmapSource.PixelHeight;
                 BasedImage.Source = aBitmapSource;
                 CalculateZoomToFitScale();
-                LineProfileCtrl.SetLineProfileSource(BaseImageSource); 
+                LineProfileCtrl.SetLineProfileSource(BaseImageSource);
                 LineProfileCtrl.Refresh();
             }
             else
             {
-                
+
                 BasedCanvas.Width = BasedImage.Width = 0;
                 BasedCanvas.Height = BasedImage.Height = 0;
                 BasedImage.Source = null;
@@ -666,7 +654,9 @@ namespace HDSInspector_AI.GUI.Windows
                 BitmapSource bitmapSource = BitmapImageLoader.LoadCachedBitmapImage(new Uri(aszFileName)) as BitmapSource;
                 if (bitmapSource != null)
                 {
+
                     BaseImageSource = bitmapSource;
+
                     UpdateViewerSource(BaseImageSource);
                 }
             }
@@ -676,7 +666,7 @@ namespace HDSInspector_AI.GUI.Windows
             }
         }
 
-        
+
 
         public void SaveImage()
         {
@@ -714,7 +704,7 @@ namespace HDSInspector_AI.GUI.Windows
 
         }
 
-        
+
 
         private void chkErosion_Changed(object sender, RoutedEventArgs e)
         {
@@ -722,6 +712,11 @@ namespace HDSInspector_AI.GUI.Windows
         }
 
         private void chkResize_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkCanny_Changed(object sender, RoutedEventArgs e)
         {
             ApplyPreprocessing();
         }
@@ -735,10 +730,16 @@ namespace HDSInspector_AI.GUI.Windows
             BitmapSource result = BaseImageSource;
 
 
-            if (chkErosion.IsChecked == false)
+            if (chkErosion.IsChecked == true)
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyErosion(result);
-                    
+
+            }
+
+            if (chkCanny.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyCanny(result);
+
             }
 
             if (chkResize.IsChecked == true)
@@ -746,12 +747,12 @@ namespace HDSInspector_AI.GUI.Windows
                 result = Class.GlobalFunctions.ImageProcessing.ApplyResize(result);
             }
             UpdateViewerSource(result);
-           
+
         }
 
 
         #region MouseEvent
-        
+
 
         private void cvsCross_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -810,7 +811,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             mousing = false; //마우스 뗀 상태 저장
         }
-        
+
 
         private void cvsCross_MouseMove(object sender, MouseEventArgs e)
         {
@@ -853,5 +854,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
 
         }
+
+        
     }
 }
