@@ -743,7 +743,7 @@ namespace HDSInspector_AI.GUI.Windows
         }
         #endregion
 
-
+        #region Image processing
         private void chkResize_Checked(object sender, RoutedEventArgs e)
         {
 
@@ -826,7 +826,7 @@ namespace HDSInspector_AI.GUI.Windows
             UpdateViewerSource(result);
 
         }
-
+        #endregion
 
         #region MouseEvent
 
@@ -857,7 +857,7 @@ namespace HDSInspector_AI.GUI.Windows
                 return;
 
             // 마우스 포인트 기준 확대/축소
-            Point mousePosition = e.GetPosition(svTeaching);
+            Point mousePosition = e.GetPosition(cvsCross);
 
             imageScale.ScaleX = newScaleX;
             imageScale.ScaleY = newScaleY;
