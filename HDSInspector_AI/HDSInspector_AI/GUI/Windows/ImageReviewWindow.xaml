@@ -333,9 +333,10 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="59*"/>
             <ColumnDefinition Width="2"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="34*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -365,7 +366,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text=" Image File Name : " FontWeight="Bold" Foreground="GhostWhite" FontSize="14"/>
                     <TextBlock Grid.Column="1" Text="Testimage.bmp" FontWeight="Bold" Foreground="GhostWhite" FontSize="14"/>
-                    <Button x:Name="btn_Load" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Click="LoadButton_Click" Style="{StaticResource DarkGradientButton}">Image Load</Button>
+                    <Button x:Name="btn_Load" Grid.Column="2" Click="LoadButton_Click" Style="{StaticResource DarkGradientButton}" Margin="0,0,108,0" HorizontalAlignment="Stretch">Image Load</Button>
                     <Button x:Name="btn_Save" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Click="SaveButton_Click" Margin="100,0,0,0" Style="{StaticResource DarkGradientButton}">Image Save</Button>
                 </Grid>
             </Border>
@@ -381,6 +382,10 @@
                 </Border.Effect>
                 <Border Padding="2.2">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="0*"/>
+                        </Grid.RowDefinitions>
                         <Grid.Background>
                             <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
                                 <GradientStop Color="#242121" Offset="0.0"/>
@@ -391,11 +396,34 @@
                             </LinearGradientBrush>
                         </Grid.Background>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="0*"/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="0*"/>
+                            <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
+                        <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,5,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="Erosion" FontSize="20" Foreground="AntiqueWhite" Margin="40,0,40,0" />
+                        </Border>
+                        <CheckBox x:Name="chkErosion" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,8,0,0" IsChecked="True" Checked="chkErosion_Changed" Unchecked="chkErosion_Changed" Height="20" Width="20">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 12 L 10 18 L 20 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="false">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <Border BorderThickness="1" Grid.Column="3" BorderBrush="White" CornerRadius="5" Margin="0,5,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="CannyEdge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
                     </Grid>
                 </Border>
             </Border>
@@ -459,9 +487,9 @@
                 </Border>
             </Border>
         </Grid>
-        
+
         <!-- 우측 -->
-        <Border Grid.Row="0" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+        <Border Grid.Row="0" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8" Grid.ColumnSpan="2">
             <Border.Effect>
                 <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
             </Border.Effect>
@@ -494,7 +522,7 @@
                         <Slider Name="sldrScale" Orientation="Horizontal" Margin="-5, 0"
 		            Minimum="0.05" Maximum="5.0" Value="0.5" 
 		            VerticalAlignment="Center" IsSnapToTickEnabled="True" TickFrequency="0.1" 
-		            Width="120" Style="{DynamicResource SimpleSlider}"/>
+		            Width="120" Style="{DynamicResource SimpleSlider}" ValueChanged="sldrScale_ValueChanged_1"/>
                         <Button x:Name="btnZoomIn" Width="50" Tag="IN" VerticalAlignment="Center" Margin="-8, 0"
 		            Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom In">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_IN.png"/>
@@ -506,7 +534,7 @@
                     </StackPanel>
 
                     <ToggleButton Name="chkResize" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
-                                Content="Set 25% Resize" Style="{StaticResource CustomToggleButtonStyle}"/>
+                                Content="Set 25% Resize" IsChecked="False" Style="{StaticResource CustomToggleButtonStyle}" Checked="chkResize_Changed" Unchecked="chkResize_Changed" Cursor="Hand"/>
 
                     <!-- Display X & Y Coordinates -->
                     <Grid Grid.Column="3" Grid.RowSpan="2">
@@ -532,20 +560,23 @@
             </Border>
         </Border>
 
-        <Border Grid.Column="2" Grid.Row="1" BorderBrush="Black" BorderThickness="1, 0, 1, 1">
+        <Border Grid.Column="2" Grid.Row="1" BorderBrush="Black" BorderThickness="1, 0, 1, 1" Grid.ColumnSpan="2">
             <ScrollViewer x:Name="svTeaching" Grid.Row="1" Grid.Column="1" Background="White" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Focusable="False">
-                <Grid x:Name="pnlOuter">
-                    <Grid x:Name="pnlInner" Background="Black">
+                <Grid x:Name="pnlOuter" Background="Black" >
+                    <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Grid.LayoutTransform>
-                            <ScaleTransform ScaleX="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"
+                            <ScaleTransform x:Name="imageScale" ScaleX="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"
 						ScaleY="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"/>
                         </Grid.LayoutTransform>
                     </Grid>
-                    <Canvas x:Name="cvsCross" Background="Transparent"/>
+                    <Canvas x:Name="cvsCross" MouseDown="cvsCross_MouseDown" MouseUp="cvsCross_MouseUp" MouseMove="cvsCross_MouseMove" MouseEnter="cvsCross_MouseEnter" MouseLeave="cvsCross_MouseLeave" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                        <Line Name="VerticalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
+                        <Line Name="HorizontalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
+                    </Canvas>
                 </Grid>
             </ScrollViewer>
         </Border>
-        <Border Grid.Row="2" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+        <Border Grid.Row="1" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8" Grid.ColumnSpan="2" Margin="0,864,0,0" Grid.RowSpan="2">
             <Border.Effect>
                 <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
             </Border.Effect>
