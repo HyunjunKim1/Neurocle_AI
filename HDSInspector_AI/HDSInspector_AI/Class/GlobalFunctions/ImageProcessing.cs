@@ -3,6 +3,7 @@ using OpenCvSharp.WpfExtensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Policy;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Point = OpenCvSharp.Point;
 
 namespace HDSInspector_AI.Class.GlobalFunctions
 {
@@ -285,9 +287,62 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
             Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
 
-            Cv2.Canny(src, dst, 50, 150, 3, false);//CannyEdge 수행(입력,출력,하위 임계, 상위 임계, 소벨 마스크 크기, gradient)
+            Cv2.Canny(src, dst, 50, 150, 3, true);//CannyEdge 수행(입력,출력,하위 임계, 상위 임계, 소벨 마스크 크기, gradient)
 
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+        }
+
+        public static BitmapSource ApplyContrast(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Cv2.Normalize(src, dst, 0, 255, NormTypes.MinMax);
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+
+        }
+
+        public static BitmapSource ApplyDilation(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(3, 3));
+
+            Cv2.Dilate(src, dst, kernel, iterations: 1);//팽창 연산 수행
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+
+        }
+
+        public static BitmapSource ApplyClahe(BitmapSource bitmapSource) //컬러 이미지
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat lab = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Cv2.CvtColor(src, lab, ColorConversionCodes.BGR2Lab);
+
+            Mat[] labPlanes = Cv2.Split(lab);
+            Mat lChannel = labPlanes[0];
+
+            CLAHE clahe = Cv2.CreateCLAHE(clipLimit: 4.0, tileGridSize: new OpenCvSharp.Size(8, 8));
+
+            Mat dstL = new Mat();
+            clahe.Apply(lChannel, dstL);
+
+            // 6. 처리된 밝기 채널을 원래의 A, B 채널과 병합
+            dstL.CopyTo(labPlanes[0]);
+            Cv2.Merge(labPlanes, lab);
+
+            Mat dst = new Mat();
+            Cv2.CvtColor(lab, dst, ColorConversionCodes.Lab2BGR);
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+
         }
 
         public static BitmapSource ApplyResize(BitmapSource bitmapSource)
@@ -304,5 +359,14 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var resizedBitmap = new TransformedBitmap(bitmapSource, new ScaleTransform(newWidthInt / width, newHeightInt / height));
             return resizedBitmap;
         }
+
+
+        ///public static BitmapSource ApplyColormode(BitmapSource bitmapSource)
+        ///{
+        ///    _ = new BitmapImage();
+        ///    bitmap.BeginInit();
+        ///
+        ///
+        ///}
     }
 }

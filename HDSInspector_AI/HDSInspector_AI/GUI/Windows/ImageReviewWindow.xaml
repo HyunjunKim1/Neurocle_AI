@@ -365,7 +365,7 @@
                         <ColumnDefinition Width="4*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text=" Image File Name : " FontWeight="Bold" Foreground="GhostWhite" FontSize="14"/>
-                    <TextBlock Grid.Column="1" Text="Testimage.bmp" FontWeight="Bold" Foreground="GhostWhite" FontSize="14"/>
+                    <TextBlock Text="Testimage.bmp" FontWeight="Bold" Foreground="GhostWhite" FontSize="14" Grid.ColumnSpan="2" Margin="128,0,167,0"/>
                     <Button x:Name="btn_Load" Grid.Column="2" Click="LoadButton_Click" Style="{StaticResource DarkGradientButton}" Margin="0,0,108,0" HorizontalAlignment="Stretch">Image Load</Button>
                     <Button x:Name="btn_Save" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Click="SaveButton_Click" Margin="100,0,0,0" Style="{StaticResource DarkGradientButton}">Image Save</Button>
                 </Grid>
@@ -396,12 +396,13 @@
                             </LinearGradientBrush>
                         </Grid.Background>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="160*"/>
                             <ColumnDefinition Width="0*"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="109*"/>
+                            <ColumnDefinition Width="52*"/>
+                            <ColumnDefinition Width="160*"/>
                             <ColumnDefinition Width="0*"/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="160*"/>
                         </Grid.ColumnDefinitions>
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,5,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
                             <TextBlock Text="Erosion" FontSize="20" Foreground="AntiqueWhite" Margin="40,0,40,0" />
@@ -411,7 +412,7 @@
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
                                         <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
-                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 12 L 10 18 L 20 6"/>
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsChecked" Value="True">
@@ -421,15 +422,69 @@
                                 </ControlTemplate>
                             </CheckBox.Template>
                         </CheckBox>
-                        <Border BorderThickness="1" Grid.Column="3" BorderBrush="White" CornerRadius="5" Margin="0,5,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
-                            <TextBlock Text="CannyEdge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        <Border BorderThickness="1" Grid.Column="4" BorderBrush="White" CornerRadius="5" Margin="0,5,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="Dilation" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkCanny" Grid.Column="5" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,8,0,0" IsChecked="False" Checked="chkCanny_Changed" Unchecked="chkCanny_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkDilation" Grid.Column="5" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,8,0,0" IsChecked="False" Checked="chkDilation_Changed" Unchecked="chkDilation_Changed" Height="20" Width="20" Grid.ColumnSpan="2">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
                                         <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
-                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 12 L 10 18 L 20 6"/>
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <Border BorderThickness="1" Grid.Column="4" BorderBrush="White" CornerRadius="5" Margin="0,50,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="CannyEdge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
+                        <CheckBox x:Name="chkCanny" Grid.Column="5" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,54,0,0" IsChecked="False" Checked="chkCanny_Changed" Unchecked="chkCanny_Changed" Height="20" Width="20" Grid.ColumnSpan="2">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,50,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="Contrast Stretching" FontSize="15" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
+                        <CheckBox x:Name="chkContrast" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,54,0,0" IsChecked="False" Checked="chkContrast_Changed" Unchecked="chkContrast_Changed" Height="20" Width="20">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,100,0,0" Height="25" VerticalAlignment="Top" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="Clahe" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
+                        <CheckBox x:Name="chkClahe" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="8,104,0,0" IsChecked="False" Checked="chkClahe_Changed" Unchecked="chkClahe_Changed" Height="20" Width="20">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsChecked" Value="True">
@@ -617,7 +672,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
                     <ToggleButton Name="chkBinarization" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
-                          Content="이진 변환" Style="{StaticResource CustomToggleButtonStyle}"/>
+                          Content="이진 변환" Style="{StaticResource CustomToggleButtonStyle}" Checked="chkBinarization_Checked"/>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center" Width="110">
                         <RadioButton Name="radSingleThreshold" Foreground="GhostWhite" FontSize="12" IsChecked="True" IsEnabled="{Binding ElementName=chkBinarization, Path=IsChecked, Mode=OneWay}">Single</RadioButton>
                         <RadioButton Name="radMultiThreshold"  Foreground="GhostWhite" FontSize="12" IsEnabled="{Binding ElementName=chkBinarization, Path=IsChecked, Mode=OneWay}" Margin="10,0,0,0" >Multi</RadioButton>

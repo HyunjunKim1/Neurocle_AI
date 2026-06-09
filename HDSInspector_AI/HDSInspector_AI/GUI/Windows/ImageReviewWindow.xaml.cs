@@ -678,7 +678,8 @@ namespace HDSInspector_AI.GUI.Windows
             string strOldInitialDirectory = dlg.InitialDirectory;
 
             string strParentPath = DirectoryManager.GetParentPath(GLB.StartupPath);
-            dlg.InitialDirectory = DirectoryManager.GetCombinedPathName(strParentPath, @"\Temp\BasedImage\");
+            //dlg.InitialDirectory = DirectoryManager.GetCombinedPathName(strParentPath, @"\Temp\BasedImage\");
+            dlg.InitialDirectory = @"E:\Pilot 학습 파일(ag)\top_final\CT1-com(ag)"; //초기 경로 수정
 
             if ((bool)dlg.ShowDialog())
             {
@@ -755,7 +756,7 @@ namespace HDSInspector_AI.GUI.Windows
             ApplyPreprocessing();
         }
 
-        private void chkResize_Changed(object sender, RoutedEventArgs e)
+        private void chkDilation_Changed(object sender, RoutedEventArgs e)
         {
             ApplyPreprocessing();
         }
@@ -764,6 +765,22 @@ namespace HDSInspector_AI.GUI.Windows
         {
             ApplyPreprocessing();
         }
+
+        private void chkContrast_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkClahe_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkResize_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
 
         private void ApplyPreprocessing()
         {
@@ -780,16 +797,32 @@ namespace HDSInspector_AI.GUI.Windows
 
             }
 
+            if (chkDilation.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyDilation(result);
+            }
+
             if (chkCanny.IsChecked == true)
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyCanny(result);
 
             }
 
+            if (chkContrast.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyContrast(result);
+            }
+
+            if (chkClahe.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyClahe(result);
+            }
+
             if (chkResize.IsChecked == true)
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyResize(result);
             }
+
             UpdateViewerSource(result);
 
         }
@@ -820,7 +853,7 @@ namespace HDSInspector_AI.GUI.Windows
             double newScaleY = imageScale.ScaleY * zoom;
 
             // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
-            if (newScaleX < 0.25 || newScaleX > 10.0)
+            if (newScaleX < 1.0 || newScaleX > 15.0)
                 return;
 
             // 마우스 포인트 기준 확대/축소
@@ -877,7 +910,7 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (mousing) //마우스 클릭 시
             {
-                string position = e.GetPosition(this).ToString(); //현재 마우스 위치 가져옴
+                string position = e.GetPosition(svTeaching).ToString(); //현재 마우스 위치 가져옴
 
                 string[] split = position.Split(',');
                 int changeX = Int32.Parse(split[0]) - startX;
@@ -895,6 +928,11 @@ namespace HDSInspector_AI.GUI.Windows
         #endregion
 
         private void sldrScale_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+        }
+
+        private void chkBinarization_Checked(object sender, RoutedEventArgs e)
         {
 
         }
