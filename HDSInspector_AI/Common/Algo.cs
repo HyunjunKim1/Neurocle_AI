@@ -493,7 +493,7 @@ namespace Common
         }
         public static BitmapSource LoadImage(string filepath)
         {
-            return BitmapSourceConverter.ToBitmapSource(Cv2.ImRead(filepath, ImreadModes.Grayscale));
+            return BitmapSourceConverter.ToBitmapSource(Cv2.ImRead(filepath, ImreadModes.Color));
         }
         public bool SaveBS(string aszfilepath, BitmapSource bs)
         {

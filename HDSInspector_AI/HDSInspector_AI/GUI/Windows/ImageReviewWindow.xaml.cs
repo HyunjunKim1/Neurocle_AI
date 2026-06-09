@@ -2,6 +2,9 @@
 using Common.Drawing;
 using ControlzEx.Standard;
 using HDSInspector_AI.Class.GlobalFunctions;
+using HDSInspector_AI.GUI.UserControls.ImageReivew;
+using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static System.Collections.Specialized.BitVector32;
+using Window = System.Windows.Window;
 
 namespace HDSInspector_AI.GUI.Windows
 {
@@ -38,7 +42,7 @@ namespace HDSInspector_AI.GUI.Windows
         private System.Windows.Point? _ptLastContentMousePosition;
         private System.Windows.Point? _ptLastCenterOfViewport;
 
-        private Point _tmpPoint;
+        private System.Windows.Point _tmpPoint;
         private Algo _algo = new Algo();
 
         #region Properties
@@ -94,12 +98,15 @@ namespace HDSInspector_AI.GUI.Windows
         }
 
         #endregion
-
+        
         public ImageReviewWindow()
         {
             InitializeComponent();
             InitializeEvents();
             InitializeDialogs();
+
+            Debug.WriteLine(GLB.DxRender.ImageSource.PixelHeight);
+            Debug.WriteLine(GLB.DxRender.ImageSource.PixelWidth);
         }
 
         private void InitializeDialogs()
@@ -111,6 +118,7 @@ namespace HDSInspector_AI.GUI.Windows
                 Width = 0,
                 Height = 0
             };
+
             BasedCanvas = new DrawingCanvas(true, false)
             {
                 MaxGraphicsCount = 64, // 전체영상에서는 ROI(Section)을 64개까지 그릴 수 있다.
@@ -120,6 +128,8 @@ namespace HDSInspector_AI.GUI.Windows
                 Width = 0,
                 Height = 0
             };
+
+            BasedImage.Source = GLB.DxRender.ImageSource;
 
             ToolChange(ToolType.Pointer);
 
@@ -545,6 +555,38 @@ namespace HDSInspector_AI.GUI.Windows
         #endregion
 
         #region Other func
+        public void UpdateDxRendererSource(BitmapSource aBitmapSource)
+        {
+            Mat orgMat = aBitmapSource.ToMat();
+
+            if (orgMat != null)
+            {
+                BasedCanvas.Width = BasedImage.Width = orgMat.Width;
+                BasedCanvas.Height = BasedImage.Height = orgMat.Height;
+                GLB.DxRender.Load(orgMat);
+                CalculateZoomToFitScale();
+                LineProfileCtrl.SetLineProfileSource(BaseImageSource);
+                LineProfileCtrl.Refresh();
+            }
+            else
+            {
+
+                BasedCanvas.Width = BasedImage.Width = 0;
+                BasedCanvas.Height = BasedImage.Height = 0;
+                BasedImage.Source = null;
+            }
+
+            BasedCanvas.GraphicsList.Clear();
+            BasedCanvas.SelectedGraphic = null;
+            SetScrollViewerToHome();
+
+            pnlInner.Children.Clear();
+            pnlInner.Children.Add(BasedImage);
+            pnlInner.Children.Add(BasedCanvas);
+
+            ToolChange(ToolType.Pointer);
+        }
+
         public void UpdateViewerSource(BitmapSource aBitmapSource)
         {
             if (aBitmapSource != null)
@@ -635,7 +677,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.DefaultExt = ".bmp";
-            dlg.Filter = "Bitmap Images (.bmp) | *.bmp";
+            dlg.Filter = "Bitmap, Png Images (*.bmp;*.png) | *.bmp;*.png";
 
             // Save Initial directory.
             string strOldInitialDirectory = dlg.InitialDirectory;
@@ -658,10 +700,12 @@ namespace HDSInspector_AI.GUI.Windows
             try
             {
                 BitmapSource bitmapSource = BitmapImageLoader.LoadCachedBitmapImage(new Uri(aszFileName)) as BitmapSource;
+                
                 if (bitmapSource != null)
                 {
                     BaseImageSource = bitmapSource;
-                    UpdateViewerSource(BaseImageSource);
+                    //UpdateViewerSource(BaseImageSource);
+                    UpdateDxRendererSource(BaseImageSource);
                 }
             }
             catch

@@ -35,6 +35,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         #region Global Member variables
 
         public string StartupPath = Directory.GetCurrentDirectory();
+        public bool IsRunning = false;
 
         DateTime m_StartTime;
         TimeSpan m_RunTime;
@@ -76,7 +77,10 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public Logger           Logger      { get; set; }
         public Setting          Setting     { get; set; }
         public ImageProcessing  ImgProc     { get; set; }
-        public devServerMain    Server      { get; set; }
+
+
+        public devServerMain        Server      { get; set; }
+        public devImageRendering    DxRender { get; set; }
 
         // Class Manager
         public SequenceManager  Sequence { get; set; }
@@ -87,13 +91,15 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         public GlobalFunction()
         {
-            Setting = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
-            Logger  = Logger.GetLogger();
-            Server  = new devServerMain();
-            ImgProc = new ImageProcessing();
+            Setting     = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
+            Logger      = Logger.GetLogger();
+            Server      = new devServerMain();
+            DxRender    = new devImageRendering();
+            ImgProc     = new ImageProcessing();
         }
 
         #region Global Functions
+
         public void AddLog(string system, string Msg, SeverityLevel lvl)
         {
             Dispatcher.CurrentDispatcher.Invoke(new Action(() =>

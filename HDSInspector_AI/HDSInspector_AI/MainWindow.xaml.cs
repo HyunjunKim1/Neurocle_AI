@@ -1,4 +1,5 @@
-﻿using ControlzEx.Behaviors;
+﻿using Common;
+using ControlzEx.Behaviors;
 using HDSInspector_AI.Class.GlobalFunctions;
 using MahApps.Metro.Controls;
 using System;
@@ -28,6 +29,23 @@ namespace HDSInspector_AI
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (!GLB.IsRunning)
+            {
+                string msg = "프로그램을 종료하시겠습니까?";
+                if (MessageBox.Show(msg, "Exit", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    GLB.Setting.Save();
+
+                    GLB.AddLog("MAIN", "프로그램을 종료합니다.", SeverityLevel.INFO);
+                    GLB.Logger.Close();
+                    System.Diagnostics.Process.GetCurrentProcess().Kill();
+                    //Environment.Exit(0);
+                }
+            }
         }
     }
 }

@@ -12,7 +12,7 @@
         WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        WindowState="Maximized" Height="1080" Width="1920" Title="Haesung DS LF AVI Version 1.0.0">
+        WindowState="Maximized" Height="1080" Width="1920" Title="Haesung DS LF AVI Version 1.0.0" Closed="Window_Closed">
 
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
@@ -95,13 +95,5 @@
                 <UserCtrlRight:Uc_Control/>
             </Border>
         </Grid>
-
-        <busyIndicator:BusyMask Width="1920" Height="1080" Visibility="Visible"
-        x:Name="BusyIndicator"
-        BusyContent="검사를 종료하고 있습니다. 서버 연결 상태에 따라 시간이 소요될 수 있습니다."
-        IndicatorType="Ring"
-        IsBusy="False"
-        Background="#D8FFFFFF" Grid.ColumnSpan="3" VerticalAlignment="Bottom">
-        </busyIndicator:BusyMask>
     </Grid>
 </Window>
