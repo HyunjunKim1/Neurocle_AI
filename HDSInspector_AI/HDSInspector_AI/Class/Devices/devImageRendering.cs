@@ -1,4 +1,12 @@
-﻿using Common;
+﻿/* ============================================================= Memo =============================================================
+ * 
+ * 1. WPF에선 기본적으로 DirectX 9 버전을 기반으로 GPU Rendering이 가능함
+ * 2. DirectX 9 버전은 GPU Rendering을 하더라도 오래된 버전이기에, 현대적 그래픽 기능과 최적화가 불가능함
+ * 3. 그래서 DirectX 11 버전을 기반으로 그래픽 렌더링 후, GPU 내부 메모리 공유를 통해 WPF에서 DirectX 9로 받아올 수 있도록 공유 메모리 설정함
+ * 
+ * ================================================================================================================================
+ */
+using Common;
 using ControlzEx.Behaviors;
 using nrt;
 using OpenCvSharp;
@@ -23,6 +31,8 @@ using D3D11Texture2D = SharpDX.Direct3D11.Texture2D;
 
 namespace HDSInspector_AI.Class.Devices
 {
+    /// <summary>   Use GPU DirectX Rendering Functions </summary>
+    /// <remarks>   hjkim, 2026-06-09.                  </remarks>
     public class devImageRendering
     {
         #region P/Invoke
@@ -32,13 +42,13 @@ namespace HDSInspector_AI.Class.Devices
 
         public D3DImage ImageSource { get; private set; }
 
-        private D3D11Device     _d3d11Device;
+        private D3D11Device     _d3d11Device;       // DirectX 11
 
-        private Direct3DEx      _d3d9;
-        private DeviceEx        _d3d9Device;
+        private Direct3DEx      _d3d9;              // DirectX 9
+        private DeviceEx        _d3d9Device;        // DirectX 9 Device
 
-        private D3D11Texture2D  _sharedTexture11;
-        private Texture         _shareTexture9;
+        private D3D11Texture2D  _sharedTexture11;   // DirectX 11 Texture
+        private Texture         _shareTexture9;     // DirectX 9 Texture
 
 
 
@@ -48,31 +58,11 @@ namespace HDSInspector_AI.Class.Devices
 
             InitializeD3D11();
             InitializeD3D9();
-
-            //TestFillRed();
         }
-
-        private void TestFillRed()
-        {
-            int width = 300;
-            int height = 300;
-
-            byte[] pixel = new byte[width * height * 4];
-
-            for(int i = 0; i < pixel.Length; i+=4)
-            {
-                pixel[i + 0] = 0;
-                pixel[i + 1] = 0;
-                pixel[i + 2] = 255;
-                pixel[i + 3] = 255;
-            }
-            _d3d11Device.ImmediateContext.UpdateSubresource(pixel, _sharedTexture11);
-            _d3d11Device.ImmediateContext.Flush();
-            ImageSource.Lock();
-            ImageSource.AddDirtyRect(new Int32Rect(0, 0, width, height));
-            ImageSource.Unlock();
-        }
-
+       
+        /// <summary>
+        /// Initialize DirectX 9
+        /// </summary>
         private void InitializeD3D9()
         {
             _d3d9 = new Direct3DEx();
@@ -96,6 +86,9 @@ namespace HDSInspector_AI.Class.Devices
                 pp);
         }
 
+        /// <summary>
+        /// Initialize DirectX 11
+        /// </summary>
         private void InitializeD3D11()
         {
             _d3d11Device = new SharpDX.Direct3D11.Device(SharpDX.Direct3D.DriverType.Hardware, DeviceCreationFlags.BgraSupport);
@@ -112,6 +105,10 @@ namespace HDSInspector_AI.Class.Devices
             Rendering(mat);
         }
 
+        /// <summary>
+        /// Mat → DirectX11 → DirectX9 GPU Rendering
+        /// </summary>
+        /// <param name="mat"></param>
         private void Rendering(Mat mat)
         {
             using (Mat cvtMat = new Mat())
@@ -139,6 +136,11 @@ namespace HDSInspector_AI.Class.Devices
             mat = null;
         }
 
+        /// <summary>
+        /// DirectX9 ↔ DirectX11's share GPU memory
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         private void CreateSharedTexture(int width, int height)
         {
             _texHeight = height;
@@ -158,7 +160,7 @@ namespace HDSInspector_AI.Class.Devices
                 BindFlags = SharpDX.Direct3D11.BindFlags.RenderTarget | SharpDX.Direct3D11.BindFlags.ShaderResource,
 
                 CpuAccessFlags = SharpDX.Direct3D11.CpuAccessFlags.None,
-                OptionFlags = SharpDX.Direct3D11.ResourceOptionFlags.Shared
+                OptionFlags = SharpDX.Direct3D11.ResourceOptionFlags.Shared // DirectX11과 DirectX9 간, 메모리 공유를 위한 Flags
             };
 
             _sharedTexture11 = new D3D11Texture2D(_d3d11Device, desc);

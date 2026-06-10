@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static System.Collections.Specialized.BitVector32;
@@ -39,17 +40,6 @@ namespace HDSInspector_AI.GUI.Windows
 
         #region Properties
 
-        // index 0 : origin, 1 : 25% resize
-        private int NowImageIndex
-        {
-            get
-            {
-                if (chkResize.IsChecked == true)
-                    return 1;
-                else return 0;
-            }
-        }
-        // index 0 : origin, 1 : 25% resize
         public double ViewerHeight { get; set; }
         public double ViewerWidth { get; set; }
         public DrawingCanvas BasedCanvas { get; set; }  // Drawing Canvas
@@ -97,8 +87,6 @@ namespace HDSInspector_AI.GUI.Windows
             InitializeEvents();
             InitializeDialogs();
 
-            this.PreviewMouseWheel += MainWindow_PreviewMouseWheel;
-
             Debug.WriteLine(GLB.DxRender.ImageSource.PixelHeight);
             Debug.WriteLine(GLB.DxRender.ImageSource.PixelWidth);
         }
@@ -140,13 +128,18 @@ namespace HDSInspector_AI.GUI.Windows
         private void InitializeEvents()
         {
             // Zoom events.
-            this.btnZoomIn.Click += zoomBtn_Click;
-            this.btnZoomOut.Click += zoomBtn_Click;
-            this.btnZoomToFit.Click += zoomBtn_Click;
+            this.btnZoomIn.Click        += zoomBtn_Click;
+            this.btnZoomOut.Click       += zoomBtn_Click;
+            this.btnZoomToFit.Click     += zoomBtn_Click;
             this.sldrScale.ValueChanged += sldrScale_ValueChanged;
 
-            this.cvsCross.MouseEnter += CrossCanvas_MouseEnter;
-            this.cvsCross.MouseLeave += CrossCanvas_MouseLeave;
+            this.pnlOuter.MouseDown     += pnlOuter_MouseDown;
+            this.pnlOuter.MouseUp       += pnlOuter_MouseUp;
+            this.pnlOuter.MouseWheel    += pnlOuter_MouseWheel;
+            this.pnlOuter.MouseMove     += pnlOuter_MouseMove;
+           
+            this.cvsCross.MouseEnter    += cvsCross_MouseEnter;
+            this.cvsCross.MouseLeave    += cvsCross_MouseLeave;
 
             #region About Binariztation.
             this.sldrLowerThreshold.ValueChanged += sldrLowerThreshold_ValueChanged;
@@ -169,10 +162,9 @@ namespace HDSInspector_AI.GUI.Windows
             this.radSingleThreshold.Checked += radThreshold_Checked;
             #endregion
 
-            this.chkResize.Checked += chkResize_Checked;
-
             this.Closed += ImageReviewWindow_Closed;
         }
+
 
         private void ImageReviewWindow_Closed(object sender, EventArgs e)
         {
@@ -295,7 +287,7 @@ namespace HDSInspector_AI.GUI.Windows
                 }
                 else// ZOOM_TO_FIT
                 {
-                    Zoom(0);
+                    SetZoomToFit();
                 }
             }
         }
@@ -744,12 +736,6 @@ namespace HDSInspector_AI.GUI.Windows
         #endregion
 
         #region Image processing
-        private void chkResize_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
 
         private void chkErosion_Changed(object sender, RoutedEventArgs e)
         {
@@ -818,11 +804,6 @@ namespace HDSInspector_AI.GUI.Windows
                 result = Class.GlobalFunctions.ImageProcessing.ApplyClahe(result);
             }
 
-            if (chkResize.IsChecked == true)
-            {
-                result = Class.GlobalFunctions.ImageProcessing.ApplyResize(result);
-            }
-
             UpdateViewerSource(result);
 
         }
@@ -843,7 +824,7 @@ namespace HDSInspector_AI.GUI.Windows
             HorizontalLine.Visibility = Visibility.Collapsed;
         }
 
-        private void MainWindow_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void pnlOuter_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             // 휠의 회전 방향에 따라 배율 설정
             double zoom = e.Delta > 0 ? zoomFactor : 1.0 / zoomFactor;
@@ -853,47 +834,44 @@ namespace HDSInspector_AI.GUI.Windows
             double newScaleY = imageScale.ScaleY * zoom;
 
             // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
-            if (newScaleX < 1.0 || newScaleX > 15.0)
+            if (newScaleX < _zoomToFitScale || newScaleX > 15.0)
                 return;
 
             // 마우스 포인트 기준 확대/축소
-            Point mousePosition = e.GetPosition(cvsCross);
+            System.Windows.Point mousePosition = e.GetPosition(pnlOuter);
 
-            imageScale.ScaleX = newScaleX;
-            imageScale.ScaleY = newScaleY;
+            ZoomValue = newScaleX;
 
             // ScrollViewer의 스크롤 위치 조정
             svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset + (mousePosition.X * (zoom - 1)));
             svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset + (mousePosition.Y * (zoom - 1)));
-
-            e.Handled = true; // 이벤트가 다른 곳으로 전파되는 것을 막음
         }
 
         bool mousing = false; //현재 마우스가 클릭 상태인지에 대한 변수
-        int startX = 0; //클릭 시 마우스 x좌표 위치 저장 변수
-        int startY = 0; //클릭 시 마우스 y좌표 위치 저장 변수
+        decimal startX = 0; //클릭 시 마우스 x좌표 위치 저장 변수
+        decimal startY = 0; //클릭 시 마우스 y좌표 위치 저장 변수
 
-        private void cvsCross_MouseDown(object sender, MouseButtonEventArgs e)
+        private void pnlOuter_MouseDown(object sender, MouseButtonEventArgs e)
         {
             mousing = true; //마우스 눌린 상태
 
-            string position = e.GetPosition(svTeaching).ToString(); //현재 클릭된 이미지 위치 가져옴
+            string position = e.GetPosition(pnlOuter).ToString(); //현재 클릭된 이미지 위치 가져옴
 
             string[] split = position.Split(','); // 이미지 위치 문자열인 position을 ',' 단위로 split
-            startX = Int32.Parse(split[0]); //x좌표 저장
-            startY = Int32.Parse(split[1]); //y좌표 저장
+            startX = decimal.Parse(split[0]); //x좌표 저장
+            startY = decimal.Parse(split[1]); //y좌표 저장
         }
 
-        private void cvsCross_MouseUp(object sender, MouseButtonEventArgs e)
+        private void pnlOuter_MouseUp(object sender, MouseButtonEventArgs e)
         {
             mousing = false; //마우스 뗀 상태 저장
         }
 
 
-        private void cvsCross_MouseMove(object sender, MouseEventArgs e)
+        private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
         {
             // Canvas 기준 현재 마우스 포지션 가져오기
-            Point mousePos = e.GetPosition(cvsCross);
+            System.Windows.Point mousePos = e.GetPosition(pnlOuter);
 
             // 수직선 위치 조정 (X좌표 고정)
             VerticalLine.X1 = mousePos.X;
@@ -910,27 +888,22 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (mousing) //마우스 클릭 시
             {
-                string position = e.GetPosition(svTeaching).ToString(); //현재 마우스 위치 가져옴
+                string position = e.GetPosition(pnlOuter).ToString(); //현재 마우스 위치 가져옴
 
                 string[] split = position.Split(',');
-                int changeX = Int32.Parse(split[0]) - startX;
-                int changeY = Int32.Parse(split[1]) - startY; //변경된 좌표값 저장
+                decimal changeX = decimal.Parse(split[0]) - startX;
+                decimal changeY = decimal.Parse(split[1]) - startY; //변경된 좌표값 저장
 
-                startX = Int32.Parse(split[0]);
-                startY = Int32.Parse(split[1]); //처음 시작 좌표를 현재 좌표로 교체
+                startX = decimal.Parse(split[0]);
+                startY = decimal.Parse(split[1]); //처음 시작 좌표를 현재 좌표로 교체
 
-                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - changeX);
-                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - changeY);
+                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - (double)changeX);
+                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - (double)changeY);
             }
         }
 
 
         #endregion
-
-        private void sldrScale_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-
-        }
 
         private void chkBinarization_Checked(object sender, RoutedEventArgs e)
         {
