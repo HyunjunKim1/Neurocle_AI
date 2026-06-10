@@ -822,6 +822,8 @@ namespace HDSInspector_AI.GUI.Windows
         {
             VerticalLine.Visibility = Visibility.Collapsed;
             HorizontalLine.Visibility = Visibility.Collapsed;
+
+            mousing = false; //마우스 누른 상태 초기화
         }
 
         private void pnlOuter_MouseWheel(object sender, MouseWheelEventArgs e)
