@@ -957,7 +957,71 @@ namespace HDSInspector_AI.GUI.Windows
             if (BaseImageSource == null || BasedImage == null || BasedCanvas == null)
                 return;
 
-            System.Windows.Point Image_panel_Point = Mouse.GetPosition(pnlInner);
+            System.Windows.Point Image_panel_Point = Mouse.GetPosition(BasedImage);
+
+            #region Calculate GrayValue
+
+            if (BaseImageSource != null)
+            {
+                if (!_isRGB)
+                {
+                    // GV 표시는 등록된 이미지위 범위 내에서만 동작하도록 한다.
+                    if (!(Image_panel_Point.X > BasedImage.ActualWidth) &&
+                        !(Image_panel_Point.Y > BasedImage.ActualHeight) &&
+                        (Image_panel_Point.X > 0) && (Image_panel_Point.Y > 0))
+                    {
+                        // Calculate GV Value.
+                        byte[] pixel = new byte[1];
+
+                        BaseImageSource.CopyPixels(new Int32Rect((int)Image_panel_Point.X, (int)Image_panel_Point.Y, 1, 1),
+                                                          pixel, SourceWidth, 0);
+
+                        // Update X, Y, GV
+                        txtGVValue.Text = pixel[0].ToString();
+                        txtXPosition.Text = Convert.ToInt32(Image_panel_Point.X).ToString();
+                        txtYPosition.Text = Convert.ToInt32(Image_panel_Point.Y).ToString();
+
+                        #region Unused Code. (Update X, Y by (mm))
+                        //if (ptCurrentByImage.X != 0)
+                        //{
+                        //    txtXPositionMM.Text = string.Format("{0:f2}", Convert.ToDouble(ptCurrentByImage.X * CamResolutionX / 1000 / m_fReferenceImageScale));
+                        //}
+                        //if (ptCurrentByImage.Y != 0)
+                        //{
+                        //    txtYPositionMM.Text = string.Format("{0:f2}", Convert.ToDouble(ptCurrentByImage.Y * CamResolutionY / 1000 / m_fReferenceImageScale));
+                        //}
+                        #endregion
+
+                        // Draw Line profile.
+                        if (BasedCanvas.Tool == ToolType.Pointer && Mouse.LeftButton == MouseButtonState.Released)
+                        {
+                            double fScale = SourceHeight / BasedImage.ActualHeight;
+                            LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.GetLinePixels(BaseImageSource, Convert.ToInt32(Image_panel_Point.Y * fScale)));
+                        }
+                    }
+                    else
+                    {
+                        this.txtGVValue.Text = "0";
+                    }
+                }
+            }
+
+            if ((BasedCanvas.Tool == ToolType.Move || (Keyboard.IsKeyDown(Key.Space) && Mouse.LeftButton == MouseButtonState.Pressed)) && _ptLastDragPoint != null)
+            {
+                double fdeltaX = Image_panel_Point.X - _ptLastDragPoint.Value.X;
+                double fdeltaY = Image_panel_Point.Y - _ptLastDragPoint.Value.Y;
+
+                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - fdeltaX);
+                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - fdeltaY);
+
+                _ptLastDragPoint = Image_panel_Point;
+            }
+            else
+            {
+                BasedCanvas.DrawingCanvas_MouseMove(sender, e);
+            }
+
+            #endregion
 
             #region Draw Cross
             // Canvas 기준 현재 마우스 포지션 가져오기
