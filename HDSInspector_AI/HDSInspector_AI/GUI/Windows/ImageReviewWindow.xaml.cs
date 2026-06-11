@@ -35,6 +35,7 @@ namespace HDSInspector_AI.GUI.Windows
 
         private System.Windows.Point _tmpPoint;
         private Algo _algo = new Algo();
+        private bool _isRGB = true;
         private double zoomFactor = 1.1; //확대, 축소 비율
 
         #region Properties
@@ -123,6 +124,7 @@ namespace HDSInspector_AI.GUI.Windows
             sldrUpperThreshold.Value = 200;
 
             HistogramCtrl.Refresh();
+            LineProfileCtrl.Refresh();
         }
 
         private void InitializeEvents()
@@ -399,7 +401,7 @@ namespace HDSInspector_AI.GUI.Windows
                         int threshold = Convert.ToInt32(txtThreshold.Text);
                         if (threshold >= 0 && threshold <= 255)
                         {
-                            this.HistogramCtrl.EnableBinarization(threshold, threshold, true, false, true, ChannelType.Color);
+                            this.HistogramCtrl.EnableBinarization(threshold, threshold, true, false, _isRGB, ChannelType.Color);
                             Binarization();
                         }
                     }
@@ -414,7 +416,7 @@ namespace HDSInspector_AI.GUI.Windows
 
                         if (lowerThreshold <= upperthreshold && lowerThreshold >= 0 && upperthreshold <= 255)
                         {
-                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperthreshold, false, false, true, ChannelType.Color);
+                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperthreshold, false, false, _isRGB, ChannelType.Color);
                         }
                     }
                     catch (Exception ex) { GLB.AddLog($@"[Review]", $@"{ex.Message}", SeverityLevel.ERROR); }
@@ -439,7 +441,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (sldrLowerThreshold.Value >= 0 && sldrLowerThreshold.Value <= sldrUpperThreshold.Value)
             {
-                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: _isRGB, ChannelType.Color);
 
                 if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
                     Binarization();
@@ -457,7 +459,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (sldrUpperThreshold.Value >= sldrLowerThreshold.Value && sldrUpperThreshold.Value <= 255)
             {
-                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
+                this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, IsSingleMode: false, isReference: false, isColor: _isRGB, ChannelType.Color);
 
                 if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
                     Binarization();
@@ -475,7 +477,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (sldrThreshold.Value >= 0 && sldrThreshold.Value <= 255)
             {
-                this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, isReference: false, isColor: true, ChannelType.Color);
+                this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, isReference: false, isColor: _isRGB, ChannelType.Color);
 
                 if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
                     Binarization();
@@ -743,7 +745,18 @@ namespace HDSInspector_AI.GUI.Windows
 
             try
             {
-                BitmapSource bitmapSource = BitmapImageLoader.LoadCachedBitmapImage(new Uri(aszFileName)) as BitmapSource;
+                BitmapSource bitmapSource;
+                Uri cvtUri = new Uri(aszFileName);
+                using(Mat readMat = Cv2.ImRead(cvtUri.LocalPath, ImreadModes.Unchanged))
+                {
+                    if (readMat.Type() == MatType.CV_8UC1)
+                        _isRGB = false;
+                    else
+                        _isRGB = true;
+
+                    bitmapSource = BitmapSourceConverter.ToBitmapSource(readMat);
+                }
+
 
                 if (bitmapSource != null)
                 {
@@ -925,12 +938,12 @@ namespace HDSInspector_AI.GUI.Windows
                 {
                     if (radSingleThreshold.IsChecked == true)
                     {
-                        this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, false, true, ChannelType.Color);
+                        this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, false, _isRGB, ChannelType.Color);
                         Binarization();
                     }
                     else
                     {
-                        this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, false, false, true, ChannelType.Color);
+                        this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, false, false, _isRGB, ChannelType.Color);
                         Binarization();
                     }
                 }
@@ -941,6 +954,11 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
         {
+            if (BaseImageSource == null || BasedImage == null || BasedCanvas == null)
+                return;
+
+            System.Windows.Point Image_panel_Point = Mouse.GetPosition(pnlInner);
+
             #region Draw Cross
             // Canvas 기준 현재 마우스 포지션 가져오기
             System.Windows.Point ptCvsCanvas = e.GetPosition(cvsCross);
@@ -970,6 +988,19 @@ namespace HDSInspector_AI.GUI.Windows
 
                 _ptLastDragPoint = currentPoint;
             }
+            #endregion
+
+            #region Draw Line Profile
+
+            if (BasedCanvas.Tool == ToolType.Pointer && Mouse.LeftButton == MouseButtonState.Released)
+            {
+                // Draw Line profile.
+
+                double fScale = SourceHeight / BasedImage.ActualHeight;
+                this.LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.Mono_GetLinePixels(BaseImageSource, Convert.ToInt32(Image_panel_Point.Y * fScale)));
+            }
+
+
             #endregion
         }
 
