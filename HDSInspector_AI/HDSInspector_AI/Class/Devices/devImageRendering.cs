@@ -25,9 +25,11 @@ using System.Web.UI;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 using static OpenCvSharp.LineIterator;
 using D3D11Device = SharpDX.Direct3D11.Device;
 using D3D11Texture2D = SharpDX.Direct3D11.Texture2D;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Devices
 {
@@ -126,6 +128,7 @@ namespace HDSInspector_AI.Class.Devices
                     _sharedTexture11);
 
                 _d3d11Device.ImmediateContext.Flush();
+                
                 ImageSource.Lock();
                 ImageSource.AddDirtyRect(new Int32Rect(0, 0, cvtMat.Width, cvtMat.Height));
                 ImageSource.Unlock();

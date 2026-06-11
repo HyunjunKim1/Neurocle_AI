@@ -80,12 +80,10 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
 
         public devServerMain       Server   = new devServerMain();
-        public devImageRendering   DxRender = new devImageRendering();
 
         // Class Manager
         public SequenceManager  Sequence    = new SequenceManager();
         public CameraManager    Cameras     = new CameraManager();
-        public UIManager        UIs         = new UIManager();
         public WindowManager    Windows     = new WindowManager();
 
         #endregion

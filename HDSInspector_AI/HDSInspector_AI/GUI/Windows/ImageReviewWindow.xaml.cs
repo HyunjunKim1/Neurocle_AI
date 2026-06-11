@@ -1,6 +1,7 @@
 ﻿using Common;
 using Common.Drawing;
 using ControlzEx.Standard;
+using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.GUI.UserControls.ImageReivew;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
@@ -25,6 +26,7 @@ namespace HDSInspector_AI.GUI.Windows
     public partial class ImageReviewWindow : System.Windows.Window //애매한 참조 오류로 Window->System.Windows.Window로 수정
     {
         public static event ToolTypeChangeEventHandler ToolTypeChangeEvent;
+        private devImageRendering _dxRender = new devImageRendering();
         // 멤버변수
         private double _zoomToFitScale = 1.0;
         private System.Windows.Point? _ptLastDragPoint;
@@ -109,7 +111,7 @@ namespace HDSInspector_AI.GUI.Windows
                 Height = 0
             };
 
-            BasedImage.Source = GLB.DxRender.ImageSource;
+            BasedImage.Source = _dxRender.ImageSource;
 
             ToolChange(ToolType.Pointer);
 
@@ -634,7 +636,7 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 BasedCanvas.Width = BasedImage.Width = orgMat.Width;
                 BasedCanvas.Height = BasedImage.Height = orgMat.Height;
-                GLB.DxRender.Load(orgMat);
+                _dxRender.Load(orgMat);
                 CalculateZoomToFitScale();
                 LineProfileCtrl.SetLineProfileSource(BaseImageSource);
                 LineProfileCtrl.Refresh();

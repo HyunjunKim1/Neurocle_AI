@@ -202,7 +202,6 @@
     <Compile Include="Class\GlobalFunctions\GlobalFunction.cs" />
     <Compile Include="Class\Manager\CameraManager.cs" />
     <Compile Include="Class\Interface\ICameraController.cs" />
-    <Compile Include="Class\Manager\UIManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

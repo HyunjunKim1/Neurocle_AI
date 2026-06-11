@@ -29,7 +29,7 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
 
         #region Private member variables.
         private Point[] m_ptLineProfileDataList; // X,Y interval에 의해 측정된 Line Profile 좌표리스트
-        private static Path m_LineProfilePath = new Path(); // 좌표리스트를 이용하여 화면에 Line Profile을 그려낸다.
+        private Path m_LineProfilePath = new Path(); // 좌표리스트를 이용하여 화면에 Line Profile을 그려낸다.
 
         private double m_fIntervalX = 0.0;
         private double m_fIntervalY = 0.0;
@@ -136,22 +136,17 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
                 return;
             }
 
-            // TBD : 샘플링을 통한 LineProfile 그리기.
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                m_nPixelWidth = source.PixelWidth;
 
-            //if (source.PixelWidth < MAX_SOURCE_WIDTH)
-            //{
-            m_nPixelWidth = source.PixelWidth;
-            //}
-            //else
-            //{
-            //    m_nPixelWidth = source.PixelWidth / SAMPLING_RATE;
-            //}
+                m_ptLineProfileDataList = new Point[m_nPixelWidth];
+                m_LineProfilePath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
 
-            m_ptLineProfileDataList = new Point[m_nPixelWidth];
-            m_LineProfilePath.Fill = new SolidColorBrush(Color.FromArgb(255, 68, 68, 68));
+                m_fIntervalX = 1.0 / m_nPixelWidth * (CONTROL_WIDTH - m_fMarginX);
+                m_fIntervalY = 1.0 / 255.0 * (CONTROL_HEIGHT - m_fMarginY * 2);
+            }));
 
-            m_fIntervalX = 1.0 / m_nPixelWidth * (CONTROL_WIDTH - m_fMarginX);
-            m_fIntervalY = 1.0 / 255.0 * (CONTROL_HEIGHT - m_fMarginY * 2);
         }
 
         public void DrawLineProfile(byte[] lineData)
