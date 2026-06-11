@@ -19,6 +19,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI
 {
@@ -27,7 +28,6 @@ namespace HDSInspector_AI
     /// </summary>
     public partial class SplashWindow : Window
     {
-        private readonly GlobalFunction GLB = GlobalFunction.GLB;
         CustomThread _threadSplash;
         int _step = 0;
 
@@ -226,14 +226,10 @@ namespace HDSInspector_AI
                         break;
 
                     case 90:
-                        // Initialize Classes
-                        GLB.Windows     = new Class.Manager.WindowManager();
-                        GLB.Sequence    = new Class.Manager.SequenceManager();
-
                         // Initialize Windows & UserControls
                         Application.Current.Dispatcher.Invoke(() =>
                         {
-                            GLB.Windows.Review  = GLB.Windows.CreateWindows<ImageReviewWindow>();
+                            GLB.Windows.CreateWindows(Class.Manager.WindowManager.WINDOW_NAME.REVIEW);
 
                             // Grid Left uc
                             GLB.Windows.HW      = GLB.Windows.CreateUserControl<Uc_HW>();

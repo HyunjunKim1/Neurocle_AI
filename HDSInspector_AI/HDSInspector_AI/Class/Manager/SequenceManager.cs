@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Manager
 {
@@ -20,8 +21,6 @@ namespace HDSInspector_AI.Class.Manager
     }
     public class SequenceManager
     {
-        private readonly GlobalFunction GLB = GlobalFunction.GLB;
-
         enum SUB_SEQUENCE_RESULT
         {
             ING,

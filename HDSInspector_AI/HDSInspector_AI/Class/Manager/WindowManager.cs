@@ -1,25 +1,41 @@
-﻿using HDSInspector_AI.Class.Interface;
+﻿using ControlzEx.Behaviors;
+using HDSInspector_AI.Class.Interface;
 using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
 using HDSInspector_AI.GUI.UserControls.Main.GridMiddle;
 using HDSInspector_AI.GUI.UserControls.Main.GridRight;
 using HDSInspector_AI.GUI.Windows;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Manager
 {
+    /// <summary>
+    /// Singleton Pattern 기반, 각 GUI 객체를 별도 할당 하는것이 아님
+    /// Popup GUI Window의 경우, Splash에서 미리 객체 생성을 한 후, Visible로 제어하며 Singleton Pattern 활용도를 높임
+    /// </summary>
     public class WindowManager : IWindowService
     {
+        public enum WINDOW_NAME
+        {
+            // 추가적인 Form들 여기에 추가 후 제어
+            REVIEW,
+        }
+
         private readonly List<WeakReference<Window>> _openedWindows = new List<WeakReference<Window>>();
         private readonly Dictionary<Type, object> _windowInstances = new Dictionary<Type, object>();
 
         // 기능 동작하는 Windows
-        public ImageReviewWindow Review;
+        public ImageReviewWindow Review = new ImageReviewWindow();
 
         // Main UserControl
         // Grid Left uc
@@ -35,47 +51,93 @@ namespace HDSInspector_AI.Class.Manager
         public Uc_DefectCount   DefectCount;
         public Uc_DefectMap     DefectMap;
 
-        public T CreateWindows<T>() where T : Window, new()
+        public void ThreadSorting()
         {
-            return new T();
+            Process currentProcess = Process.GetCurrentProcess();
+
+            foreach (ProcessThread processThread in currentProcess.Threads)
+            {
+                processThread.ProcessorAffinity = currentProcess.ProcessorAffinity;
+            }
+        }
+        
+        /// <summary>
+        /// Window 객체 생성 후, Visible 변경을 함.
+        /// Memory 할당을 하며, 객체 생성 / 해제에 대한 리소스 낭비 방지
+        /// </summary>
+        /// <param name="name">생성 하고자 하는 Window Enum 관리</param>
+        public void CreateWindows(WINDOW_NAME name)
+        {
+            try
+            {
+                Window win = null;
+                Dispatcher dispatcher = null;
+
+                Thread thrd = new Thread(() =>
+                {
+                    switch (name)
+                    {
+                        case WINDOW_NAME.REVIEW:
+                            win = new ImageReviewWindow();
+                            break;
+                    }
+                    win.Tag = name;
+                    win.Visibility = Visibility.Hidden;
+
+                    //Dispatcher 저장
+                    dispatcher = Dispatcher.CurrentDispatcher;
+
+                    win.Show();
+                    Dispatcher.Run();
+                });
+                thrd.SetApartmentState(ApartmentState.STA);
+                thrd.IsBackground = true;
+                thrd.Start();
+
+                while (win == null || dispatcher == null)
+                    Thread.Sleep(10);
+
+                dispatcher.Invoke(() =>
+                {
+                    win.Topmost = true;
+                    win.Hide();
+                    win.Topmost = false;
+                });
+
+                ThreadSorting();
+
+                switch (name)
+                {
+                    case WINDOW_NAME.REVIEW:
+                        Review = (ImageReviewWindow)win;
+                        break;
+                }
+                win.Closing += Window_Closing;
+                //win.IsVisibleChanged += Window_VisibleChanged;
+            }
+            catch (Exception ex) {
+                GLB.AddLog("[WindowManager]", $@"{ex.Message}", Common.SeverityLevel.ERROR);
+            }
+        }
+
+        private void Window_VisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Window win = (sender as Window);
+            WINDOW_NAME winName = (WINDOW_NAME)Enum.Parse(typeof(WINDOW_NAME), win.Tag.ToString());
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Window window = (sender as Window);
+            window.WindowState = WindowState.Normal;
+            window.Hide();
+            window.ShowInTaskbar = false;
         }
 
         public T CreateUserControl<T>() where T : UserControl, new()
         {
             return new T();
-        }
-
-        public void ShowWindows<T>(bool asDialog = false) where T : Window, new()
-        {
-            // 기존에 열려 있는 윈도우 중 동일한 타입이 있는지 확인
-            Window window = FindWindow<T>();
-
-            if (window != null)
-            {
-                // 이미 열려 있으면 활성화
-                window.Activate();
-                return;
-            }
-
-            // 새로 생성
-            window = new T();
-            AddWindowReference(window);
-
-            window.Closed += (s, e) =>
-            {
-                RemoveWindowReference((Window)s);
-            };
-
-            if (asDialog)
-                window.ShowDialog();
-            else
-                window.Show();
-        }
-
-        public void CloseWindows<T>() where T : Window
-        {
-            Window window = FindWindow<T>();
-            window?.Close();
         }
 
         public void CloseAllWindows()

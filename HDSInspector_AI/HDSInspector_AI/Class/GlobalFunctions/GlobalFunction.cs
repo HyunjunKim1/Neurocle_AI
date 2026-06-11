@@ -27,7 +27,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
     #endregion
 
-    public class GlobalFunction
+    public class GlobalFunction : IDisposable
     {
         private static readonly Lazy<GlobalFunction> _instance = new Lazy<GlobalFunction>();
         public static GlobalFunction GLB => _instance.Value;
@@ -74,28 +74,25 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         /// Global로 사용하기 위한 Class 정의
         /// </summary>
         
-        public Logger           Logger      { get; set; }
-        public Setting          Setting     { get; set; }
-        public ImageProcessing  ImgProc     { get; set; }
+        public Logger           Logger      = Logger.GetLogger();
+        public Setting          Setting     = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
+        public ImageProcessing  ImgProc     = new ImageProcessing();
 
 
-        public devServerMain        Server      { get; set; }
-        public devImageRendering    DxRender { get; set; }
+        public devServerMain       Server   = new devServerMain();
+        public devImageRendering   DxRender = new devImageRendering();
 
         // Class Manager
-        public SequenceManager  Sequence { get; set; }
-        public CameraManager    Cameras   { get; set; }
-        public UIManager        UIs      { get; set; }
-        public WindowManager    Windows  { get; set; }
+        public SequenceManager  Sequence    = new SequenceManager();
+        public CameraManager    Cameras     = new CameraManager();
+        public UIManager        UIs         = new UIManager();
+        public WindowManager    Windows     = new WindowManager();
+
         #endregion
 
-        public GlobalFunction()
+        public void Dispose()
         {
-            Setting     = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
-            Logger      = Logger.GetLogger();
-            Server      = new devServerMain();
-            DxRender    = new devImageRendering();
-            ImgProc     = new ImageProcessing();
+            Sequence.Dispose();
         }
 
         #region Global Functions

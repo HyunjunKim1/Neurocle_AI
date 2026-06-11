@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.GUI.UserControls.ImageReivew
 {
@@ -21,8 +22,6 @@ namespace HDSInspector_AI.GUI.UserControls.ImageReivew
     /// </summary>
     public partial class Uc_LineProfile : UserControl
     {
-        private readonly GlobalFunction GLB = GlobalFunction.GLB;
-
         private const int CONTROL_WIDTH = 350;
         private const int CONTROL_HEIGHT = 180;
 

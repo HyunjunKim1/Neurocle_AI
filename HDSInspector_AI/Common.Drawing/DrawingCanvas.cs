@@ -1662,14 +1662,6 @@ namespace Common.Drawing
                 }
             }
 
-            if (SelectedGraphic is GraphicsSelectionRectangle)
-            {
-                if (((GraphicsSelectionRectangle)SelectedGraphic).WidthProperty == 0 &&
-                   ((GraphicsSelectionRectangle)SelectedGraphic).HeightProperty == 0)
-                {
-                    SelectedGraphic = null;
-                }
-            }
             if (Tool != ToolType.PolyLine && e.ChangedButton == MouseButton.Left)
             {
                 DrawingFinished = true;

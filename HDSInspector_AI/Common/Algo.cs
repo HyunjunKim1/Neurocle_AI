@@ -454,6 +454,21 @@ namespace Common
                 return null;
             }
         }
+        public void GetBinaryImage(int anLowerThreshold, int anUpperThreshold, int anErodeIteration, int anDilateIteration)
+        {
+            m_imgEntireImage.CopyTo(m_imgBufferImage);
+            
+            Cv2.CvtColor(m_imgBufferImage, m_imgBufferImage, ColorConversionCodes.BGR2GRAY);
+           
+            Cv2.Threshold(m_imgBufferImage, m_imgBufferImage, anLowerThreshold, anUpperThreshold, ThresholdTypes.Binary);
+
+            if (anErodeIteration > 0)
+                Cv2.Erode(m_imgBufferImage, m_imgBufferImage, new Mat(), null, anErodeIteration);
+            if (anDilateIteration > 0)
+                Cv2.Dilate(m_imgBufferImage, m_imgBufferImage, new Mat(), null, anDilateIteration);
+            
+        }
+
         public void DoProcessing(int anLowerThreshold, int anUpperThreshold, int anErodeIteration, int anDilateIteration)
         {
             m_imgEntireImage.CopyTo(m_imgBufferImage);
@@ -465,6 +480,8 @@ namespace Common
                 Cv2.Dilate(m_imgBufferImage.SubMat(m_rcImageROI), m_imgBufferImage.SubMat(m_rcImageROI), new Mat(), null, anDilateIteration);
 
         }
+
+
 
         public static BitmapSource GetIndexed8BitmapSource(byte[] pixels, int pixelWidth, int pixelHeight)
         {
@@ -493,8 +510,10 @@ namespace Common
         }
         public static BitmapSource LoadImage(string filepath)
         {
-            return BitmapSourceConverter.ToBitmapSource(Cv2.ImRead(filepath, ImreadModes.Color));
+            return BitmapSourceConverter.ToBitmapSource(Cv2.ImRead(filepath, ImreadModes.Unchanged));
         }
+
+
         public bool SaveBS(string aszfilepath, BitmapSource bs)
         {
             try

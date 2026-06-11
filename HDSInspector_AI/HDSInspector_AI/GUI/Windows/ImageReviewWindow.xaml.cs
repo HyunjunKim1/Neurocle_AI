@@ -1,6 +1,6 @@
 ﻿using Common;
 using Common.Drawing;
-using HDSInspector_AI.Class.GlobalFunctions;
+using ControlzEx.Standard;
 using HDSInspector_AI.GUI.UserControls.ImageReivew;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
@@ -13,8 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using static System.Collections.Specialized.BitVector32;
-using Window = System.Windows.Window;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 
 namespace HDSInspector_AI.GUI.Windows
@@ -25,8 +24,6 @@ namespace HDSInspector_AI.GUI.Windows
     /// </summary>
     public partial class ImageReviewWindow : System.Windows.Window //애매한 참조 오류로 Window->System.Windows.Window로 수정
     {
-        private readonly GlobalFunction GLB = GlobalFunction.GLB;
-
         public static event ToolTypeChangeEventHandler ToolTypeChangeEvent;
         // 멤버변수
         private double _zoomToFitScale = 1.0;
@@ -80,15 +77,16 @@ namespace HDSInspector_AI.GUI.Windows
         }
 
         #endregion
-        
+
         public ImageReviewWindow()
         {
             InitializeComponent();
+        }
+
+        private void ReviewWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             InitializeEvents();
             InitializeDialogs();
-
-            Debug.WriteLine(GLB.DxRender.ImageSource.PixelHeight);
-            Debug.WriteLine(GLB.DxRender.ImageSource.PixelWidth);
         }
 
         private void InitializeDialogs()
@@ -128,20 +126,21 @@ namespace HDSInspector_AI.GUI.Windows
         private void InitializeEvents()
         {
             // Zoom events.
-            this.btnZoomIn.Click        += zoomBtn_Click;
-            this.btnZoomOut.Click       += zoomBtn_Click;
-            this.btnZoomToFit.Click     += zoomBtn_Click;
+            this.btnZoomIn.Click += zoomBtn_Click;
+            this.btnZoomOut.Click += zoomBtn_Click;
+            this.btnZoomToFit.Click += zoomBtn_Click;
             this.sldrScale.ValueChanged += sldrScale_ValueChanged;
 
-            this.pnlOuter.MouseDown     += pnlOuter_MouseDown;
-            this.pnlOuter.MouseUp       += pnlOuter_MouseUp;
-            this.pnlOuter.MouseWheel    += pnlOuter_MouseWheel;
-            this.pnlOuter.MouseMove     += pnlOuter_MouseMove;
-           
-            this.cvsCross.MouseEnter    += cvsCross_MouseEnter;
-            this.cvsCross.MouseLeave    += cvsCross_MouseLeave;
+            this.pnlOuter.MouseDown += pnlOuter_MouseDown;
+            this.pnlOuter.MouseLeftButtonUp += pnlOuter_MouseLeftUp;
+            this.pnlOuter.MouseWheel += pnlOuter_MouseWheel;
+            this.pnlOuter.MouseMove += pnlOuter_MouseMove;
+
+            this.cvsCross.MouseEnter += cvsCross_MouseEnter;
+            this.cvsCross.MouseLeave += cvsCross_MouseLeave;
 
             #region About Binariztation.
+            this.chkBinarization.Click += chkBinarization_Click;
             this.sldrLowerThreshold.ValueChanged += sldrLowerThreshold_ValueChanged;
             this.sldrUpperThreshold.ValueChanged += sldrUpperThreshold_ValueChanged;
             this.sldrThreshold.ValueChanged += sldrThreshold_ValueChanged;
@@ -164,7 +163,6 @@ namespace HDSInspector_AI.GUI.Windows
 
             this.Closed += ImageReviewWindow_Closed;
         }
-
 
         private void ImageReviewWindow_Closed(object sender, EventArgs e)
         {
@@ -388,6 +386,41 @@ namespace HDSInspector_AI.GUI.Windows
             chkBinarization_Click(null, null);
         }
 
+        private void chkBinarization_Click(object sender, RoutedEventArgs e)
+        {
+            if (chkBinarization.IsChecked == true)
+            {
+                if (radSingleThreshold.IsChecked == true)
+                {
+                    try
+                    {
+                        int threshold = Convert.ToInt32(txtThreshold.Text);
+                        if (threshold >= 0 && threshold <= 255)
+                        {
+                            this.HistogramCtrl.EnableBinarization(threshold, threshold, true, false, true, ChannelType.Color);
+                            Binarization();
+                        }
+                    }
+                    catch (Exception ex) { GLB.AddLog($@"[Review]", $@"{ex.Message}", SeverityLevel.ERROR); }
+                }
+                else
+                {
+                    try
+                    {
+                        int lowerThreshold = Convert.ToInt32(txtLowerThreshold.Text);
+                        int upperthreshold = Convert.ToInt32(txtUpperThreshold.Text);
+
+                        if (lowerThreshold <= upperthreshold && lowerThreshold >= 0 && upperthreshold <= 255)
+                        {
+                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperthreshold, false, false, true, ChannelType.Color);
+                        }
+                    }
+                    catch (Exception ex) { GLB.AddLog($@"[Review]", $@"{ex.Message}", SeverityLevel.ERROR); }
+                }
+            }
+            else this.HistogramCtrl.HideThresholdGuideLine();
+        }
+
         private void txtUpperThreshold_LostFocus(object sender, RoutedEventArgs e)
         {
             if (txtUpperThreshold.Text == "")
@@ -400,48 +433,6 @@ namespace HDSInspector_AI.GUI.Windows
                 txtLowerThreshold.Text = "0";
         }
 
-        private void chkBinarization_Click(object sender, RoutedEventArgs e)
-        {
-            if (chkBinarization.IsChecked == true)
-            {
-                //단일 스레시
-                if (radSingleThreshold.IsChecked == true)
-                {
-                    try
-                    {
-                        int threshold = Convert.ToInt32(txtThreshold.Text);
-                        if (threshold >= 0 && threshold <= 255)
-                        {
-                            this.HistogramCtrl.EnableBinarization(threshold, threshold, IsSingleMode: true, isReference: false, isColor: true, ChannelType.Color);
-                            Binarization();
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-                else //멀티 스레시
-                {
-                    try
-                    {
-                        int lowerThreshold = Convert.ToInt32(txtLowerThreshold.Text);
-                        int upperThreshold = Convert.ToInt32(txtUpperThreshold.Text);
-
-                        if (lowerThreshold <= upperThreshold &&
-                            lowerThreshold >= 0 &&
-                            upperThreshold <= 255)
-                        {
-                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperThreshold, IsSingleMode: false, isReference: false, isColor: true, ChannelType.Color);
-                            Binarization();
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-            else this.HistogramCtrl.HideThresholdGuideLine();
-        }
         private void sldrLowerThreshold_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (sldrLowerThreshold.Value >= 0 && sldrLowerThreshold.Value <= sldrUpperThreshold.Value)
@@ -495,6 +486,100 @@ namespace HDSInspector_AI.GUI.Windows
                 }
             }
         }
+        private void ClipPos(ref Int32Rect arcTarget, System.Windows.Size anBoundary)
+        {
+            if (arcTarget.X < 0)
+                arcTarget.X = 0;
+            if (arcTarget.X >= anBoundary.Width)
+                arcTarget.X = (int)anBoundary.Width - 1;
+
+            if (arcTarget.Y < 0)
+                arcTarget.Y = 0;
+            if (arcTarget.Y >= anBoundary.Height)
+                arcTarget.Y = (int)anBoundary.Height - 1;
+
+            if (arcTarget.X + arcTarget.Width >= anBoundary.Width)
+                arcTarget.Width = (int)anBoundary.Width - arcTarget.X;
+            if (arcTarget.Y + arcTarget.Height >= anBoundary.Height)
+                arcTarget.Height = (int)anBoundary.Height - arcTarget.X;
+        }
+
+        public void Binarization()
+        {
+            int nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter;
+
+            if ((bool)radSingleThreshold.IsChecked)
+            {
+                nLowerThreshold = (int)sldrThreshold.Value;
+                nUpperThreshold = 255;
+            }
+            else
+            {
+                nLowerThreshold = (int)sldrLowerThreshold.Value;
+                nUpperThreshold = (int)sldrUpperThreshold.Value;
+            }
+
+            nErosionIter = (int)sldrErosionIter.Value;
+            nDilationIter = (int)sldrDilationIter.Value;
+
+            try
+            {
+                Binarization(BaseImageSource, nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter);
+            }
+            catch
+            {
+                Debug.WriteLine("Exception occured in Binarization(TeachingViewerCtrl.xaml.cs)");
+            }
+        }
+        public void Binarization(BitmapSource bitmapSource, int anLowerThreshold, int anUpperThreshold, int anErosionIter, int anDilationIter)
+        {
+            try
+            {
+                if (bitmapSource == null) return;
+                int width = bitmapSource.PixelWidth;
+                int height = bitmapSource.PixelHeight;
+
+                GraphicsBase graphic = BasedCanvas.SelectedGraphic;
+                if (graphic == null)
+                    return;
+
+                Int32Rect region = new Int32Rect();
+                if (graphic is GraphicsRectangleBase)
+                {
+                    region.X = 0;
+                    region.Y = 0;
+                    //region.Width = (int)Math.Round(((GraphicsRectangleBase)graphic).Right - ((GraphicsRectangleBase)graphic).Left);
+                    //region.Height = (int)Math.Round(((GraphicsRectangleBase)graphic).Bottom - ((GraphicsRectangleBase)graphic).Top);
+                    region.Width = (int)BasedCanvas.ActualWidth;
+                    region.Height = (int)BasedCanvas.ActualHeight;
+
+                    ClipPos(ref region, new System.Windows.Size(width, height));
+                }
+                else if (graphic is GraphicsPolyLine)
+                {
+                    region.X = ((GraphicsPolyLine)graphic).LeftProperty;
+                    region.Y = ((GraphicsPolyLine)graphic).TopProperty;
+                    region.Width = (int)Math.Round(((GraphicsPolyLine)graphic).WidthProperty) - 1;
+                    region.Height = (int)Math.Round(((GraphicsPolyLine)graphic).HeightProperty) - 1;
+
+                    ClipPos(ref region, new System.Windows.Size(width, height));
+                }
+
+                if (region.Width <= 0 || region.Height <= 0) // check region.
+                    return;
+
+                _algo.SetImage(bitmapSource);
+                //_algo.SetImageROI(new System.Drawing.Rectangle(region.X, region.Y, region.Width, region.Height));
+                //_algo.DoProcessing(anLowerThreshold, anUpperThreshold, anErosionIter, anDilationIter);
+                _algo.GetBinaryImage(anLowerThreshold, anUpperThreshold, anErosionIter, anDilationIter);
+                BasedImage.Source = _algo.GetImage();
+            }
+            catch (Exception ex)
+            {
+                GLB.AddLog("[Review]", $@"{ex.Message} - ImageReviewWindow.cs", SeverityLevel.ERROR);
+            }
+        }
+
         private void sldrDilationIter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
@@ -608,38 +693,7 @@ namespace HDSInspector_AI.GUI.Windows
             svTeaching.ScrollToVerticalOffset(0.0);
         }
 
-        public void Binarization()
-        {
-            int nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter;
 
-            if ((bool)radSingleThreshold.IsChecked)
-            {
-                nLowerThreshold = (int)sldrThreshold.Value;
-                nUpperThreshold = 255;
-            }
-            else
-            {
-                nLowerThreshold = (int)sldrLowerThreshold.Value;
-                nUpperThreshold = (int)sldrUpperThreshold.Value;
-            }
-
-            nErosionIter = (int)sldrErosionIter.Value;
-            nDilationIter = (int)sldrDilationIter.Value;
-
-            try
-            {
-                // CHEKCK : 전체 영상일 경우 처리 시간이 이미지 로딩에 오래걸림
-                //          개선 방향은 Algo 클래스 구조에서 이중 버퍼 형태를 취해야 하며
-                //          원본을 처리하여 결과 이미지 버퍼에 쓰는 구조로 바꿔야 함
-                //          위와 같은 구조에서 매번 이미지 셋팅이 하는 것이 아니라 원 이미지
-                //          변경이 필요할 경우에만 셋팅해야 함으로 로딩 시간 단축 가능함
-                //Binarization(BaseImageSource, nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter);
-            }
-            catch
-            {
-                Debug.WriteLine("Exception occured in Binarization(TeachingViewerCtrl.xaml.cs)");
-            }
-        }
         #endregion
 
         #region Display Image, Load & Save Image
@@ -688,10 +742,9 @@ namespace HDSInspector_AI.GUI.Windows
             try
             {
                 BitmapSource bitmapSource = BitmapImageLoader.LoadCachedBitmapImage(new Uri(aszFileName)) as BitmapSource;
-                
+
                 if (bitmapSource != null)
                 {
-
                     BaseImageSource = bitmapSource;
                     //UpdateViewerSource(BaseImageSource);
                     UpdateDxRendererSource(BaseImageSource);
@@ -822,96 +875,103 @@ namespace HDSInspector_AI.GUI.Windows
         {
             VerticalLine.Visibility = Visibility.Collapsed;
             HorizontalLine.Visibility = Visibility.Collapsed;
-
-            mousing = false; //마우스 누른 상태 초기화
         }
 
         private void pnlOuter_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // 휠의 회전 방향에 따라 배율 설정
-            double zoom = e.Delta > 0 ? zoomFactor : 1.0 / zoomFactor;
-
-            // 새로운 스케일 계산
-            double newScaleX = imageScale.ScaleX * zoom;
-            double newScaleY = imageScale.ScaleY * zoom;
-
-            // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
-            if (newScaleX < _zoomToFitScale || newScaleX > 15.0)
-                return;
-
-            // 마우스 포인트 기준 확대/축소
-            System.Windows.Point mousePosition = e.GetPosition(pnlOuter);
-
-            ZoomValue = newScaleX;
-
-            // ScrollViewer의 스크롤 위치 조정
-            svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset + (mousePosition.X * (zoom - 1)));
-            svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset + (mousePosition.Y * (zoom - 1)));
-        }
-
-        bool mousing = false; //현재 마우스가 클릭 상태인지에 대한 변수
-        decimal startX = 0; //클릭 시 마우스 x좌표 위치 저장 변수
-        decimal startY = 0; //클릭 시 마우스 y좌표 위치 저장 변수
-
-        private void pnlOuter_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            mousing = true; //마우스 눌린 상태
-
-            string position = e.GetPosition(pnlOuter).ToString(); //현재 클릭된 이미지 위치 가져옴
-
-            string[] split = position.Split(','); // 이미지 위치 문자열인 position을 ',' 단위로 split
-            startX = decimal.Parse(split[0]); //x좌표 저장
-            startY = decimal.Parse(split[1]); //y좌표 저장
-        }
-
-        private void pnlOuter_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            mousing = false; //마우스 뗀 상태 저장
-        }
-
-
-        private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
-        {
-            // Canvas 기준 현재 마우스 포지션 가져오기
-            System.Windows.Point mousePos = e.GetPosition(pnlOuter);
-
-            // 수직선 위치 조정 (X좌표 고정)
-            VerticalLine.X1 = mousePos.X;
-            VerticalLine.X2 = mousePos.X;
-            VerticalLine.Y1 = 0;
-            VerticalLine.Y2 = cvsCross.ActualHeight;
-
-            // 수평선 위치 조정 (Y좌표 고정)
-            HorizontalLine.X1 = 0;
-            HorizontalLine.X2 = cvsCross.ActualWidth;
-            HorizontalLine.Y1 = mousePos.Y;
-            HorizontalLine.Y2 = mousePos.Y;
-
-
-            if (mousing) //마우스 클릭 시
+            if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                string position = e.GetPosition(pnlOuter).ToString(); //현재 마우스 위치 가져옴
+                // 휠의 회전 방향에 따라 배율 설정
+                double zoom = e.Delta > 0 ? zoomFactor : 1.0 / zoomFactor;
 
-                string[] split = position.Split(',');
-                decimal changeX = decimal.Parse(split[0]) - startX;
-                decimal changeY = decimal.Parse(split[1]) - startY; //변경된 좌표값 저장
+                // 새로운 스케일 계산
+                double newScaleX = imageScale.ScaleX * zoom;
+                double newScaleY = imageScale.ScaleY * zoom;
 
-                startX = decimal.Parse(split[0]);
-                startY = decimal.Parse(split[1]); //처음 시작 좌표를 현재 좌표로 교체
+                // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
+                if (newScaleX < _zoomToFitScale || newScaleX > sldrScale.Maximum)
+                {
+                    return;
+                }
 
-                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - (double)changeX);
-                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - (double)changeY);
+                // 마우스 포인트 기준 확대/축소
+                System.Windows.Point mousePosition = e.GetPosition(pnlOuter);
+
+                ZoomValue = newScaleX;
+
+                // ScrollViewer의 스크롤 위치 조정
+                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset + (mousePosition.X * (zoom - 1)));
+                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset + (mousePosition.Y * (zoom - 1)));
+
+                e.Handled = true;
             }
         }
 
+        private void pnlOuter_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.MiddleButton == MouseButtonState.Pressed)
+                _ptLastDragPoint = e.GetPosition(svTeaching);
+            else
+                BasedCanvas.DrawingCanvas_MouseDown(sender, e);
+        }
+
+        private void pnlOuter_MouseLeftUp(object sender, MouseButtonEventArgs e)
+        {
+            if(chkBinarization.IsChecked == true)
+            {
+                if (BasedCanvas.SelectedGraphic != null)
+                {
+                    if (radSingleThreshold.IsChecked == true)
+                    {
+                        this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, false, true, ChannelType.Color);
+                        Binarization();
+                    }
+                    else
+                    {
+                        this.HistogramCtrl.EnableBinarization((int)sldrLowerThreshold.Value, (int)sldrUpperThreshold.Value, false, false, true, ChannelType.Color);
+                        Binarization();
+                    }
+                }
+                else
+                    BasedImage.Source = BaseImageSource;
+            }
+        }
+
+        private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
+        {
+            #region Draw Cross
+            // Canvas 기준 현재 마우스 포지션 가져오기
+            System.Windows.Point ptCvsCanvas = e.GetPosition(cvsCross);
+
+            // 수직선 위치 조정 (X좌표 고정)
+            VerticalLine.X1 = ptCvsCanvas.X;
+            VerticalLine.X2 = ptCvsCanvas.X;
+
+            // 수평선 위치 조정 (Y좌표 고정)
+            HorizontalLine.Y1 = ptCvsCanvas.Y;
+            HorizontalLine.Y2 = ptCvsCanvas.Y;
+
+            HorizontalLine.X2 = cvsCross.ActualWidth;
+            VerticalLine.Y2 = cvsCross.ActualHeight;
+            #endregion
+
+            #region Drag Image
+            if ((Mouse.MiddleButton == MouseButtonState.Pressed) && _ptLastDragPoint != null)
+            {
+                System.Windows.Point currentPoint = Mouse.GetPosition(svTeaching);
+
+                decimal changeX = (decimal)currentPoint.X - (decimal)_ptLastDragPoint.Value.X;
+                decimal changeY = (decimal)currentPoint.Y - (decimal)_ptLastDragPoint.Value.Y;
+
+                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - (double)changeX);
+                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - (double)changeY);
+
+                _ptLastDragPoint = currentPoint;
+            }
+            #endregion
+        }
 
         #endregion
 
-        private void chkBinarization_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        
     }
 }

@@ -10,7 +10,7 @@
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="ImageReivewWindow" Height="980" Width="1300" x:Name="ReviewWindow">
+        Title="ImageReivewWindow" Height="980" Width="1300" x:Name="ReviewWindow" Loaded="ReviewWindow_Loaded">
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
     </Window.Background>
@@ -366,7 +366,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text=" Image File Name : " FontWeight="Bold" Foreground="GhostWhite" FontSize="14"/>
                     <TextBlock Text="Testimage.bmp" FontWeight="Bold" Foreground="GhostWhite" FontSize="14" Grid.ColumnSpan="2" Margin="128,0,167,0"/>
-                    <Button x:Name="btn_Load" Grid.Column="2" Click="LoadButton_Click" Style="{StaticResource DarkGradientButton}" Margin="0,0,108,0" HorizontalAlignment="Stretch">Image Load</Button>
+                    <Button x:Name="btn_Load" Grid.Column="1" Click="LoadButton_Click" Style="{StaticResource DarkGradientButton}" Margin="298,0,108,0" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">Image Load</Button>
                     <Button x:Name="btn_Save" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Click="SaveButton_Click" Margin="100,0,0,0" Style="{StaticResource DarkGradientButton}">Image Save</Button>
                 </Grid>
             </Border>
@@ -643,7 +643,7 @@
                 </Grid>
             </ScrollViewer>
         </Border>
-        <Border Grid.Row="1" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8" Grid.ColumnSpan="2" Margin="0,864,0,0" Grid.RowSpan="2">
+        <Border Grid.Row="2" Grid.Column="2" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8" Grid.ColumnSpan="2">
             <Border.Effect>
                 <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
             </Border.Effect>
@@ -669,7 +669,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
                     <ToggleButton Name="chkBinarization" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
-                          Content="이진 변환" Style="{StaticResource CustomToggleButtonStyle}" Checked="chkBinarization_Checked"/>
+                          Content="이진 변환" Style="{StaticResource CustomToggleButtonStyle}"/>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Center" Width="110">
                         <RadioButton Name="radSingleThreshold" Foreground="GhostWhite" FontSize="12" IsChecked="True" IsEnabled="{Binding ElementName=chkBinarization, Path=IsChecked, Mode=OneWay}">Single</RadioButton>
                         <RadioButton Name="radMultiThreshold"  Foreground="GhostWhite" FontSize="12" IsEnabled="{Binding ElementName=chkBinarization, Path=IsChecked, Mode=OneWay}" Margin="10,0,0,0" >Multi</RadioButton>

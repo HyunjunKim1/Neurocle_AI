@@ -124,6 +124,7 @@ namespace Common
             try
             {
                 BitmapSource cachedBitmapSource = Algo.LoadImage(aUriSource.LocalPath);
+
                 //BitmapSource bitmapImage = LoadBitmapAsIndexed8(aUriSource) as BitmapSource;
                 //
                 //byte[] pixels = new byte[bitmapImage.PixelWidth * bitmapImage.PixelHeight];

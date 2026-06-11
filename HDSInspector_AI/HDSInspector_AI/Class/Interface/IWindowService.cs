@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static HDSInspector_AI.Class.Manager.WindowManager;
 
 namespace HDSInspector_AI.Class.Interface
 {
     public interface IWindowService
     {
-        T CreateWindows<T>() where T : Window, new();
-        void ShowWindows<T>(bool asDialog = false) where T : Window, new();
-        void CloseWindows<T>() where T : Window;
+        void CreateWindows(WINDOW_NAME name);
 
     }
 }

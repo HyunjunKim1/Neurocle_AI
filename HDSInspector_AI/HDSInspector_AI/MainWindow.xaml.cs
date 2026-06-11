@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI
 {
@@ -24,8 +25,6 @@ namespace HDSInspector_AI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly GlobalFunction GLB = GlobalFunction.GLB;
-
         public MainWindow()
         {
             InitializeComponent();
