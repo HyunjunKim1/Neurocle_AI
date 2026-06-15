@@ -83,7 +83,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         // Class Manager
         public SequenceManager  Sequence    = new SequenceManager();
-        public CameraManager    Cameras     = new CameraManager();
+        //public CameraManager    Cameras     = new CameraManager();
         public WindowManager    Windows     = new WindowManager();
 
         #endregion
