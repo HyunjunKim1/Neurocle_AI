@@ -9,8 +9,8 @@
         xmlns:myCtrl="clr-namespace:HDSInspector_AI.GUI.UserControls.ImageReivew"
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"
-        Title="ImageReivewWindow" Height="980" Width="1300" x:Name="ReviewWindow" Loaded="ReviewWindow_Loaded">
+        WindowStartupLocation="CenterScreen" Closing="ReviewWindow_Closing"
+        Title="ImageReivewWindow" Height="1010" Width="1300" x:Name="ReviewWindow" Loaded="ReviewWindow_Loaded">
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
     </Window.Background>
@@ -376,7 +376,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="240"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Grid.Column="0" BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
+            <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
                 <Border.Effect>
                     <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
                 </Border.Effect>
@@ -628,7 +628,7 @@
         </Border>
 
         <Border Grid.Column="2" Grid.Row="1" BorderBrush="Black" BorderThickness="1, 0, 1, 1" Grid.ColumnSpan="2">
-            <ScrollViewer x:Name="svTeaching" Grid.Row="1" Grid.Column="1" Background="White" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Focusable="False">
+            <ScrollViewer x:Name="svTeaching" Background="White" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Focusable="False">
                 <Grid x:Name="pnlOuter" Background="Black" >
                     <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Grid.LayoutTransform>
