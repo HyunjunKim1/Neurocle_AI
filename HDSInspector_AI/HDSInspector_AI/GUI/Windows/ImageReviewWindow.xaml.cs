@@ -28,7 +28,7 @@ namespace HDSInspector_AI.GUI.Windows
         public static event ToolTypeChangeEventHandler ToolTypeChangeEvent;
         private devImageRendering _dxRender = new devImageRendering();
         // 멤버변수
-        private double _zoomToFitScale = 0.09;
+        private double _zoomToFitScale = 0.05;
         private System.Windows.Point? _ptLastDragPoint;
         private System.Windows.Point? _ptLastContentMousePosition;
         private System.Windows.Point? _ptLastCenterOfViewport;
@@ -305,7 +305,7 @@ namespace HDSInspector_AI.GUI.Windows
                 fnumerator = ViewerWidth;
                 fdenominator = SourceWidth;
             }
-            _zoomToFitScale = fnumerator / fdenominator * 0.975;
+            _zoomToFitScale = Math.Min(1.0, fnumerator / fdenominator * 0.975);
 
             ZoomValue = _zoomToFitScale;
             sldrScale.Minimum = (_zoomToFitScale > 0) ? _zoomToFitScale : 0.1;
@@ -629,12 +629,17 @@ namespace HDSInspector_AI.GUI.Windows
         #region Other func
         public void UpdateDxRendererSource(BitmapSource aBitmapSource)
         {
+            sldrScale.Value = 1.0;
+            svTeaching.ScrollToHorizontalOffset(0);
+            svTeaching.ScrollToVerticalOffset(0);
+
             Mat orgMat = aBitmapSource.ToMat();
 
             if (orgMat != null)
             {
                 BasedCanvas.Width = BasedImage.Width = orgMat.Width;
                 BasedCanvas.Height = BasedImage.Height = orgMat.Height;
+                BasedImage.Source = aBitmapSource;
                 _dxRender.Load(orgMat);
                 CalculateZoomToFitScale();
                 LineProfileCtrl.SetLineProfileSource(BaseImageSource);
@@ -661,8 +666,12 @@ namespace HDSInspector_AI.GUI.Windows
 
         public void UpdateViewerSource(BitmapSource aBitmapSource)
         {
+            svTeaching.ScrollToHorizontalOffset(0);
+            svTeaching.ScrollToVerticalOffset(0);
+
             if (aBitmapSource != null)
             {
+                //BasedImage.Source = null;
                 BasedCanvas.Width = BasedImage.Width = aBitmapSource.PixelWidth;
                 BasedCanvas.Height = BasedImage.Height = aBitmapSource.PixelHeight;
                 BasedImage.Source = aBitmapSource;
@@ -687,6 +696,9 @@ namespace HDSInspector_AI.GUI.Windows
             pnlInner.Children.Add(BasedCanvas);
 
             ToolChange(ToolType.Pointer);
+
+
+
         }
         public void SetScrollViewerToHome()
         {

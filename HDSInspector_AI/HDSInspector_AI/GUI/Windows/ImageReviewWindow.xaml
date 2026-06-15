@@ -590,7 +590,7 @@
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_OUT.png"/>
                         </Button>
                         <Slider Name="sldrScale" Orientation="Horizontal" Margin="-5, 0"
-		            Minimum="0.05" Maximum="5.0" Value="0.5" 
+		            Minimum="0.05" Maximum="15.0" Value="0.5" 
 		            VerticalAlignment="Center" IsSnapToTickEnabled="True" TickFrequency="0.1" 
 		            Width="120" Style="{DynamicResource SimpleSlider}" ValueChanged="sldrScale_ValueChanged"/>
                         <Button x:Name="btnZoomIn" Width="50" Tag="IN" VerticalAlignment="Center" Margin="-8, 0"
