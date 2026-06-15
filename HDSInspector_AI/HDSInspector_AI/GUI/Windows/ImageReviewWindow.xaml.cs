@@ -28,7 +28,7 @@ namespace HDSInspector_AI.GUI.Windows
         public static event ToolTypeChangeEventHandler ToolTypeChangeEvent;
         private devImageRendering _dxRender = new devImageRendering();
         // 멤버변수
-        private double _zoomToFitScale = 1.0;
+        private double _zoomToFitScale = 0.05;
         private System.Windows.Point? _ptLastDragPoint;
         private System.Windows.Point? _ptLastContentMousePosition;
         private System.Windows.Point? _ptLastCenterOfViewport;
@@ -194,9 +194,6 @@ namespace HDSInspector_AI.GUI.Windows
             }
         }
 
-        #region Mouse Events
-
-        #endregion
 
         #region Cross Canvas Events
 
@@ -313,7 +310,7 @@ namespace HDSInspector_AI.GUI.Windows
                 fnumerator = ViewerWidth;
                 fdenominator = SourceWidth;
             }
-            _zoomToFitScale = fnumerator / fdenominator * 0.975;
+            _zoomToFitScale = Math.Min(1.0, fnumerator / fdenominator * 0.975);
 
             ZoomValue = _zoomToFitScale;
             sldrScale.Minimum = (_zoomToFitScale > 0) ? _zoomToFitScale : 0.1;
@@ -637,12 +634,17 @@ namespace HDSInspector_AI.GUI.Windows
         #region Other func
         public void UpdateDxRendererSource(BitmapSource aBitmapSource)
         {
+            sldrScale.Value = 1.0;
+            svTeaching.ScrollToHorizontalOffset(0);
+            svTeaching.ScrollToVerticalOffset(0);
+
             Mat orgMat = aBitmapSource.ToMat();
 
             if (orgMat != null)
             {
                 BasedCanvas.Width = BasedImage.Width = orgMat.Width;
                 BasedCanvas.Height = BasedImage.Height = orgMat.Height;
+                BasedImage.Source = aBitmapSource;
                 _dxRender.Load(orgMat);
                 CalculateZoomToFitScale();
                 LineProfileCtrl.SetLineProfileSource(BaseImageSource);
@@ -669,8 +671,12 @@ namespace HDSInspector_AI.GUI.Windows
 
         public void UpdateViewerSource(BitmapSource aBitmapSource)
         {
+            svTeaching.ScrollToHorizontalOffset(0);
+            svTeaching.ScrollToVerticalOffset(0);
+
             if (aBitmapSource != null)
             {
+                //BasedImage.Source = null;
                 BasedCanvas.Width = BasedImage.Width = aBitmapSource.PixelWidth;
                 BasedCanvas.Height = BasedImage.Height = aBitmapSource.PixelHeight;
                 BasedImage.Source = aBitmapSource;
@@ -695,6 +701,9 @@ namespace HDSInspector_AI.GUI.Windows
             pnlInner.Children.Add(BasedCanvas);
 
             ToolChange(ToolType.Pointer);
+
+
+
         }
         public void SetScrollViewerToHome()
         {
@@ -754,7 +763,7 @@ namespace HDSInspector_AI.GUI.Windows
                 Uri cvtUri = new Uri(aszFileName);
                 using(Mat readMat = Cv2.ImRead(cvtUri.LocalPath, ImreadModes.Unchanged))
                 {
-                    if (readMat.Type() == MatType.CV_8UC1)
+                    if (readMat.Type() == MatType.CV_8UC1) //흑백인지 컬러인지
                         _isRGB = false;
                     else
                         _isRGB = true;
@@ -764,7 +773,28 @@ namespace HDSInspector_AI.GUI.Windows
 
                 if (bitmapSource != null)
                 {
+                    int width = bitmapSource.PixelWidth;
+                    int height = bitmapSource.PixelHeight;
+
+                    // 큰 이미지만 축소
+                    if (width > 4000 || height > 4000)
+                    {
+                        Mat mat = BitmapSourceConverter.ToMat(bitmapSource);
+
+                        // 1/2 축소
+                        Cv2.PyrDown(mat, mat);
+
+                        // 필요하면 한 번 더
+                        if (mat.Width > 4000 || mat.Height > 4000)
+                        {
+                            Cv2.PyrDown(mat, mat);
+                        }
+
+                        bitmapSource = BitmapSourceConverter.ToBitmapSource(mat);
+                    }
                     BaseImageSource = bitmapSource;
+
+                    _srcMat = BitmapSourceConverter.ToMat(BaseImageSource);
                     //UpdateViewerSource(BaseImageSource);
                     UpdateDxRendererSource(BaseImageSource);
                 }
@@ -896,6 +926,45 @@ namespace HDSInspector_AI.GUI.Windows
             HorizontalLine.Visibility = Visibility.Collapsed;
         }
 
+        private int GetPyramidLevel(double scale)
+        {
+            if (scale > 2.0) return -1;  // PyrUp (확대)
+            if (scale > 0.5) return 0;  // 원본
+            if (scale > 0.25) return 1;  // PyrDown 1단계
+            return 2;                      // PyrDown 2단계
+        }
+        private Mat _srcMat;           // 원본 Mat 저장용
+        private int _currentPyrLevel = 0;  // 현재 피라미드 레벨 추적
+
+        private void UpdateImageWithPyramid(int level)
+        {
+            if (_srcMat == null) return;
+
+            Mat pyrMat = new Mat();
+
+            if (level < 0)  // 확대 → PyrUp
+            {
+                Cv2.PyrUp(_srcMat, pyrMat, new OpenCvSharp.Size(_srcMat.Cols * 2, _srcMat.Rows * 2));
+            }
+            else if (level == 0)  // 원본 유지
+            {
+                pyrMat = _srcMat.Clone();
+            }
+            else  // 축소 → PyrDown 반복
+            {
+                Mat current = _srcMat.Clone();
+                for (int i = 0; i < level; i++)
+                {
+                    Cv2.PyrDown(current, pyrMat);
+                    current = pyrMat.Clone();
+                }
+            }
+
+            // 기존 이미지 컨트롤에 교체 (imgDisplay는 실제 Image 컨트롤 이름으로 변경)
+            BasedImage.Source = BitmapSourceConverter.ToBitmapSource(pyrMat);
+            pyrMat.Dispose();
+        }
+
         private void pnlOuter_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
@@ -903,20 +972,30 @@ namespace HDSInspector_AI.GUI.Windows
                 // 휠의 회전 방향에 따라 배율 설정
                 double zoom = e.Delta > 0 ? zoomFactor : 1.0 / zoomFactor;
 
+                double newScale = ZoomValue * zoom;
+
                 // 새로운 스케일 계산
-                double newScaleX = imageScale.ScaleX * zoom;
-                double newScaleY = imageScale.ScaleY * zoom;
+                //double newScaleX = imageScale.ScaleX * zoom;
+                //double newScaleY = imageScale.ScaleY * zoom;
 
                 // 너무 작아지거나 커지지 않도록 제한 (최소 25%, 최대 1000%)
-                if (newScaleX < _zoomToFitScale || newScaleX > sldrScale.Maximum)
+                if (newScale < _zoomToFitScale || newScale > sldrScale.Maximum)
                 {
                     return;
                 }
+                //피라미드 레벨 변경 시 이미지 교체
+                int newPyrLevel = GetPyramidLevel(newScale);
+                if (newPyrLevel != _currentPyrLevel)
+                {
+                    UpdateImageWithPyramid(newPyrLevel);
+                    _currentPyrLevel = newPyrLevel;
+                }
 
+                ZoomValue = newScale;
                 // 마우스 포인트 기준 확대/축소
                 System.Windows.Point mousePosition = e.GetPosition(pnlOuter);
 
-                ZoomValue = newScaleX;
+                //ZoomValue = newScaleX;
 
                 // ScrollViewer의 스크롤 위치 조정
                 svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset + (mousePosition.X * (zoom - 1)));
