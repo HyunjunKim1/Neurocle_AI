@@ -10,10 +10,12 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Point = OpenCvSharp.Point;
+using Rect = OpenCvSharp.Rect;
 
 namespace HDSInspector_AI.Class.GlobalFunctions
 {
@@ -359,7 +361,116 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var resizedBitmap = new TransformedBitmap(bitmapSource, new ScaleTransform(newWidthInt / width, newHeightInt / height));
             return resizedBitmap;
         }
+        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 30, int minBoundaryX = 375, int maxBoundaryX = 3750)
+            //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
+        {
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
+            int bytesPerPixel = bitmapSource.Format.BitsPerPixel / 8;
 
+            byte[] pixelBuffer = new byte[height * stride];
+            bitmapSource.CopyPixels(pixelBuffer, stride, 0);
+
+            // 전체 라인 스캔 후 최솟값으로 시작점, 끝점 설정
+            int sampleCount = height;
+            var startXList = new List<int>();
+            var endXList = new List<int>();
+
+            for (int i = 1; i <= sampleCount; i++)
+            {
+                int scanY = height * i / (sampleCount + 1);
+                int baseOffset = scanY * stride;
+
+                byte[] lineGV = new byte[width];
+                for (int x = 0; x < width; x++)
+                {
+                    int offset = baseOffset + x * bytesPerPixel;
+                    lineGV[x] = (byte)(
+                        pixelBuffer[offset + 2] * 0.299 +
+                        pixelBuffer[offset + 1] * 0.587 +
+                        pixelBuffer[offset + 0] * 0.114);
+                }
+
+                // 왼쪽 → 오른쪽 : 최소 시작점 이후로 탐색
+                for (int x = Math.Max(1, minBoundaryX); x < width; x++)
+                {
+                    if (Math.Abs(lineGV[x] - lineGV[x - 1]) >= threshold)
+                    {
+                        startXList.Add(x);
+                        break;
+                    }
+                }
+
+                // 오른쪽 → 왼쪽 : 제품 종료 X
+                for (int x = maxBoundaryX; x > 0; x--)
+                {
+                    if (Math.Abs(lineGV[x] - lineGV[x - 1]) >= threshold)
+                    {
+                        endXList.Add(x);
+                        break;
+                    }
+                }
+            }
+
+            if (startXList.Count == 0 || endXList.Count == 0)
+                return bitmapSource;
+
+            // 최소값, 최댓값 사용
+            int startX = startXList.Min();
+            int endX = endXList.Max();
+
+            // 같은 방식으로 startY/endY 결정(색상 균일해서 최소 최대만 바로 추출)
+            var startYList = new List<int>();
+            var endYList = new List<int>();
+
+            for (int i = 1; i <= sampleCount; i++)
+            {
+                int scanX = width * i / (sampleCount + 1);
+
+                byte[] colGV = new byte[height];
+                for (int y = 0; y < height; y++)
+                {
+                    int offset = y * stride + scanX * bytesPerPixel;
+                    colGV[y] = (byte)(
+                        pixelBuffer[offset + 2] * 0.299 +
+                        pixelBuffer[offset + 1] * 0.587 +
+                        pixelBuffer[offset + 0] * 0.114);
+                }
+
+                // 위 → 아래 : 제품 시작 Y
+                for (int y = 1; y < height; y++)
+                {
+                    if (Math.Abs(colGV[y] - colGV[y - 1]) >= threshold)
+                    {
+                        startYList.Add(y);
+                        break;
+                    }
+                }
+
+                // 아래 → 위 : 제품 종료 Y
+                for (int y = height - 1; y > 0; y--)
+                {
+                    if (Math.Abs(colGV[y] - colGV[y - 1]) >= threshold)
+                    {
+                        endYList.Add(y);
+                        break;
+                    }
+                }
+            }
+
+            if (startYList.Count == 0 || endYList.Count == 0)
+                return bitmapSource;
+
+            int startY = startYList.Min();
+            int endY = endYList.Max();
+
+            if (endX <= startX || endY <= startY)
+                return bitmapSource;
+
+            var cropRect = new Int32Rect(startX, startY, endX - startX, endY - startY);
+            return new CroppedBitmap(bitmapSource, cropRect);
+        }
 
         ///public static BitmapSource ApplyColormode(BitmapSource bitmapSource)
         ///{

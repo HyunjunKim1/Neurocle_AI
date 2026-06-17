@@ -902,6 +902,11 @@ namespace HDSInspector_AI.GUI.Windows
                 result = Class.GlobalFunctions.ImageProcessing.ApplyClahe(result);
             }
 
+            if (extract_ROI.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyExtract(result);
+            }
+
             UpdateViewerSource(result);
 
         }
@@ -1149,5 +1154,10 @@ namespace HDSInspector_AI.GUI.Windows
 
         #endregion
 
+
+        private void chkROI(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
     }
 }
