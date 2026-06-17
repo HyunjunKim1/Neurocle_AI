@@ -910,7 +910,6 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyExtract(result);
             }
-
             UpdateViewerSource(result);
 
         }
