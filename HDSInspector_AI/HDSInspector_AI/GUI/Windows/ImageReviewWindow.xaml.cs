@@ -91,6 +91,12 @@ namespace HDSInspector_AI.GUI.Windows
             InitializeEvents();
             InitializeDialogs();
         }
+        private void ReviewWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+
+            this.Visibility = Visibility.Hidden;
+        }
 
         private void InitializeDialogs()
         {
@@ -250,7 +256,6 @@ namespace HDSInspector_AI.GUI.Windows
             this.Cursor = Cursors.Arrow;
         }
         #endregion
-
 
         #region Zooming func
         private void UpdateScale()
@@ -765,7 +770,6 @@ namespace HDSInspector_AI.GUI.Windows
 
                     bitmapSource = BitmapSourceConverter.ToBitmapSource(readMat);
                 }
-
 
                 if (bitmapSource != null)
                 {
