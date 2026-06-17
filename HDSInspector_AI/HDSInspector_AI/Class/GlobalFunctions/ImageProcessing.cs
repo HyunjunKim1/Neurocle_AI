@@ -362,7 +362,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return resizedBitmap;
         }
         public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 30, int minBoundaryX = 375, int maxBoundaryX = 3750)
-            //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
+        //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
         {
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
