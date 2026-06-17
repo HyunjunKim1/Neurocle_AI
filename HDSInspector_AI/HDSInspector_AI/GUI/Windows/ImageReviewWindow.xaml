@@ -601,6 +601,8 @@
 		            Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom To Fit">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_FIT.png"/>
                         </Button>
+                        <ToggleButton Name="extract_ROI" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="30, 0" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
+Content="제품 추출" Style="{StaticResource CustomToggleButtonStyle}" Width="83" IsChecked="False" Checked="chkROI" Unchecked="chkROI" />
                     </StackPanel>
 
                     <!-- Display X & Y Coordinates -->
