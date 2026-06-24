@@ -723,6 +723,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (viewerInitialized == false)
             {
+                 
 
                 cvsCross.UpdateLayout();
 
@@ -732,8 +733,8 @@ namespace HDSInspector_AI.GUI.Windows
                 viewerInitialized = true;//뷰어 사이즈 고정되어 이미지 새로 로드해도 뷰어 원래 사이즈 유지
             } //이미지 로드할때 이전 이미지의 전처리 상태 리셋
 
-
             LoadImage();
+            chkReset();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -879,6 +880,15 @@ namespace HDSInspector_AI.GUI.Windows
             ApplyPreprocessing();
         }
 
+        private void chkReset()
+        {
+            extract_ROI.IsChecked = false;
+            chkErosion.IsChecked = false;
+            chkContrast.IsChecked = false;
+            chkCanny.IsChecked = false;
+            chkClahe.IsChecked = false;
+            chkDilation.IsChecked = false;
+        }
 
         private void ApplyPreprocessing()
         {
