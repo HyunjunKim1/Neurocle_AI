@@ -361,13 +361,15 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var resizedBitmap = new TransformedBitmap(bitmapSource, new ScaleTransform(newWidthInt / width, newHeightInt / height));
             return resizedBitmap;
         }
-        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 30, int minBoundaryX = 375, int maxBoundaryX = 3750)
+        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 30)
         //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
         {
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
             int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
             int bytesPerPixel = bitmapSource.Format.BitsPerPixel / 8;
+            int minBoundaryX = width / 11;
+            int maxBoundaryX = (int)(width / 1.1);
 
             byte[] pixelBuffer = new byte[height * stride];
             bitmapSource.CopyPixels(pixelBuffer, stride, 0);
@@ -393,7 +395,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
                 }
 
                 // 왼쪽 → 오른쪽 : 최소 시작점 이후로 탐색
-                for (int x = Math.Max(1, minBoundaryX); x < width; x++)
+                for (int x = minBoundaryX; x < width; x++)
                 {
                     if (Math.Abs(lineGV[x] - lineGV[x - 1]) >= threshold)
                     {

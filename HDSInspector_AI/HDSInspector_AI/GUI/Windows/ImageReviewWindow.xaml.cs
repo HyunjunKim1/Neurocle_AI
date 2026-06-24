@@ -37,6 +37,7 @@ namespace HDSInspector_AI.GUI.Windows
         private Algo _algo = new Algo();
         private bool _isRGB = true;
         private double zoomFactor = 1.1; //확대, 축소 비율
+        private bool viewerInitialized = false; //이미지 로드시 초기화 변수
 
         #region Properties
 
@@ -720,8 +721,17 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
-            ViewerWidth = cvsCross.ActualWidth;
-            ViewerHeight = cvsCross.ActualHeight;
+            if (viewerInitialized == false)
+            {
+
+                cvsCross.UpdateLayout();
+
+                ViewerWidth = cvsCross.ActualWidth; //실제 원래 캔버스 크기를 저장
+                ViewerHeight = cvsCross.ActualHeight;
+
+                viewerInitialized = true;//뷰어 사이즈 고정되어 이미지 새로 로드해도 뷰어 원래 사이즈 유지
+            } //이미지 로드할때 이전 이미지의 전처리 상태 리셋
+
 
             LoadImage();
         }
