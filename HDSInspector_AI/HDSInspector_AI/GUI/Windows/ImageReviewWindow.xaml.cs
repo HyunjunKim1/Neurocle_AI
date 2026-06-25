@@ -880,6 +880,16 @@ namespace HDSInspector_AI.GUI.Windows
             ApplyPreprocessing();
         }
 
+        private void chkROI(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkSobel_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
         private void chkReset()
         {
             extract_ROI.IsChecked = false;
@@ -924,6 +934,11 @@ namespace HDSInspector_AI.GUI.Windows
             if (chkClahe.IsChecked == true)
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyClahe(result);
+            }
+
+            if (chkSobel.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplySobel(result);
             }
 
             if (extract_ROI.IsChecked == true)
@@ -1178,9 +1193,6 @@ namespace HDSInspector_AI.GUI.Windows
         #endregion
 
 
-        private void chkROI(object sender, RoutedEventArgs e)
-        {
-            ApplyPreprocessing();
-        }
+        
     }
 }

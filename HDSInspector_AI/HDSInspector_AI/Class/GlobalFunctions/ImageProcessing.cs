@@ -294,6 +294,30 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
+        public static BitmapSource ApplySobel(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+            Mat gradX = new Mat();
+            Mat gradY = new Mat();
+            Mat absGradX = new Mat();
+            Mat absGradY = new Mat();
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            // 2. 가로(X) 방향 소벨 에지 검출
+            Cv2.Sobel(src, gradX, MatType.CV_16S, 1, 0, 3); //(입력, x결과 저장, _,x방향 미분, y방향 미분, 커널 크기)
+            Cv2.ConvertScaleAbs(gradX, absGradX);
+
+            // 3. 세로(Y) 방향 소벨 에지 검출
+            Cv2.Sobel(src, gradY, MatType.CV_16S, 0, 1, 3);
+            Cv2.ConvertScaleAbs(gradY, absGradY);
+
+            // 4. X방향과 Y방향 에지 이미지 합성 (가중치 0.5)
+            Cv2.AddWeighted(absGradX, 0.5, absGradY, 0.5, 0, dst);
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+        }
+
+
         public static BitmapSource ApplyContrast(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
@@ -361,15 +385,15 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var resizedBitmap = new TransformedBitmap(bitmapSource, new ScaleTransform(newWidthInt / width, newHeightInt / height));
             return resizedBitmap;
         }
-        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 30)
+        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 40) //threshold값 임의 설정
         //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
         {
             int width = bitmapSource.PixelWidth;
             int height = bitmapSource.PixelHeight;
             int stride = (width * bitmapSource.Format.BitsPerPixel + 7) / 8;
             int bytesPerPixel = bitmapSource.Format.BitsPerPixel / 8;
-            int minBoundaryX = width / 11;
-            int maxBoundaryX = (int)(width / 1.1);
+            int minBoundaryX = width / 9; //임의 설정
+            int maxBoundaryX = (int)(width / 1.1); //임의 설정
 
             byte[] pixelBuffer = new byte[height * stride];
             bitmapSource.CopyPixels(pixelBuffer, stride, 0);
