@@ -440,6 +440,24 @@
                                 </ControlTemplate>
                             </CheckBox.Template>
                         </CheckBox>
+                        <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,145" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" >
+                            <TextBlock Text="Gaussian Blur" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
+                        <CheckBox x:Name="chkGauss" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,148" IsChecked="False" Checked="chkGauss_Changed" Unchecked="chkGauss_Changed" Height="20" Width="20">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" >
                             <TextBlock Text="Canny Edge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
@@ -458,6 +476,7 @@
                                 </ControlTemplate>
                             </CheckBox.Template>
                         </CheckBox>
+                        
 
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,55" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" >
                             <TextBlock Text="Contrast Stretching" FontSize="15" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
@@ -499,6 +518,24 @@
                             <TextBlock Text="Sobel Edge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
                         <CheckBox x:Name="chkSobel" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,102" IsChecked="False" Checked="chkSobel_Changed" Unchecked="chkSobel_Changed" Height="20" Width="20">
+                            <CheckBox.Template>
+                                <ControlTemplate TargetType="CheckBox">
+                                    <Grid Width="20" Height="20">
+                                        <Border x:Name="box" Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="2" />
+                                        <Path x:Name="check" Visibility="Collapsed" Stroke="Black" StrokeThickness="3" Data="M 4 10 L 9 15 L 17 6"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </CheckBox.Template>
+                        </CheckBox>
+                        <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,145" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" Grid.Column="4" >
+                            <TextBlock Text="Median Filter" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
+                        </Border>
+                        <CheckBox x:Name="chkMedian" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,148" IsChecked="False" Checked="chkMedian_Changed" Unchecked="chkMedian_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">

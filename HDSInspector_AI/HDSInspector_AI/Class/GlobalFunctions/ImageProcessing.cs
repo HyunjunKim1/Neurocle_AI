@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Point = OpenCvSharp.Point;
 using Rect = OpenCvSharp.Rect;
+using Size = OpenCvSharp.Size;
 
 namespace HDSInspector_AI.Class.GlobalFunctions
 {
@@ -369,6 +370,28 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
 
+        }
+
+        public static BitmapSource ApplyGauss(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Cv2.GaussianBlur(src, dst, new Size(5, 5), 0); //CannyEdge 수행(입력,출력,하위 임계, 상위 임계, 소벨 마스크 크기, gradient)
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
+        }
+
+        public static BitmapSource ApplyMedian(BitmapSource bitmapSource)
+        {
+            Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
+
+            Mat dst = new Mat(); //결과 이미지를 dst 변수에 저장
+
+            Cv2.MedianBlur(src, dst, 5); //Median 수행(입력,출력,커널사이즈)
+
+            return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
         public static BitmapSource ApplyResize(BitmapSource bitmapSource)

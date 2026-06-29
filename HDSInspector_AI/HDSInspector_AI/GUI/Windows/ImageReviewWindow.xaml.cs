@@ -890,6 +890,16 @@ namespace HDSInspector_AI.GUI.Windows
             ApplyPreprocessing();
         }
 
+        private void chkGauss_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
+        private void chkMedian_Changed(object sender, RoutedEventArgs e)
+        {
+            ApplyPreprocessing();
+        }
+
         private void chkReset()
         {
             extract_ROI.IsChecked = false;
@@ -941,10 +951,21 @@ namespace HDSInspector_AI.GUI.Windows
                 result = Class.GlobalFunctions.ImageProcessing.ApplySobel(result);
             }
 
+            if (chkGauss.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyGauss(result);
+            }
+
+            if (chkMedian.IsChecked == true)
+            {
+                result = Class.GlobalFunctions.ImageProcessing.ApplyMedian(result);
+            }
+
             if (extract_ROI.IsChecked == true)
             {
                 result = Class.GlobalFunctions.ImageProcessing.ApplyExtract(result);
             }
+
             UpdateViewerSource(result);
 
         }
@@ -1190,8 +1211,10 @@ namespace HDSInspector_AI.GUI.Windows
             #endregion
         }
 
-        #endregion
 
+
+
+        #endregion
 
         
     }
