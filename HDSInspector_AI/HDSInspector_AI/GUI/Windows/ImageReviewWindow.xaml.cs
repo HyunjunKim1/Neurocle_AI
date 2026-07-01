@@ -7,6 +7,8 @@ using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,7 +43,8 @@ namespace HDSInspector_AI.GUI.Windows
 
         private Mat _srcMat;           // 원본 Mat 저장용
         private int _currentPyrLevel = 0;  // 현재 피라미드 레벨 추적
-        private Mat _processedMat;
+        private Mat _processedMat; //전처리된 이미지
+        private BitmapSource _finalsource; //최종 display된 이미지
 
         #region Properties
 
@@ -826,9 +829,9 @@ namespace HDSInspector_AI.GUI.Windows
         {
             string fileName = string.Empty;
 
-            if (BaseImageSource != null)
+            if (_finalsource != null)
             {
-                ImageSave(BaseImageSource, fileName);
+                ImageSave(_finalsource, fileName); //최종 이미지 저장
             }
         }
 
@@ -836,7 +839,7 @@ namespace HDSInspector_AI.GUI.Windows
         {
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             dlg.DefaultExt = ".bmp";
-            dlg.Filter = "Bitmap Images (.bmp) | *.bmp";
+            dlg.Filter = "Bitmap Images(.bmp; .png; .jpg; .jpeg; .gif; .tiff; .tif) | *.bmp; *.png; *.jpg; *.jpeg; *.gif; *.tiff; .tif";
             dlg.FileName = fileName;
 
             // Save Initial directory.
@@ -973,6 +976,7 @@ namespace HDSInspector_AI.GUI.Windows
                 result = Class.GlobalFunctions.ImageProcessing.ApplyExtract(result);
             }
 
+            _finalsource = result;
             UpdateViewerSource(result);
             _processedMat?.Dispose();
             _processedMat = BitmapSourceConverter.ToMat(result);
