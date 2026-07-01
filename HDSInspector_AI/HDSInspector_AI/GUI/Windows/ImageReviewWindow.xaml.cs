@@ -39,6 +39,10 @@ namespace HDSInspector_AI.GUI.Windows
         private double zoomFactor = 1.1; //확대, 축소 비율
         private bool viewerInitialized = false; //이미지 로드시 초기화 변수
 
+        private Mat _srcMat;           // 원본 Mat 저장용
+        private int _currentPyrLevel = 0;  // 현재 피라미드 레벨 추적
+        private Mat _processedMat;
+
         #region Properties
 
         public double ViewerHeight { get; set; }
@@ -730,11 +734,11 @@ namespace HDSInspector_AI.GUI.Windows
                 ViewerWidth = cvsCross.ActualWidth; //실제 원래 캔버스 크기를 저장
                 ViewerHeight = cvsCross.ActualHeight;
 
-                viewerInitialized = true;//뷰어 사이즈 고정되어 이미지 새로 로드해도 뷰어 원래 사이즈 유지
-            } //이미지 로드할때 이전 이미지의 전처리 상태 리셋
-
+                viewerInitialized = true;
+            }//뷰어 사이즈 고정되어 이미지 새로 로드해도 뷰어 원래 사이즈 유지
             LoadImage();
-            chkReset();
+            chkReset();//이미지 로드할때 이전 이미지의 전처리 상태 리셋
+
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -908,6 +912,9 @@ namespace HDSInspector_AI.GUI.Windows
             chkCanny.IsChecked = false;
             chkClahe.IsChecked = false;
             chkDilation.IsChecked = false;
+            chkSobel.IsChecked = false;
+            chkGauss.IsChecked = false;
+            chkMedian.IsChecked = false;
         }
 
         private void ApplyPreprocessing()
@@ -967,7 +974,8 @@ namespace HDSInspector_AI.GUI.Windows
             }
 
             UpdateViewerSource(result);
-
+            _processedMat?.Dispose();
+            _processedMat = BitmapSourceConverter.ToMat(result);
         }
         #endregion
 
@@ -993,26 +1001,27 @@ namespace HDSInspector_AI.GUI.Windows
             if (scale > 0.25) return 1;  // PyrDown 1단계
             return 2;                      // PyrDown 2단계
         }
-        private Mat _srcMat;           // 원본 Mat 저장용
-        private int _currentPyrLevel = 0;  // 현재 피라미드 레벨 추적
+        
 
         private void UpdateImageWithPyramid(int level)
         {
-            if (_srcMat == null) return;
+            Mat sourceMat = _processedMat ?? _srcMat;
+
+            if (sourceMat == null) return;
 
             Mat pyrMat = new Mat();
 
             if (level < 0)  // 확대 → PyrUp
             {
-                Cv2.PyrUp(_srcMat, pyrMat, new OpenCvSharp.Size(_srcMat.Cols * 2, _srcMat.Rows * 2));
+                Cv2.PyrUp(sourceMat, pyrMat, new OpenCvSharp.Size(sourceMat.Cols * 2, sourceMat.Rows * 2));
             }
             else if (level == 0)  // 원본 유지
             {
-                pyrMat = _srcMat.Clone();
+                pyrMat = sourceMat.Clone();
             }
             else  // 축소 → PyrDown 반복
             {
-                Mat current = _srcMat.Clone();
+                Mat current = sourceMat.Clone();
                 for (int i = 0; i < level; i++)
                 {
                     Cv2.PyrDown(current, pyrMat);
