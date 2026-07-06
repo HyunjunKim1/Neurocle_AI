@@ -19,12 +19,27 @@ namespace HDSInspector_AI.Class.GlobalFunctions
     
     public enum E_GRAB_STATUS
     {
-        GrabReady,
-        FrameDone,
-        FrameComplete,
-        Error
+        GRAB_READY,
+        FRAME_DONE,
+        FRAME_COMPLATE,
+
+        ERROR
     }
 
+    public enum E_IMAGE_STATUS
+    {
+        NONE,
+
+        EROSION,
+        DILATION,
+        CANNY_EDGE,
+        CONTRAST,
+        CLAHE,
+        SOBEL_EDGE,
+        GAUSSIAN_FILTER,
+        MEDIAN_FILTER,
+        EXTRACT
+    }
     #endregion
 
     public class GlobalFunction : IDisposable

@@ -407,7 +407,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="11,0,0,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="150" Grid.ColumnSpan="3" >
                             <TextBlock Text="Erosion" FontSize="20" Foreground="AntiqueWhite" Margin="40,0,40,0" />
                         </Border>
-                        <CheckBox x:Name="chkErosion" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,12" IsChecked="False" Checked="chkErosion_Changed" Unchecked="chkErosion_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkErosion" Tag="Erosion" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,12" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -425,7 +425,7 @@
                         <Border BorderThickness="1" Grid.Column="4" BorderBrush="White" CornerRadius="5" Margin="0,0,0,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" >
                             <TextBlock Text="Dilation" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkDilation" Grid.Column="5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,8,0,12" IsChecked="False" Checked="chkDilation_Changed" Unchecked="chkDilation_Changed" Height="20" Width="20" Grid.ColumnSpan="2">
+                        <CheckBox x:Name="chkDilation" Tag="Dilation" Grid.Column="5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,8,0,12" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20" Grid.ColumnSpan="2">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -443,7 +443,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="11,0,0,145" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="150" Grid.ColumnSpan="3" >
                             <TextBlock Text="Gaussian Blur" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkGauss" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,148" IsChecked="False" Checked="chkGauss_Changed" Unchecked="chkGauss_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkGauss" Tag="Gaussian" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,148" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -461,7 +461,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="11,0,0,100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="150" Grid.ColumnSpan="3" >
                             <TextBlock Text="Canny Edge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkCanny" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,102" IsChecked="False" Checked="chkCanny_Changed" Unchecked="chkCanny_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkCanny" Grid.Column="2" Tag="Canny" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,102" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -479,7 +479,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="11,0,0,55" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="150" Grid.ColumnSpan="3" >
                             <TextBlock Text="Contrast Stretching" FontSize="15" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkContrast" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,57" IsChecked="False" Checked="chkContrast_Changed" Unchecked="chkContrast_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkContrast" Tag="Contrast" Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="14,0,0,57" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -497,7 +497,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,55" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" Grid.Column="4" >
                             <TextBlock Text="Clahe" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkClahe" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,57" IsChecked="False" Checked="chkClahe_Changed" Unchecked="chkClahe_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkClahe" Tag="Clahe" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,57" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -515,7 +515,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,100" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" Grid.Column="4" >
                             <TextBlock Text="Sobel Edge" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkSobel" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,102" IsChecked="False" Checked="chkSobel_Changed" Unchecked="chkSobel_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkSobel" Tag="Sobel" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,102" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -533,7 +533,7 @@
                         <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,145" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="150" Grid.Column="4" >
                             <TextBlock Text="Median Filter" FontSize="20" Foreground="AntiqueWhite" Margin="10,0,10,0" HorizontalAlignment="Center"/>
                         </Border>
-                        <CheckBox x:Name="chkMedian" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,148" IsChecked="False" Checked="chkMedian_Changed" Unchecked="chkMedian_Changed" Height="20" Width="20">
+                        <CheckBox x:Name="chkMedian" Tag="Median" Grid.Column="6" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="8,0,0,148" IsChecked="False" Click="CheckBox_Changed" Height="20" Width="20">
                             <CheckBox.Template>
                                 <ControlTemplate TargetType="CheckBox">
                                     <Grid Width="20" Height="20">
@@ -657,12 +657,12 @@
 		            Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom To Fit">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_FIT.png"/>
                         </Button>
-                        <ToggleButton Name="extract_ROI" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="30, 0" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
-Content="제품 추출" Style="{StaticResource CustomToggleButtonStyle}" Width="83" IsChecked="False" Checked="chkROI" Unchecked="chkROI" />
+                        <ToggleButton Name="extract_ROI" Tag="Extract_ROI" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="30, 0" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
+                            Content="제품 추출" Style="{StaticResource CustomToggleButtonStyle}" Width="83" IsChecked="False" Click="CheckBox_Changed" />
                     </StackPanel>
 
                     <!-- Display X & Y Coordinates -->
-                    <Grid Grid.Column="3" Grid.RowSpan="2">
+                    <Grid Grid.Column="1" Grid.ColumnSpan="2" Margin="120,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="30"/>
                             <ColumnDefinition/>

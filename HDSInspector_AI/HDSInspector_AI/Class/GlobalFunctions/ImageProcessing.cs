@@ -267,7 +267,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return savedFiles;
 
         }
-        public static BitmapSource ApplyErosion(BitmapSource bitmapSource)
+        public BitmapSource ApplyErosion(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -284,7 +284,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
-        public static BitmapSource ApplyCanny(BitmapSource bitmapSource)
+        public BitmapSource ApplyCanny(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -295,7 +295,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
-        public static BitmapSource ApplySobel(BitmapSource bitmapSource)
+        public BitmapSource ApplySobel(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
             Mat gradX = new Mat();
@@ -319,7 +319,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         }
 
 
-        public static BitmapSource ApplyContrast(BitmapSource bitmapSource)
+        public BitmapSource ApplyContrast(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -331,7 +331,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         }
 
-        public static BitmapSource ApplyDilation(BitmapSource bitmapSource)
+        public BitmapSource ApplyDilation(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -345,7 +345,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         }
 
-        public static BitmapSource ApplyClahe(BitmapSource bitmapSource) //컬러 이미지
+        public BitmapSource ApplyClahe(BitmapSource bitmapSource) //컬러 이미지
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -372,7 +372,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         }
 
-        public static BitmapSource ApplyGauss(BitmapSource bitmapSource)
+        public BitmapSource ApplyGauss(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -383,7 +383,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
-        public static BitmapSource ApplyMedian(BitmapSource bitmapSource)
+        public BitmapSource ApplyMedian(BitmapSource bitmapSource)
         {
             Mat src = bitmapSource.ToMat(); //opencv에서 이미지 데이터 저장하려면 Mat 클래스 사용. 여기서는 원본 이미지를 src에 저장
 
@@ -394,7 +394,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return dst.ToBitmapSource(); //결과 이미지를 다시 원본 형태로 변환하여 반환
         }
 
-        public static BitmapSource ApplyResize(BitmapSource bitmapSource)
+        public BitmapSource ApplyResize(BitmapSource bitmapSource)
         {
             double width = bitmapSource.PixelWidth;
             double height = bitmapSource.PixelHeight;
@@ -408,7 +408,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var resizedBitmap = new TransformedBitmap(bitmapSource, new ScaleTransform(newWidthInt / width, newHeightInt / height));
             return resizedBitmap;
         }
-        public static BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 40) //threshold값 임의 설정
+        public BitmapSource ApplyExtract(BitmapSource bitmapSource, int threshold = 40) //threshold값 임의 설정
         //minboundaryX, maxboundaryX는 각각 축소된 이미지 기준으로 설정됨
         {
             int width = bitmapSource.PixelWidth;
@@ -521,12 +521,5 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             return new CroppedBitmap(bitmapSource, cropRect);
         }
 
-        ///public static BitmapSource ApplyColormode(BitmapSource bitmapSource)
-        ///{
-        ///    _ = new BitmapImage();
-        ///    bitmap.BeginInit();
-        ///
-        ///
-        ///}
     }
 }
