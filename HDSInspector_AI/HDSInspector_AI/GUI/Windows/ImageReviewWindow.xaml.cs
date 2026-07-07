@@ -59,6 +59,7 @@ namespace HDSInspector_AI.GUI.Windows
         private Mat _displayBaseMat;    // Display되는 기준 Mat
 
         private readonly Dictionary<int, BitmapSource> _pyramidSources = new Dictionary<int, BitmapSource>();
+
         private int _displayLevel = 0;
 
         /// <summary>
@@ -69,8 +70,6 @@ namespace HDSInspector_AI.GUI.Windows
         /// lv 3 = 0.125
         /// </summary>
         private double _displayImageRatio = 1.0;
-
-        private bool _isChangingDisplayLevel = false;
 
         private BitmapSource _finalsource; //최종 display된 이미지
 
@@ -307,6 +306,58 @@ namespace HDSInspector_AI.GUI.Windows
         /// 초기 선정한 Pyramid 방식으로 하자
         /// </summary>
 
+        private void InitializeImageViewToFit()
+        {
+            if (_pyramidSources.Count == 0)
+                return;
+
+            // 첫표시는 제일 축소된거로 level 3
+            SetDisplayLevel(3);
+            svTeaching.UpdateLayout();
+
+            double viewerWidth = svTeaching.ViewportWidth;
+            double viewerHeight = svTeaching.ViewportHeight;
+
+            if(viewerWidth <= 0 || viewerHeight <= 0)
+            {
+                viewerWidth = svTeaching.ActualWidth;
+                viewerHeight = svTeaching.ActualHeight;
+            }
+
+            double scaleX = viewerWidth / BasedImage.Width;
+            double scaleY = viewerHeight / BasedImage.Height;
+
+            _zoomToFitScale = Math.Min(scaleX, scaleY) * 0.975;
+
+            if (_zoomToFitScale <= 0)
+                _zoomToFitScale = 0.05;
+
+            ZoomValue = _zoomToFitScale;
+
+            svTeaching.ScrollToHorizontalOffset(0);
+            svTeaching.ScrollToVerticalOffset(0);
+        }
+
+        private void SetDisplayLevel(int newLevel)
+        {
+            if (!_pyramidSources.ContainsKey(newLevel))
+                return;
+
+            _displayLevel = newLevel;
+            _displayImageRatio = 1.0 / Math.Pow(2, _displayLevel);
+
+            BitmapSource displaySource = _pyramidSources[_displayLevel];
+
+            BasedImage.Source = displaySource;
+            BasedImage.Width = displaySource.PixelWidth;
+            BasedImage.Height = displaySource.PixelHeight;
+
+            BasedCanvas.Width = displaySource.PixelWidth;
+            BasedCanvas.Height = displaySource.PixelHeight;
+
+            UpdateScale();
+        }
+
         private void BuildDisplayPyramid(Mat source)
         {
             if (source == null || source.Empty())
@@ -333,7 +384,6 @@ namespace HDSInspector_AI.GUI.Windows
             }
 
             current.Dispose();
-            _displayLevel = -1;
         }
 
         private int GetDisplayLevelByScale(double totalScale)
@@ -360,8 +410,6 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (!_pyramidSources.ContainsKey(newLevel))
                 return;
-
-            _isChangingDisplayLevel = true;
 
             // 여기서 혹여나 현재 적용된것들 적용하고, Scale 비율 다시 생성함.
             try
@@ -396,10 +444,6 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 GLB.AddLog("[ImageReviewWindow]", $@"{ex.Message}", SeverityLevel.ERROR);
             }
-            finally
-            {
-                _isChangingDisplayLevel = false;
-            }
         }
 
         private void RefreshDisplayImage(Mat sourceMat)
@@ -407,32 +451,117 @@ namespace HDSInspector_AI.GUI.Windows
             if (sourceMat == null || sourceMat.Empty())
                 return;
 
+            double oldTotalScale = GetTotalScale();
+            System.Windows.Point oldCenter = GetCurrentCenterResizedPoint();
+
             _displayBaseMat?.Dispose();
             _displayBaseMat = sourceMat.Clone();
 
             BuildDisplayPyramid(_displayBaseMat);
 
-            double totalScale = _displayImageRatio * ZoomValue;
-
-            if (totalScale <= 0)
-                totalScale = _zoomToFitScale;
-
-            ChangeDisplayLevelNeeded(totalScale);
+            ResotreView(oldTotalScale, oldCenter);
         }
 
         #endregion
 
         #region Zooming func
+        
         private void UpdateScale()
         {
-            DrawingCanvas drawingCanvas = BasedCanvas;
-            if (drawingCanvas != null)
-                drawingCanvas.ActualScale = ZoomValue;
+            if (BasedCanvas != null)
+                BasedCanvas.ActualScale = ZoomValue;
+
+            if (tbk_ScaleValue != null)
+                tbk_ScaleValue.Text = GetTotalScale().ToString("0.00");
         }
 
         private void sldrScale_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             UpdateScale();
+        }
+
+        private double GetTotalScale()
+        {
+            return _displayImageRatio * ZoomValue;
+        }
+
+        private System.Windows.Point GetViewportCenterPoint()
+        {
+            return new System.Windows.Point(
+                svTeaching.ViewportWidth / 2.0,
+                svTeaching.ViewportHeight / 2.0);
+        }
+
+        private System.Windows.Point GetCurrentCenterResizedPoint()
+        {
+            System.Windows.Point center = GetViewportCenterPoint();
+
+            double totalRatio = ZoomValue * _displayImageRatio;
+
+            if (totalRatio <= 0)
+                totalRatio = 1.0;
+
+            double x = (svTeaching.HorizontalOffset + center.X) / totalRatio;
+            double y = (svTeaching.VerticalOffset + center.Y) / totalRatio;
+
+            return new System.Windows.Point(x, y);
+        }
+
+        private void ResotreView(double totalScale, System.Windows.Point resizedCenterPoint)
+        {
+            int level = GetDisplayLevelByScale(totalScale);
+
+            SetDisplayLevel(level);
+
+            double newZoom = totalScale / _displayImageRatio;
+            ZoomValue = newZoom;
+
+            svTeaching.UpdateLayout();
+
+            System.Windows.Point center = GetViewportCenterPoint();
+
+            double displayX = resizedCenterPoint.X * _displayImageRatio;
+            double displayY = resizedCenterPoint.Y * _displayImageRatio;
+
+            svTeaching.ScrollToHorizontalOffset(displayX * ZoomValue - center.X);
+            svTeaching.ScrollToVerticalOffset(displayY * ZoomValue - center.Y);
+        }
+
+        private void ZoomAtPointLoc(double newTotalScale, System.Windows.Point viewportPoint)
+        {
+            if (_pyramidSources.Count == 0)
+                return;
+
+            double oldTotalScale = _displayImageRatio * ZoomValue;
+
+            if (oldTotalScale <= 0)
+                oldTotalScale = 1.0;
+
+            // 현재 마우스가 가르키는 리사이즈 기준의 이미지 좌표. 이거중요함
+            double resizedImageX = (svTeaching.HorizontalOffset + viewportPoint.X) / ZoomValue / _displayImageRatio;
+            double resizedImageY = (svTeaching.VerticalOffset + viewportPoint.Y) / ZoomValue / _displayImageRatio;
+
+            int newLevel = GetDisplayLevelByScale(newTotalScale);
+
+            SetDisplayLevel(newLevel);
+
+            double newZoomValue = newTotalScale / _displayImageRatio;
+
+            if (newZoomValue < sldrScale.Minimum)
+                newZoomValue = sldrScale.Minimum;
+
+            if (newZoomValue > sldrScale.Maximum)
+                newZoomValue = sldrScale.Maximum;
+
+            ZoomValue = newZoomValue;
+
+            svTeaching.UpdateLayout();
+
+            double newDisplayX = resizedImageX * _displayImageRatio;
+            double newDisplayY = resizedImageY * _displayImageRatio;
+
+            svTeaching.ScrollToHorizontalOffset(newDisplayX * ZoomValue - viewportPoint.X);
+            svTeaching.ScrollToVerticalOffset(newDisplayY * ZoomValue - viewportPoint.Y);
         }
 
         private void zoomBtn_Click(object sender, RoutedEventArgs e)
@@ -461,86 +590,49 @@ namespace HDSInspector_AI.GUI.Windows
             }
         }
         public void CalculateZoomToFitScale()
-        { /*
-            double fnumerator = 1.0;
-            double fdenominator = 1.0;
-
-            if (SourceHeight / ViewerHeight > SourceWidth / ViewerWidth)
-            {
-                fnumerator = ViewerHeight;
-                fdenominator = SourceHeight;
-            }
-            else
-            {
-                fnumerator = ViewerWidth;
-                fdenominator = SourceWidth;
-            }
-            _zoomToFitScale = Math.Min(1.0, fnumerator / fdenominator * 0.975);
-
-            ZoomValue = _zoomToFitScale;
-            sldrScale.Minimum = (_zoomToFitScale > 0) ? _zoomToFitScale : 0.1;
-            */
-            if (SourceWidth <= 0 || SourceHeight <= 0)
+        {
+            if (BasedImage == null || BasedImage.Source == null)
                 return;
 
-            ViewerWidth = svTeaching.ViewportWidth;
-            ViewerHeight = svTeaching.ViewportHeight;
+            svTeaching.UpdateLayout();
 
-            if (ViewerWidth <= 0 || ViewerHeight <= 0)
+            double viewerWidth = svTeaching.ViewportWidth;
+            double viewerHeight = svTeaching.ViewportHeight;
+
+            if(viewerWidth <= 0 || viewerHeight <= 0)
             {
-                svTeaching.UpdateLayout();
-                ViewerWidth = svTeaching.ActualWidth;
-                ViewerHeight = svTeaching.ActualHeight;
+                viewerWidth = svTeaching.ActualWidth;
+                viewerHeight = svTeaching.ActualHeight;
             }
 
-            double scaleX = ViewerWidth / SourceWidth;
-            double scaleY = ViewerHeight / SourceHeight;
+            double imageWidth = BasedImage.Width;
+            double imageHeight = BasedImage.Height;
+
+            if (imageWidth <= 0 || imageHeight <= 0)
+                return;
+
+            double scaleX = viewerWidth / imageWidth;
+            double scaleY = viewerHeight / imageHeight;
 
             _zoomToFitScale = Math.Min(scaleX, scaleY) * 0.975;
 
             if (_zoomToFitScale <= 0)
                 _zoomToFitScale = 0.05;
 
-            sldrScale.Minimum = _zoomToFitScale;
+            sldrScale.Minimum = 0.01;
             ZoomValue = _zoomToFitScale;
         }
 
         public void SetZoomToFit()
         {
-            ZoomValue = _zoomToFitScale;
-        }
-
-        private System.Windows.Point GetContentMousePosition()
-        {
-            if (BasedImage == null)
-            {
-                return new System.Windows.Point(0, 0);
-            }
-            else
-            {
-                System.Windows.Point ptContentMousePosition = Mouse.GetPosition(BasedImage);
-
-                return ptContentMousePosition;
-            }
-        }
-
-        private System.Windows.Point GetCenterOfViewport()
-        {
-            if (BasedImage == null)
-            {
-                return new System.Windows.Point(0, 0);
-            }
-            else
-            {
-                System.Windows.Point ptCenterOfViewport = new System.Windows.Point(ViewerWidth / 2, ViewerHeight / 2);
-                System.Windows.Point ptTranslatedCenterOfViewport = svTeaching.TranslatePoint(ptCenterOfViewport, BasedImage);
-
-                return ptTranslatedCenterOfViewport;
-            }
+            InitializeImageViewToFit();
         }
 
         private void Zoom(int deltaValue)
         {
+            if (_pyramidSources.Count == 0)
+                return;
+
             double oldTotalScale = _displayImageRatio * ZoomValue;
             double newTotalScale = oldTotalScale;
 
@@ -549,17 +641,19 @@ namespace HDSInspector_AI.GUI.Windows
             else if (deltaValue < 0)
                 newTotalScale /= 1.1;
             else
-                newTotalScale = _zoomToFitScale;
+                newTotalScale = _zoomToFitScale * _displayImageRatio;
 
-            if (newTotalScale < _zoomToFitScale)
-                newTotalScale = _zoomToFitScale;
+            double minTotalScale = _zoomToFitScale * _displayImageRatio;
+
+            if (newTotalScale < minTotalScale)
+                newTotalScale = minTotalScale;
 
             if (newTotalScale > sldrScale.Maximum)
                 newTotalScale = sldrScale.Maximum;
 
-            ChangeDisplayLevelNeeded(newTotalScale);
+            System.Windows.Point centerPoint = new System.Windows.Point(svTeaching.ViewportWidth / 2.0, svTeaching.ViewportHeight / 2.0);
 
-            ZoomValue = newTotalScale / _displayImageRatio;
+            ZoomAtPointLoc(newTotalScale, centerPoint);
         }
         #endregion
 
@@ -583,37 +677,16 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void chkBinarization_Click(object sender, RoutedEventArgs e)
         {
-            if (chkBinarization.IsChecked == true)
-            {
-                if (radSingleThreshold.IsChecked == true)
-                {
-                    try
-                    {
-                        int threshold = Convert.ToInt32(txtThreshold.Text);
-                        if (threshold >= 0 && threshold <= 255)
-                        {
-                            this.HistogramCtrl.EnableBinarization(threshold, threshold, true, false, _isRGB, ChannelType.Color);
-                            Binarization();
-                        }
-                    }
-                    catch (Exception ex) { GLB.AddLog($@"[Review]", $@"{ex.Message}", SeverityLevel.ERROR); }
-                }
-                else
-                {
-                    try
-                    {
-                        int lowerThreshold = Convert.ToInt32(txtLowerThreshold.Text);
-                        int upperthreshold = Convert.ToInt32(txtUpperThreshold.Text);
+            if (BaseImageSource == null)
+                return;
 
-                        if (lowerThreshold <= upperthreshold && lowerThreshold >= 0 && upperthreshold <= 255)
-                        {
-                            this.HistogramCtrl.EnableBinarization(lowerThreshold, upperthreshold, false, false, _isRGB, ChannelType.Color);
-                        }
-                    }
-                    catch (Exception ex) { GLB.AddLog($@"[Review]", $@"{ex.Message}", SeverityLevel.ERROR); }
-                }
+            if (chkBinarization.IsChecked == true)
+                Binarization();
+            else
+            {
+                HistogramCtrl.HideThresholdGuideLine();
+                ApplyPreprocessing();
             }
-            else this.HistogramCtrl.HideThresholdGuideLine();
         }
 
         private void txtUpperThreshold_LostFocus(object sender, RoutedEventArgs e)
@@ -670,15 +743,8 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 this.HistogramCtrl.EnableBinarization((int)sldrThreshold.Value, (int)sldrThreshold.Value, true, isReference: false, isColor: _isRGB, ChannelType.Color);
 
-                if (Math.Abs(e.OldValue - e.NewValue) == 1.0)
+                if (chkBinarization != null && chkBinarization.IsChecked == true)
                     Binarization();
-                else
-                {
-                    // 영상 크기가 1500 * 1500 이하인 경우 UI를 즉각 반영하도록 한다.
-                    BitmapSource source = BaseImageSource;
-                    if (source != null && source.PixelWidth * source.PixelHeight < 1500 * 1500)
-                        Binarization();
-                }
             }
         }
         private void ClipPos(ref Int32Rect arcTarget, System.Windows.Size anBoundary)
@@ -701,6 +767,7 @@ namespace HDSInspector_AI.GUI.Windows
 
         public void Binarization()
         {
+            /*
             int nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter;
 
             if ((bool)radSingleThreshold.IsChecked)
@@ -725,7 +792,52 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 Debug.WriteLine("Exception occured in Binarization(TeachingViewerCtrl.xaml.cs)");
             }
+            */
+            try
+            {
+                BitmapSource preprocessed = MakePreprocessedSource();
+
+                if (preprocessed == null)
+                    return;
+
+                int lower, upper;
+
+                if (radSingleThreshold.IsChecked == true)
+                {
+                    lower = (int)sldrThreshold.Value;
+                    upper = 255;
+                }
+                else
+                {
+                    lower = (int)sldrLowerThreshold.Value;
+                    upper = (int)sldrUpperThreshold.Value;
+                }
+
+                int erosionIter = (int)sldrErosionIter.Value;
+                int dilationIter = (int)sldrDilationIter.Value;
+
+                _algo.SetImage(preprocessed);
+                _algo.GetBinaryImage(lower, upper, erosionIter, dilationIter);
+
+                BitmapSource binarySource = _algo.GetImage();
+
+                if (binarySource == null)
+                    return;
+
+                _finalsource = binarySource;
+
+                _processedMat?.Dispose();
+                _processedMat = BitmapSourceConverter.ToMat(binarySource);
+
+                RefreshDisplayImage(_processedMat);
+            }
+
+            catch (Exception ex)
+            {
+                GLB.AddLog("[ImageReviewWindow]", $@"{ex.Message} - Binarization", SeverityLevel.ERROR);
+            }
         }
+        /*
         public void Binarization(BitmapSource bitmapSource, int anLowerThreshold, int anUpperThreshold, int anErosionIter, int anDilationIter)
         {
             try
@@ -743,8 +855,6 @@ namespace HDSInspector_AI.GUI.Windows
                 {
                     region.X = 0;
                     region.Y = 0;
-                    //region.Width = (int)Math.Round(((GraphicsRectangleBase)graphic).Right - ((GraphicsRectangleBase)graphic).Left);
-                    //region.Height = (int)Math.Round(((GraphicsRectangleBase)graphic).Bottom - ((GraphicsRectangleBase)graphic).Top);
                     region.Width = (int)BasedCanvas.ActualWidth;
                     region.Height = (int)BasedCanvas.ActualHeight;
 
@@ -764,8 +874,6 @@ namespace HDSInspector_AI.GUI.Windows
                     return;
 
                 _algo.SetImage(bitmapSource);
-                //_algo.SetImageROI(new System.Drawing.Rectangle(region.X, region.Y, region.Width, region.Height));
-                //_algo.DoProcessing(anLowerThreshold, anUpperThreshold, anErosionIter, anDilationIter);
                 _algo.GetBinaryImage(anLowerThreshold, anUpperThreshold, anErosionIter, anDilationIter);
                 BasedImage.Source = _algo.GetImage();
             }
@@ -774,6 +882,7 @@ namespace HDSInspector_AI.GUI.Windows
                 GLB.AddLog("[Review]", $@"{ex.Message} - ImageReviewWindow.cs", SeverityLevel.ERROR);
             }
         }
+        */
 
         private void sldrDilationIter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -959,8 +1068,6 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (viewerInitialized == false)
             {
-
-
                 cvsCross.UpdateLayout();
 
                 ViewerWidth = cvsCross.ActualWidth; //실제 원래 캔버스 크기를 저장
@@ -1000,58 +1107,11 @@ namespace HDSInspector_AI.GUI.Windows
             // Restore Initial directory.
             dlg.InitialDirectory = strOldInitialDirectory;
         }
+
+
         private void DisplayImage(string aszFileName)
         {
             ToolChange(ToolType.Pointer);
-
-            /*
-            try
-            {
-                BitmapSource bitmapSource;
-                Uri cvtUri = new Uri(aszFileName);
-                using(Mat readMat = Cv2.ImRead(cvtUri.LocalPath, ImreadModes.Unchanged))
-                {
-                    if (readMat.Type() == MatType.CV_8UC1) //흑백인지 컬러인지
-                        _isRGB = false;
-                    else
-                        _isRGB = true;
-
-                    bitmapSource = BitmapSourceConverter.ToBitmapSource(readMat);
-                }
-
-                if (bitmapSource != null)
-                {
-                    int width = bitmapSource.PixelWidth;
-                    int height = bitmapSource.PixelHeight;
-
-                    // 큰 이미지만 축소
-                    if (width > 4000 || height > 4000)
-                    {
-                        Mat mat = BitmapSourceConverter.ToMat(bitmapSource);
-
-                        // 1/2 축소
-                        Cv2.PyrDown(mat, mat);
-
-                        // 필요하면 한 번 더
-                        if (mat.Width > 4000 || mat.Height > 4000)
-                        {
-                            Cv2.PyrDown(mat, mat);
-                        }
-
-                        bitmapSource = BitmapSourceConverter.ToBitmapSource(mat);
-                    }
-                    BaseImageSource = bitmapSource;
-
-                    _srcMat = BitmapSourceConverter.ToMat(BaseImageSource);
-                    //UpdateViewerSource(BaseImageSource);
-                    UpdateDxRendererSource(BaseImageSource);
-                }
-            }
-            catch
-            {
-                System.Windows.MessageBox.Show(ResourceStringHelper.GetErrorMessage("I001", false), "Error"); //애매한 참조 오류로 messagebox->System.Windows.messagebox로 수정
-            }
-            */
 
             try
             {
@@ -1062,10 +1122,7 @@ namespace HDSInspector_AI.GUI.Windows
                     if (originalMat == null || originalMat.Empty())
                         return;
 
-                    if (originalMat.Type() == MatType.CV_8UC1)
-                        _isRGB = false;
-                    else
-                        _isRGB = true;
+                    _isRGB = originalMat.Channels() >= 3;
 
                     _srcMat?.Dispose();
                     _srcMat = ResizeForD3DLimit(originalMat);
@@ -1084,12 +1141,19 @@ namespace HDSInspector_AI.GUI.Windows
 
                 BuildDisplayPyramid(_srcMat);
 
-                UpdateViewerSource(_pyramidSources[0]);
+                pnlInner.Children.Clear();
+                pnlInner.Children.Add(BasedImage);
+                pnlInner.Children.Add(BasedCanvas);
 
-                CalculateZoomToFitScale();
-                SetZoomToFit();
+                InitializeImageViewToFit();
 
-                ChangeDisplayLevelNeeded(_zoomToFitScale);
+                BasedCanvas.GraphicsList.Clear();
+                BasedCanvas.SelectedGraphic = null;
+
+                LineProfileCtrl.SetLineProfileSource(BaseImageSource);
+                LineProfileCtrl.Refresh();
+
+                ToolChange(ToolType.Pointer);
             }
             catch (Exception ex)
             {
@@ -1143,31 +1207,58 @@ namespace HDSInspector_AI.GUI.Windows
                 switch (tagVal)
                 {
                     case "Erosion":
-                        ApplyPreprocessing(E_IMAGE_STATUS.EROSION);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.EROSION);
                         break;
                     case "Dilation":
-                        ApplyPreprocessing(E_IMAGE_STATUS.DILATION);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.DILATION);
                         break;
                     case "Canny":
-                        ApplyPreprocessing(E_IMAGE_STATUS.CANNY_EDGE);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.CANNY_EDGE);
                         break;
                     case "Contrast":
-                        ApplyPreprocessing(E_IMAGE_STATUS.CONTRAST);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.CONTRAST);
                         break;
                     case "Clahe":
-                        ApplyPreprocessing(E_IMAGE_STATUS.CLAHE);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.CLAHE);
                         break;
                     case "Sobel":
-                        ApplyPreprocessing(E_IMAGE_STATUS.SOBEL_EDGE);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.SOBEL_EDGE);
                         break;
                     case "Gaussian":
-                        ApplyPreprocessing(E_IMAGE_STATUS.GAUSSIAN_FILTER);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.GAUSSIAN_FILTER);
                         break;
                     case "Median":
-                        ApplyPreprocessing(E_IMAGE_STATUS.MEDIAN_FILTER);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.MEDIAN_FILTER);
                         break;
                     case "Extract_ROI":
-                        ApplyPreprocessing(E_IMAGE_STATUS.EXTRACT);
+                        if (chkBinarization.IsChecked == true)
+                            Binarization();
+                        else
+                            ApplyPreprocessing(E_IMAGE_STATUS.EXTRACT);
                         break;
                 }
             }
@@ -1187,11 +1278,37 @@ namespace HDSInspector_AI.GUI.Windows
             chkMedian.IsChecked = false;
         }
 
-
-        private void ApplyPreprocessing(E_IMAGE_STATUS status)
+        private BitmapSource MakePreprocessedSource()
         {
             if (BaseImageSource == null)
-                return;
+                return null;
+            BitmapSource result = BaseImageSource;
+
+            if (chkErosion.IsChecked == true)
+                result = GLB.ImgProc.ApplyErosion(result);
+            if (chkDilation.IsChecked == true)
+                result = GLB.ImgProc.ApplyDilation(result);
+            if (chkCanny.IsChecked == true)
+                result = GLB.ImgProc.ApplyCanny(result);
+            if (chkContrast.IsChecked == true)
+                result = GLB.ImgProc.ApplyContrast(result);
+            if (chkClahe.IsChecked == true)
+                result = GLB.ImgProc.ApplyClahe(result);
+            if (chkSobel.IsChecked == true)
+                result = GLB.ImgProc.ApplySobel(result);
+            if (chkGauss.IsChecked == true)
+                result = GLB.ImgProc.ApplyGauss(result);
+            if (chkMedian.IsChecked == true)
+                result = GLB.ImgProc.ApplyMedian(result);
+            if (extract_ROI.IsChecked == true)
+                result = GLB.ImgProc.ApplyExtract(result);
+
+            return result;
+        }
+        private BitmapSource MakePreprocessedSource(E_IMAGE_STATUS status)
+        {
+            if (BaseImageSource == null)
+                return null;
 
             BitmapSource result = BaseImageSource;
 
@@ -1243,6 +1360,31 @@ namespace HDSInspector_AI.GUI.Windows
                     break;
             }
 
+            return result;
+        }
+
+        private void ApplyPreprocessing()
+        {
+            BitmapSource result = MakePreprocessedSource();
+
+            if (result == null)
+                return;
+
+            _finalsource = result;
+
+            _processedMat?.Dispose();
+            _processedMat = BitmapSourceConverter.ToMat(result);
+
+            RefreshDisplayImage(_processedMat);
+        }
+
+        private void ApplyPreprocessing(E_IMAGE_STATUS status)
+        {
+            BitmapSource result = MakePreprocessedSource();
+
+            if (result == null)
+                return;
+
             _finalsource = result;
 
             _processedMat?.Dispose();
@@ -1267,81 +1409,29 @@ namespace HDSInspector_AI.GUI.Windows
             HorizontalLine.Visibility = Visibility.Collapsed;
         }
 
-        /*
-
-        private int GetPyramidLevel(double scale)
-        {
-            if (scale > 2.0) return -1;  // PyrUp (확대)
-            if (scale > 0.5) return 0;  // 원본
-            if (scale > 0.25) return 1;  // PyrDown 1단계
-            return 2;                      // PyrDown 2단계
-        }
-        
-
-        private void UpdateImageWithPyramid(int level)
-        {
-            Mat sourceMat = _processedMat ?? _srcMat;
-
-            if (sourceMat == null) return;
-
-            Mat pyrMat = new Mat();
-
-            if (level < 0)  // 확대 → PyrUp
-            {
-                Cv2.PyrUp(sourceMat, pyrMat, new OpenCvSharp.Size(sourceMat.Cols * 2, sourceMat.Rows * 2));
-            }
-            else if (level == 0)  // 원본 유지
-            {
-                pyrMat = sourceMat.Clone();
-            }
-            else  // 축소 → PyrDown 반복
-            {
-                Mat current = sourceMat.Clone();
-                for (int i = 0; i < level; i++)
-                {
-                    Cv2.PyrDown(current, pyrMat);
-                    current = pyrMat.Clone();
-                }
-            }
-
-            // 기존 이미지 컨트롤에 교체 (imgDisplay는 실제 Image 컨트롤 이름으로 변경)
-            BasedImage.Source = BitmapSourceConverter.ToBitmapSource(pyrMat);
-            pyrMat.Dispose();
-        }
-        */
-
         private void pnlOuter_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (!Keyboard.IsKeyDown(Key.LeftCtrl))
                 return;
 
-            if (BaseImageSource == null)
+            if (BaseImageSource == null || _pyramidSources.Count == 0)
                 return;
 
             double oldTotalScale = _displayImageRatio * ZoomValue;
+
             double zoom = e.Delta > 0 ? 1.1 : 1.0 / 1.1;
             double newTotalScale = oldTotalScale * zoom;
+            double minTotalScale = _zoomToFitScale * _displayImageRatio;
 
-            if (newTotalScale < _zoomToFitScale)
-                newTotalScale = _zoomToFitScale;
+            if (newTotalScale < minTotalScale)
+                newTotalScale = minTotalScale;
 
             if (newTotalScale > sldrScale.Maximum)
                 newTotalScale = sldrScale.Maximum;
 
             System.Windows.Point mousePos = e.GetPosition(svTeaching);
 
-            double imageX = (svTeaching.HorizontalOffset + mousePos.X) / ZoomValue;
-            double imageY = (svTeaching.VerticalOffset + mousePos.Y) / ZoomValue;
-
-            ChangeDisplayLevelNeeded(newTotalScale);
-
-            double newZoomValue = newTotalScale / _displayImageRatio;
-            ZoomValue = newZoomValue;
-
-            svTeaching.UpdateLayout();
-
-            svTeaching.ScrollToHorizontalOffset(imageX * ZoomValue - mousePos.X);
-            svTeaching.ScrollToVerticalOffset(imageY * ZoomValue - mousePos.Y);
+            ZoomAtPointLoc(newTotalScale, mousePos);
 
             e.Handled = true;
         }
@@ -1378,125 +1468,6 @@ namespace HDSInspector_AI.GUI.Windows
                     BasedImage.Source = BaseImageSource;
             }
         }
-        /*
-        private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (BaseImageSource == null || BasedImage == null || BasedCanvas == null)
-                return;
-
-
-            System.Windows.Point Image_panel_Point = Mouse.GetPosition(BasedImage);
-            double originX = displayPoint
-
-            #region Calculate GrayValue
-
-            if (BaseImageSource != null)
-            {
-                if (!_isRGB)
-                {
-                    // GV 표시는 등록된 이미지위 범위 내에서만 동작하도록 한다.
-                    if (!(Image_panel_Point.X > BasedImage.ActualWidth) &&
-                        !(Image_panel_Point.Y > BasedImage.ActualHeight) &&
-                        (Image_panel_Point.X > 0) && (Image_panel_Point.Y > 0))
-                    {
-                        // Calculate GV Value.
-                        byte[] pixel = new byte[1];
-
-                        BaseImageSource.CopyPixels(new Int32Rect((int)Image_panel_Point.X, (int)Image_panel_Point.Y, 1, 1),
-                                                          pixel, SourceWidth, 0);
-
-                        // Update X, Y, GV
-                        txtGVValue.Text = pixel[0].ToString();
-                        txtXPosition.Text = Convert.ToInt32(Image_panel_Point.X).ToString();
-                        txtYPosition.Text = Convert.ToInt32(Image_panel_Point.Y).ToString();
-
-                        #region Unused Code. (Update X, Y by (mm))
-                        //if (ptCurrentByImage.X != 0)
-                        //{
-                        //    txtXPositionMM.Text = string.Format("{0:f2}", Convert.ToDouble(ptCurrentByImage.X * CamResolutionX / 1000 / m_fReferenceImageScale));
-                        //}
-                        //if (ptCurrentByImage.Y != 0)
-                        //{
-                        //    txtYPositionMM.Text = string.Format("{0:f2}", Convert.ToDouble(ptCurrentByImage.Y * CamResolutionY / 1000 / m_fReferenceImageScale));
-                        //}
-                        #endregion
-
-                        // Draw Line profile.
-                        if (BasedCanvas.Tool == ToolType.Pointer && Mouse.LeftButton == MouseButtonState.Released)
-                        {
-                            double fScale = SourceHeight / BasedImage.ActualHeight;
-                            LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.GetLinePixels(BaseImageSource, Convert.ToInt32(Image_panel_Point.Y * fScale)));
-                        }
-                    }
-                    else
-                    {
-                        this.txtGVValue.Text = "0";
-                    }
-                }
-            }
-
-            if ((BasedCanvas.Tool == ToolType.Move || (Keyboard.IsKeyDown(Key.Space) && Mouse.LeftButton == MouseButtonState.Pressed)) && _ptLastDragPoint != null)
-            {
-                double fdeltaX = Image_panel_Point.X - _ptLastDragPoint.Value.X;
-                double fdeltaY = Image_panel_Point.Y - _ptLastDragPoint.Value.Y;
-
-                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - fdeltaX);
-                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - fdeltaY);
-
-                _ptLastDragPoint = Image_panel_Point;
-            }
-            else
-            {
-                BasedCanvas.DrawingCanvas_MouseMove(sender, e);
-            }
-
-            #endregion
-
-            #region Draw Cross
-            // Canvas 기준 현재 마우스 포지션 가져오기
-            System.Windows.Point ptCvsCanvas = e.GetPosition(cvsCross);
-
-            // 수직선 위치 조정 (X좌표 고정)
-            VerticalLine.X1 = ptCvsCanvas.X;
-            VerticalLine.X2 = ptCvsCanvas.X;
-
-            // 수평선 위치 조정 (Y좌표 고정)
-            HorizontalLine.Y1 = ptCvsCanvas.Y;
-            HorizontalLine.Y2 = ptCvsCanvas.Y;
-
-            HorizontalLine.X2 = cvsCross.ActualWidth;
-            VerticalLine.Y2 = cvsCross.ActualHeight;
-            #endregion
-
-            #region Drag Image
-            if ((Mouse.MiddleButton == MouseButtonState.Pressed) && _ptLastDragPoint != null)
-            {
-                System.Windows.Point currentPoint = Mouse.GetPosition(svTeaching);
-
-                decimal changeX = (decimal)currentPoint.X - (decimal)_ptLastDragPoint.Value.X;
-                decimal changeY = (decimal)currentPoint.Y - (decimal)_ptLastDragPoint.Value.Y;
-
-                svTeaching.ScrollToHorizontalOffset(svTeaching.HorizontalOffset - (double)changeX);
-                svTeaching.ScrollToVerticalOffset(svTeaching.VerticalOffset - (double)changeY);
-
-                _ptLastDragPoint = currentPoint;
-            }
-            #endregion
-
-            #region Draw Line Profile
-
-            if (BasedCanvas.Tool == ToolType.Pointer && Mouse.LeftButton == MouseButtonState.Released)
-            {
-                // Draw Line profile.
-
-                double fScale = SourceHeight / BasedImage.ActualHeight;
-                this.LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.Mono_GetLinePixels(BaseImageSource, Convert.ToInt32(Image_panel_Point.Y * fScale)));
-            }
-
-
-            #endregion
-        }
-        */
         private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
         {
             if (BaseImageSource == null || BasedImage == null || BasedCanvas == null)
@@ -1653,11 +1624,12 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 try
                 {
-                    LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.Mono_GetLinePixels(BaseImageSource, resizedY));
+                    int lineY = Math.Max(0, Math.Min(resizedY, BaseImageSource.PixelHeight - 1));
+                    LineProfileCtrl.DrawLineProfile(BitmapSourceHelper.Mono_GetLinePixels(BaseImageSource, lineY));
                 }
-                catch
+                catch(Exception ex)
                 {
-
+                    GLB.AddLog("[ImageReviewWindow]", $@"{ex.Message}", SeverityLevel.ERROR);
                 }
             }
             #endregion

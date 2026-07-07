@@ -39,23 +39,26 @@ namespace Common
         {
             try
             {
-                // 256 gray format에서만 동작합니다.
                 if (source == null)
-                {
                     return null;
-                }
-                else if (nYPosition == source.PixelWidth - 1 && nYPosition < 0)
-                {
+
+                if (nYPosition < 0 || nYPosition >= source.PixelHeight)
                     return null;
-                }
 
-                byte[] pixels = new byte[source.PixelWidth];
+                int bytesPerPixel = (source.Format.BitsPerPixel + 7) / 8;
 
-                GCHandle pinnedPixels = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                if (bytesPerPixel <= 0)
+                    bytesPerPixel = 1;
 
-                source.CopyPixels(new Int32Rect(0, nYPosition, source.PixelWidth, 1), pinnedPixels.AddrOfPinnedObject(), source.PixelWidth, source.PixelWidth);
-                pinnedPixels.Free();
+                int stride = source.PixelWidth * bytesPerPixel;
+                byte[] pixels = new byte[stride];
 
+                source.CopyPixels(
+                    new Int32Rect(0, nYPosition, source.PixelWidth, 1),
+                    pixels,
+                    stride,
+                    0);
+                
                 return pixels;
             }
             catch

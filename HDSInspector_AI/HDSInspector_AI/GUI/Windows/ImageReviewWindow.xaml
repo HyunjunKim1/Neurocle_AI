@@ -640,7 +640,7 @@
                 Margin="5,0,0,0">
                         <TextBlock Text="Scale:" FontWeight="Bold" Foreground="GhostWhite" FontSize="12"/>
                         <TextBlock Name="tbk_ScaleValue" Width="30" FontWeight="Bold" HorizontalAlignment="Right" FontSize="12" Foreground="GhostWhite"
-                                Text="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay, Converter={StaticResource doubleToDecimalconverter}, ConverterParameter=2}"/>
+                                Text="0.0"/>
                         <Button x:Name="btnZoomOut" Width="50" Tag="OUT" VerticalAlignment="Center" Margin="-8, 0"
 		                        Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom Out">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_OUT.png"/>

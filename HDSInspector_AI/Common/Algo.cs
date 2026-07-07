@@ -458,7 +458,8 @@ namespace Common
         {
             m_imgEntireImage.CopyTo(m_imgBufferImage);
             
-            Cv2.CvtColor(m_imgBufferImage, m_imgBufferImage, ColorConversionCodes.BGR2GRAY);
+            if(m_imgBufferImage.Channels() >= 3)
+                Cv2.CvtColor(m_imgBufferImage, m_imgBufferImage, ColorConversionCodes.BGR2GRAY);
            
             Cv2.Threshold(m_imgBufferImage, m_imgBufferImage, anLowerThreshold, anUpperThreshold, ThresholdTypes.Binary);
 
