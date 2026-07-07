@@ -314,7 +314,7 @@ namespace HDSInspector_AI.GUI.Windows
             // 첫표시는 제일 축소된거로 level 3
 
             
-            if (BasedImage.Width >= 16000)
+            if (_srcMat != null && _srcMat.Width >= 16000 && _pyramidSources.ContainsKey(3))
             {
                 // 원본 너비가 16000 이상일 때만 Level 3으로 시작
                 SetDisplayLevel(3);
