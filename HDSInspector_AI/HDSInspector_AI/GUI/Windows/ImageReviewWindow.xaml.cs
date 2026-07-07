@@ -312,8 +312,22 @@ namespace HDSInspector_AI.GUI.Windows
                 return;
 
             // 첫표시는 제일 축소된거로 level 3
-            SetDisplayLevel(3);
+
+            
+            if (BasedImage.Width >= 16000)
+            {
+                // 원본 너비가 16000 이상일 때만 Level 3으로 시작
+                SetDisplayLevel(3);
+            }
+            else
+            {
+                // 16000 미만일 때는 원본(Level 0) 혹은 적절한 기본 레벨 설정
+                SetDisplayLevel(0);
+            }
+           
+              
             svTeaching.UpdateLayout();
+               
 
             double viewerWidth = svTeaching.ViewportWidth;
             double viewerHeight = svTeaching.ViewportHeight;
