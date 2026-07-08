@@ -300,5 +300,12 @@
     <Resource Include="Resources\ZOOM_IN.png" />
     <Resource Include="Resources\ZOOM_OUT.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\RotateLeft.png" />
+    <Resource Include="Resources\RotateRight.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\autorotate.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
