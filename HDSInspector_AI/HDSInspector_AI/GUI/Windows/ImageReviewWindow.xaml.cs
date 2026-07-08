@@ -345,8 +345,10 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (_zoomToFitScale <= 0)
                 _zoomToFitScale = 0.05;
+            if (_zoomToFitScale > 5)
+                _zoomToFitScale = 1.0;
 
-            ZoomValue = _zoomToFitScale;
+                ZoomValue = _zoomToFitScale;
 
             svTeaching.ScrollToHorizontalOffset(0);
             svTeaching.ScrollToVerticalOffset(0);
