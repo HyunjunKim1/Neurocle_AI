@@ -1,6 +1,7 @@
 ﻿using Common;
 using Common.Drawing;
 using ControlzEx.Standard;
+using HandyControl.Expression.Shapes;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.GUI.UserControls.ImageReivew;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +22,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
+using Point = OpenCvSharp.Point;
+using Size = OpenCvSharp.Size;
 
 
 namespace HDSInspector_AI.GUI.Windows
@@ -184,6 +188,8 @@ namespace HDSInspector_AI.GUI.Windows
             this.btnZoomOut.Click += zoomBtn_Click;
             this.btnZoomToFit.Click += zoomBtn_Click;
 
+            this.btnAutoRotate.Click += AutoRotate_Click;
+
             this.pnlOuter.MouseDown += pnlOuter_MouseDown;
             this.pnlOuter.MouseLeftButtonUp += pnlOuter_MouseLeftUp;
             this.pnlOuter.MouseWheel += pnlOuter_MouseWheel;
@@ -191,7 +197,7 @@ namespace HDSInspector_AI.GUI.Windows
 
             this.cvsCross.MouseEnter += cvsCross_MouseEnter;
             this.cvsCross.MouseLeave += cvsCross_MouseLeave;
-
+            
             #region About Binariztation.
             this.chkBinarization.Click += chkBinarization_Click;
             this.sldrLowerThreshold.ValueChanged += sldrLowerThreshold_ValueChanged;
@@ -672,6 +678,152 @@ namespace HDSInspector_AI.GUI.Windows
             ZoomAtPointLoc(newTotalScale, centerPoint);
         }
         #endregion
+
+        #region Rotate
+        private void AutoRotate_Click(object sender, RoutedEventArgs e)
+        {
+            if (BaseImageSource != null)
+                return;
+
+            Mat src = BaseImageSource.ToMat().Clone();
+            Mat rotated = new Mat(); //회전 이미지
+
+            Point2f[] corners = FindRectangleCorners(src);
+
+            if (corners != null)
+                return;
+
+            Point2f leftTop = corners[0];
+            Point2f rightTop = corners[1];
+
+            double angle = Math.Atan2(rightTop.Y - leftTop.Y, rightTop.X - leftTop.X)*180/Math.PI;
+
+            // 수평이면 무시
+            if (Math.Abs(angle) == 0.1)
+                return;
+
+            Point2f center = new Point2f(src.Width/2, src.Height/2);
+
+            Mat rotMat = Cv2.GetRotationMatrix2D(center, angle, 1.0);
+
+            Cv2.WarpAffine(src, rotated, rotMat, src.Size()); //아핀 변환
+
+            BitmapSource result = BitmapSourceConverter.ToBitmapSource(rotated);
+
+            UpdateDxRendererSource(result);
+
+        }
+
+        private Point2f[] FindRectangleCorners(Mat src)
+        {
+            Mat gray = new Mat();
+
+            Cv2.CvtColor(
+                src,
+                gray,
+                ColorConversionCodes.BGR2GRAY
+            );
+
+
+            Cv2.GaussianBlur(
+                gray,
+                gray,
+                new Size(5, 5),
+                0
+            );
+
+
+            Mat edge = new Mat();
+
+            Cv2.Canny(
+                gray,
+                edge,
+                50,
+                150
+            );
+
+
+            Cv2.FindContours(
+                edge,
+                out Point[][] contours,
+                out _,
+                RetrievalModes.External,
+                ContourApproximationModes.ApproxSimple
+            );
+
+
+            double maxArea = 0;
+            Point2f[] result = null;
+
+
+            foreach (var contour in contours)
+            {
+                double area = Cv2.ContourArea(contour);
+
+                if (area < maxArea)
+                    continue;
+
+
+                double peri = Cv2.ArcLength(contour, true);
+
+
+                Point[] approx =
+                    Cv2.ApproxPolyDP(
+                        contour,
+                        peri * 0.02,
+                        true
+                    );
+
+
+                // 꼭짓점 4개인 사각형
+                if (approx.Length == 4)
+                {
+                    maxArea = area;
+
+                    result =
+                        approx
+                        .Select(p => new Point2f(p.X, p.Y))
+                        .ToArray();
+                }
+            }
+
+
+            if (result == null)
+                return null;
+
+
+            return SortCorners(result);
+        }
+
+        private Point2f[] SortCorners(Point2f[] pts)
+        {
+            var ordered = new Point2f[4];
+
+
+            // 좌상단 = x+y 최소
+            ordered[0] =
+                pts.OrderBy(p => p.X + p.Y).First();
+
+
+            // 우하단 = x+y 최대
+            ordered[2] =
+                pts.OrderByDescending(p => p.X + p.Y).First();
+
+
+            // 우상단 = x-y 최대
+            ordered[1] =
+                pts.OrderByDescending(p => p.X - p.Y).First();
+
+
+            // 좌하단 = x-y 최소
+            ordered[3] =
+                pts.OrderBy(p => p.X - p.Y).First();
+
+
+            return ordered;
+        }
+        #endregion
+
 
         #region Binarization-Controller Event Handler.
 
