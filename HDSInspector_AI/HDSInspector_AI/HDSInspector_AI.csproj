@@ -307,5 +307,8 @@
   <ItemGroup>
     <Resource Include="Resources\autorotate.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\crop.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

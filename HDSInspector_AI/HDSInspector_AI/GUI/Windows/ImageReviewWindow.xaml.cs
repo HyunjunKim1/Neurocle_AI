@@ -189,6 +189,7 @@ namespace HDSInspector_AI.GUI.Windows
             this.btnZoomToFit.Click += zoomBtn_Click;
 
             this.btnAutoRotate.Click += AutoRotate_Click;
+            this.btnCrop.Click += Crop_Click;
 
             this.pnlOuter.MouseDown += pnlOuter_MouseDown;
             this.pnlOuter.MouseLeftButtonUp += pnlOuter_MouseLeftUp;
@@ -824,6 +825,12 @@ namespace HDSInspector_AI.GUI.Windows
         }
         #endregion
 
+        #region Crop
+        private void Crop_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
 
         #region Binarization-Controller Event Handler.
 
