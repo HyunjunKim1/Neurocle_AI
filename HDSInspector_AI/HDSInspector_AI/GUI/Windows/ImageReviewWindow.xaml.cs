@@ -23,6 +23,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 using Point = OpenCvSharp.Point;
+using Rectangle = System.Windows.Shapes.Rectangle;
 using Size = OpenCvSharp.Size;
 
 
@@ -77,7 +78,11 @@ namespace HDSInspector_AI.GUI.Windows
 
         private BitmapSource _finalsource; //최종 display된 이미지
 
+        private bool _isCropMode = false;
+        private bool _isDragging = false;
 
+        private Point _startPoint;
+        private Rectangle _cropRect;
 
         #region Properties
 
@@ -828,7 +833,7 @@ namespace HDSInspector_AI.GUI.Windows
         #region Crop
         private void Crop_Click(object sender, RoutedEventArgs e)
         {
-
+           
         }
         #endregion
 
