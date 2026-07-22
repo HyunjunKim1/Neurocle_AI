@@ -389,13 +389,13 @@
                             <Button x:Name="btnAutoRotate" Tag="Rotate(Auto)" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,50,0,0"
 Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="AutoRotate">
                                 <Border BorderBrush="White" BorderThickness="2" CornerRadius="5" Width="50" Height="50">
-                                    <Image Source="/HDSInspector_AI;component/Resources/autorotate.png" Margin="0"/>
+                                    <Image Source="/HDSInspector_AI;component/Resources/autorotate.png"/>
                                 </Border>
                             </Button>
                             <Button x:Name="btnCrop" Tag="Crop" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="70,50,0,0"
 Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Crop">
                                 <Border BorderBrush="White" BorderThickness="2" CornerRadius="5" Width="50" Height="50">
-                                    <Image Source="/HDSInspector_AI;component/Resources/crop.png" HorizontalAlignment="Left" Width="46"/>
+                                    <Image Source="/HDSInspector_AI;component/Resources/crop.png" HorizontalAlignment="Center" Width="46" Height="46" VerticalAlignment="Top"/>
                                 </Border>
                             </Button>
                         </Grid>
