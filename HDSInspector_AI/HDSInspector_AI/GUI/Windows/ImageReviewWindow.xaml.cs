@@ -8,6 +8,7 @@ using HDSInspector_AI.GUI.UserControls.ImageReivew;
 using OpenCvSharp;
 using OpenCvSharp.Aruco;
 using OpenCvSharp.WpfExtensions;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -860,6 +861,7 @@ namespace HDSInspector_AI.GUI.Windows
                 return;
 
             _cropstartPoint = e.GetPosition(cvsCross);
+           
             _isDragging = true;
 
             RemoveCropSelectionVisual(); //이전 효과 제거
@@ -883,7 +885,6 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (!_isCropMode || !_isDragging || _cropRect == null) return;
 
-
             System.Windows.Point current = e.GetPosition(cvsCross);
 
             // 시작점 대비 어느 방향으로 드래그하든 좌상단/크기가 맞게 계산
@@ -900,20 +901,12 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void CvsCross_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("up 호출됨");
             if (!_isCropMode||!_isDragging)
                 return;
 
             _isDragging = false;
 
             cvsCross.ReleaseMouseCapture();
-
-            // 너무 작게 드래그한 경우(실수 클릭)는 무시
-            if (_cropRect == null || _cropRect.Width < 5 || _cropRect.Height < 5)
-            {
-                RemoveCropSelectionVisual();
-                return;
-            }
 
             double left = Canvas.GetLeft(_cropRect);
             double top = Canvas.GetTop(_cropRect);
@@ -922,11 +915,6 @@ namespace HDSInspector_AI.GUI.Windows
             OpenCvSharp.Rect imageCropRect = ConvertCanvasRectToImageRect(left, top, _cropRect.Width, _cropRect.Height);
 
             ApplyCrop(imageCropRect);
-
-            // 크롭 끝나면 모드 자동 종료 (연속 크롭 원하면 아래 3줄 지우면 됨)
-            _isCropMode = false;
-            cvsCross.Cursor = Cursors.Arrow;
-            btnCrop.Opacity = 1.0;
 
             RemoveCropSelectionVisual();
         }
@@ -943,8 +931,8 @@ namespace HDSInspector_AI.GUI.Windows
             // 이미지 범위를 벗어나지 않도록 보정
             imgX = Math.Max(0, imgX);
             imgY = Math.Max(0, imgY);
-            imgW = Math.Min(imgW, _displayBaseMat.Width - imgX);
-            imgH = Math.Min(imgH, _displayBaseMat.Height - imgY);
+            imgW = Math.Min(imgW, _srcMat.Width - imgX);
+            imgH = Math.Min(imgH, _srcMat.Height - imgY);
 
             return new OpenCvSharp.Rect((int)imgX, (int)imgY, (int)imgW, (int)imgH);
         }
@@ -955,11 +943,11 @@ namespace HDSInspector_AI.GUI.Windows
             if (cropRect.Width <= 0 || cropRect.Height <= 0) return;
 
             // 원본 Mat에서 해당 영역만 잘라 새 Mat으로 복사 (원본 보존을 위해 Clone)
-            using (Mat croppedRegion = new Mat(_displayBaseMat, cropRect))
+            using (Mat croppedRegion = new Mat(_srcMat, cropRect))
             {
                 Mat croppedResult = croppedRegion.Clone();
-                BitmapSource Result = BitmapSourceConverter.ToBitmapSource(croppedResult);
-                UpdateViewerSource(Result); // 기존 화면 렌더링 함수로 교체해서 사용
+                //BitmapSource Result = BitmapSourceConverter.ToBitmapSource(croppedResult);
+                RefreshDisplayImage(croppedResult); // 기존 화면 렌더링 함수로 교체해서 사용
             }
         }
 
@@ -1711,6 +1699,9 @@ namespace HDSInspector_AI.GUI.Windows
             chkSobel.IsChecked = false;
             chkGauss.IsChecked = false;
             chkMedian.IsChecked = false;
+            btnCrop.Opacity = 1.0;          // 투명도 초기화
+            RemoveCropSelectionVisual();
+            cvsCross.Cursor = Cursors.Arrow;// 다시 클릭 가능하게 설정
         }
 
         private BitmapSource MakePreprocessedSource()
