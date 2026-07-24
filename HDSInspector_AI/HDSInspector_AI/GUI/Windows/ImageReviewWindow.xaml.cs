@@ -206,9 +206,9 @@ namespace HDSInspector_AI.GUI.Windows
 
             this.cvsCross.MouseEnter += cvsCross_MouseEnter;
             this.cvsCross.MouseLeave += cvsCross_MouseLeave;
-            this.cvsCross.MouseLeftButtonDown += CvsCross_MouseLeftButtonDown;
-            this.cvsCross.MouseMove += CvsCross_MouseMove;
-            this.cvsCross.MouseLeftButtonUp += CvsCross_MouseLeftButtonUp;
+            //this.pnlOuter.MouseLeftButtonDown += CvsCross_MouseLeftButtonDown;
+            //this.cvsCross.MouseMove += CvsCross_MouseMove;
+            //this.cvsCross.MouseLeftButtonUp += CvsCross_MouseLeftButtonUp;
 
             
             #region About Binariztation.
@@ -331,7 +331,6 @@ namespace HDSInspector_AI.GUI.Windows
                 return;
 
             // 첫표시는 제일 축소된거로 level 3
-
             
             if (_srcMat != null && _srcMat.Width >= 16000 && _pyramidSources.ContainsKey(3))
             {
@@ -343,10 +342,8 @@ namespace HDSInspector_AI.GUI.Windows
                 // 16000 미만일 때는 원본(Level 0) 혹은 적절한 기본 레벨 설정
                 SetDisplayLevel(0);
             }
-           
               
-            svTeaching.UpdateLayout();
-               
+            svTeaching.UpdateLayout();  
 
             double viewerWidth = svTeaching.ViewportWidth;
             double viewerHeight = svTeaching.ViewportHeight;
@@ -853,26 +850,36 @@ namespace HDSInspector_AI.GUI.Windows
                 btnCrop.Opacity = 1.0;
                 RemoveCropSelectionVisual();
             }
-        }
+        }//여기는 ok
 
         private void CvsCross_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!_isCropMode)
                 return;
 
-            _cropstartPoint = e.GetPosition(cvsCross);
-           
+            // 현재 표시 중인 피라미드 이미지 기준 좌표
+            //System.Windows.Point displayPoint = Mouse.GetPosition(BasedImage);
+
+            // 16384 제한 때문에 리사이즈된 기준 이미지 좌표
+            //System.Windows.Point resizedImagePoint = DisplayPointToResizedImagePoint(displayPoint);
+
+            // 실제 원본 이미지 좌표
+            //System.Windows.Point originalImagePoint = DisplayPointToOriginalImagePoint(displayPoint);
+            System.Windows.Point pos = e.GetPosition(cvsCross);
+            _cropstartPoint = pos;
+            
             _isDragging = true;
 
             RemoveCropSelectionVisual(); //이전 효과 제거
 
-            _cropRect = new Rectangle
+            _cropRect = new Rectangle //사각형 정의
             {
                 Stroke = Brushes.Red,
                 StrokeThickness = 1,
                 StrokeDashArray= new DoubleCollection { 4, 2 },
                 Fill= new SolidColorBrush(Color.FromArgb(50,255,0,0)), //반투명 
             };
+
             Canvas.SetLeft(_cropRect, _cropstartPoint.X);
             Canvas.SetTop(_cropRect, _cropstartPoint.Y);
             cvsCross.Children.Add(_cropRect);
@@ -885,7 +892,17 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (!_isCropMode || !_isDragging || _cropRect == null) return;
 
-            System.Windows.Point current = e.GetPosition(cvsCross);
+            //System.Windows.Point current = e.GetPosition(pnlInner);
+
+            // 현재 표시 중인 피라미드 이미지 기준 좌표
+            //System.Windows.Point displayPoint = Mouse.GetPosition(BasedImage);
+
+            // 16384 제한 때문에 리사이즈된 기준 이미지 좌표
+            //System.Windows.Point resizedImagePoint = DisplayPointToResizedImagePoint(displayPoint);
+
+            // 실제 원본 이미지 좌표
+            //System.Windows.Point current = DisplayPointToOriginalImagePoint(displayPoint);
+            System.Windows.Point current= e.GetPosition(cvsCross);
 
             // 시작점 대비 어느 방향으로 드래그하든 좌상단/크기가 맞게 계산
             double x = Math.Min(_cropstartPoint.X, current.X);
@@ -912,6 +929,7 @@ namespace HDSInspector_AI.GUI.Windows
             double top = Canvas.GetTop(_cropRect);
 
             // 화면 좌표 → 원본 이미지 픽셀 좌표 변환
+            
             OpenCvSharp.Rect imageCropRect = ConvertCanvasRectToImageRect(left, top, _cropRect.Width, _cropRect.Height);
 
             ApplyCrop(imageCropRect);
@@ -1878,6 +1896,13 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void pnlOuter_MouseLeftUp(object sender, MouseButtonEventArgs e)
         {
+
+            if (_isDragging)
+            {
+                _isDragging = false;
+                cvsCross.ReleaseMouseCapture();
+                return;
+            }
             if (chkBinarization.IsChecked == true)
             {
                 if (BasedCanvas.SelectedGraphic != null)
