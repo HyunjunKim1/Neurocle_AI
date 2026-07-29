@@ -707,13 +707,17 @@ Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Crop">
         <Border Grid.Column="2" Grid.Row="1" BorderBrush="Black" BorderThickness="1, 0, 1, 1" Grid.ColumnSpan="2">
             <ScrollViewer x:Name="svTeaching" Background="White" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Focusable="False">
                 <Grid x:Name="pnlOuter" Background="Black" >
-                    <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="359*"/>
+                        <ColumnDefinition Width="270*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="314,0,0,0">
                         <Grid.LayoutTransform>
                             <ScaleTransform x:Name="imageScale" ScaleX="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"
 				ScaleY="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"/>
                         </Grid.LayoutTransform>
                     </Grid>
-                    <Canvas x:Name="cvsCross" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                    <Canvas x:Name="cvsCross" Background="Transparent" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2">
                         <Line Name="VerticalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
                         <Line Name="HorizontalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
                     </Canvas>
