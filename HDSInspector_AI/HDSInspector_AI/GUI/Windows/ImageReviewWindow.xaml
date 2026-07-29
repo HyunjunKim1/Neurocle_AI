@@ -672,12 +672,12 @@ Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Crop">
 		            Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom In">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_IN.png"/>
                         </Button>
-                        <Button x:Name="btnZoomToFit" Width="50" Tag="FIT" VerticalAlignment="Center" Margin="-8, 0"
+                        <Button x:Name="btnZoomToFit" Width="32" Tag="FIT" VerticalAlignment="Center" Margin="-8, 0"
 		            Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Zoom To Fit">
                             <Image Source="/HDSInspector_AI;component/Resources/ZOOM_FIT.png"/>
                         </Button>
-                        <ToggleButton Name="extract_ROI" Tag="Extract_ROI" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="30, 0" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
-                            Content="제품 추출" Style="{StaticResource CustomToggleButtonStyle}" Width="83" IsChecked="False" Click="CheckBox_Changed" />
+                        <ToggleButton Name="extract_ROI" Tag="Extract_ROI" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="75, 0" FontSize="12" Foreground="GhostWhite" FontWeight="Bold" 
+                            Content="제품 추출" Style="{StaticResource CustomToggleButtonStyle}" Width="91" IsChecked="False" Click="CheckBox_Changed" />
                     </StackPanel>
 
                     <!-- Display X & Y Coordinates -->
@@ -691,13 +691,13 @@ Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Crop">
                             <ColumnDefinition Width="0.75*"/>
                             <ColumnDefinition Width="10"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" HorizontalAlignment="Right">X :</TextBlock>
-                        <TextBlock Name="txtXPosition" HorizontalAlignment="Right" Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="1">0</TextBlock>
+                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Grid.Column="1">X :</TextBlock>
+                        <TextBlock Name="txtXPosition" HorizontalAlignment="Left" Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="1" RenderTransformOrigin="-1.145,0.444" Grid.ColumnSpan="2" Margin="42,0,0,0">0</TextBlock>
 
-                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="2" HorizontalAlignment="Right">Y :</TextBlock>
-                        <TextBlock Name="txtYPosition" HorizontalAlignment="Right" Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="3">0</TextBlock>
+                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="2" HorizontalAlignment="Left" Grid.ColumnSpan="2" Margin="25,0,0,0">Y :</TextBlock>
+                        <TextBlock Name="txtYPosition" HorizontalAlignment="Left" Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="3" Margin="27,0,0,0">0</TextBlock>
 
-                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="4" HorizontalAlignment="Right">GV :</TextBlock>
+                        <TextBlock Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="4" HorizontalAlignment="Left" Grid.ColumnSpan="2" Margin="16,0,0,0">GV :</TextBlock>
                         <TextBlock Name="txtGVValue" HorizontalAlignment="Right" Foreground="GhostWhite" FontWeight="Bold" FontSize="15" Grid.Column="5">0</TextBlock>
                     </Grid>
                 </Grid>
@@ -707,13 +707,17 @@ Style="{StaticResource NullBackgroundButtonStyle}" Cursor="Hand" ToolTip="Crop">
         <Border Grid.Column="2" Grid.Row="1" BorderBrush="Black" BorderThickness="1, 0, 1, 1" Grid.ColumnSpan="2">
             <ScrollViewer x:Name="svTeaching" Background="White" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" Focusable="False">
                 <Grid x:Name="pnlOuter" Background="Black" >
-                    <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="359*"/>
+                        <ColumnDefinition Width="270*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid x:Name="pnlInner" Background="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="314,0,0,0">
                         <Grid.LayoutTransform>
                             <ScaleTransform x:Name="imageScale" ScaleX="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"
 						ScaleY="{Binding ElementName=sldrScale, Path=Value, Mode=OneWay}"/>
                         </Grid.LayoutTransform>
                     </Grid>
-                    <Canvas x:Name="cvsCross" Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                    <Canvas x:Name="cvsCross" Background="Transparent" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2">
                         <Line Name="VerticalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
                         <Line Name="HorizontalLine" Stroke="Red" StrokeThickness="1" StrokeDashArray="2 2" Visibility="Collapsed" Panel.ZIndex="10" />
                     </Canvas>
