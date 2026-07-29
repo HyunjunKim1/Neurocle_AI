@@ -30,6 +30,7 @@ using Rectangle = System.Windows.Shapes.Rectangle;
 using Size = OpenCvSharp.Size;
 
 
+
 namespace HDSInspector_AI.GUI.Windows
 {
     public delegate void ToolTypeChangeEventHandler(ToolType newToolType);
@@ -206,9 +207,6 @@ namespace HDSInspector_AI.GUI.Windows
 
             this.cvsCross.MouseEnter += cvsCross_MouseEnter;
             this.cvsCross.MouseLeave += cvsCross_MouseLeave;
-            //this.pnlOuter.MouseLeftButtonDown += CvsCross_MouseLeftButtonDown;
-            //this.cvsCross.MouseMove += CvsCross_MouseMove;
-            //this.cvsCross.MouseLeftButtonUp += CvsCross_MouseLeftButtonUp;
 
             
             #region About Binariztation.
@@ -844,7 +842,7 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (_isCropMode)
             {
-                //cvsCross.Cursor = Cursors.Cross;
+                cvsCross.Cursor = Cursors.Cross;
                 btnCrop.Opacity = 0.6;
                 ToolChange(ToolType.Rectangle);
             }
@@ -852,112 +850,10 @@ namespace HDSInspector_AI.GUI.Windows
             {
                 cvsCross.Cursor = Cursors.Arrow;
                 btnCrop.Opacity = 1.0;
-                RemoveCropSelectionVisual();
+                ToolChange(ToolType.Pointer);
+                //RemoveCropSelectionVisual();
             }
         }//여기는 ok
-
-        //private void CvsCross_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (!_isCropMode)
-        //        return;
-        //
-        //    // 현재 표시 중인 피라미드 이미지 기준 좌표
-        //    //System.Windows.Point displayPoint = Mouse.GetPosition(BasedImage);
-        //
-        //    // 16384 제한 때문에 리사이즈된 기준 이미지 좌표
-        //    //System.Windows.Point resizedImagePoint = DisplayPointToResizedImagePoint(displayPoint);
-        //
-        //    // 실제 원본 이미지 좌표
-        //    //System.Windows.Point originalImagePoint = DisplayPointToOriginalImagePoint(displayPoint);
-        //    System.Windows.Point pos = e.GetPosition(cvsCross);
-        //    _cropstartPoint = pos;
-        //    
-        //    _isDragging = true;
-        //
-        //    RemoveCropSelectionVisual(); //이전 효과 제거
-        //
-        //    _cropRect = new Rectangle //사각형 정의
-        //    {
-        //        Stroke = Brushes.Red,
-        //        StrokeThickness = 1,
-        //        StrokeDashArray= new DoubleCollection { 4, 2 },
-        //        Fill= new SolidColorBrush(Color.FromArgb(50,255,0,0)), //반투명 
-        //    };
-        //
-        //    Canvas.SetLeft(_cropRect, _cropstartPoint.X);
-        //    Canvas.SetTop(_cropRect, _cropstartPoint.Y);
-        //    cvsCross.Children.Add(_cropRect);
-        //
-        //    cvsCross.CaptureMouse(); // 캔버스 밖으로 나가도 드래그 유지되게
-        //    e.Handled = true;        // 기존 핸들러로 이벤트 전파 막기
-        //}
-
-        //private void CvsCross_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (!_isCropMode || !_isDragging || _cropRect == null) return;
-        //
-        //    //System.Windows.Point current = e.GetPosition(pnlInner);
-        //
-        //    // 현재 표시 중인 피라미드 이미지 기준 좌표
-        //    //System.Windows.Point displayPoint = Mouse.GetPosition(BasedImage);
-        //
-        //    // 16384 제한 때문에 리사이즈된 기준 이미지 좌표
-        //    //System.Windows.Point resizedImagePoint = DisplayPointToResizedImagePoint(displayPoint);
-        //
-        //    // 실제 원본 이미지 좌표
-        //    //System.Windows.Point current = DisplayPointToOriginalImagePoint(displayPoint);
-        //    System.Windows.Point current= e.GetPosition(cvsCross);
-        //
-        //    // 시작점 대비 어느 방향으로 드래그하든 좌상단/크기가 맞게 계산
-        //    double x = Math.Min(_cropstartPoint.X, current.X);
-        //    double y = Math.Min(_cropstartPoint.Y, current.Y);
-        //    double w = Math.Abs(current.X - _cropstartPoint.X);
-        //    double h = Math.Abs(current.Y - _cropstartPoint.Y);
-        //
-        //    Canvas.SetLeft(_cropRect, x);
-        //    Canvas.SetTop(_cropRect, y);
-        //    _cropRect.Width = w;
-        //    _cropRect.Height = h;
-        //}
-
-        //private void CvsCross_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (!_isCropMode||!_isDragging)
-        //        return;
-        //
-        //    _isDragging = false;
-        //
-        //    cvsCross.ReleaseMouseCapture();
-        //
-        //    double left = Canvas.GetLeft(_cropRect);
-        //    double top = Canvas.GetTop(_cropRect);
-        //
-        //    // 화면 좌표 → 원본 이미지 픽셀 좌표 변환
-        //    
-        //    OpenCvSharp.Rect imageCropRect = ConvertCanvasRectToImageRect(left, top, _cropRect.Width, _cropRect.Height);
-        //
-        //    ApplyCrop(imageCropRect);
-        //
-        //    RemoveCropSelectionVisual();
-        //}
-
-        // === 캔버스 좌표 → 원본 이미지 픽셀 좌표 변환 ===
-        private OpenCvSharp.Rect ConvertCanvasRectToImageRect(double canvasX, double canvasY, double canvasW, double canvasH)
-        {
-            // 화면 좌표에서 팬 오프셋을 빼고 줌 배율로 나누면 원본 이미지 좌표가 됨
-            double imgX = (canvasX - svTeaching.HorizontalOffset) / _zoomToFitScale;
-            double imgY = (canvasY - svTeaching.VerticalOffset) / _zoomToFitScale;
-            double imgW = canvasW / _zoomToFitScale;
-            double imgH = canvasH / _zoomToFitScale;
-
-            // 이미지 범위를 벗어나지 않도록 보정
-            imgX = Math.Max(0, imgX);
-            imgY = Math.Max(0, imgY);
-            imgW = Math.Min(imgW, BasedImage.Width - imgX);
-            imgH = Math.Min(imgH, BasedImage.Height - imgY);
-
-            return new OpenCvSharp.Rect((int)imgX, (int)imgY, (int)imgW, (int)imgH);
-        }
 
         // === OpenCvSharp Mat 기반 실제 크롭 처리 ===
         private void ApplyCrop(OpenCvSharp.Rect cropRect)
@@ -982,122 +878,6 @@ namespace HDSInspector_AI.GUI.Windows
                 _cropRect = null;
             }
         }
-
-        //private void Crop_Click(object sender, RoutedEventArgs e)
-        //{
-        //    _isCropMode = true;
-        //    Cursor = Cursors.Cross;
-        //
-        //    if (_cropRect == null)
-        //    {
-        //        _cropRect = new Rectangle()
-        //        {
-        //            Stroke = Brushes.Red,
-        //            StrokeThickness = 2,
-        //            Fill = new SolidColorBrush(Color.FromArgb(50, 255, 0, 0)),
-        //            Visibility = Visibility.Collapsed
-        //        };
-        //
-        //        cvsCross.Children.Add(_cropRect);
-        //    }
-        //    cvsCross.MouseLeftButtonDown += CvsCross_MouseLeftButtonDown;
-        //    cvsCross.MouseMove += CvsCross_MouseMove;
-        //    cvsCross.MouseLeftButtonUp += CvsCross_MouseLeftButtonUp;
-        //}
-        //
-        //private void CvsCross_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (!_isCropMode)
-        //        return;
-        //
-        //    _isDragging = true;
-        //    System.Windows.Point _startPoint = Mouse.GetPosition(BasedImage);
-        //
-        //    Canvas.SetLeft(_cropRect, _startPoint.X);
-        //    Canvas.SetTop(_cropRect, _startPoint.Y);
-        //
-        //    _cropRect.Width = 0;
-        //    _cropRect.Height = 0;
-        //    _cropRect.Visibility = Visibility.Visible;
-        //
-        //    cvsCross.CaptureMouse();
-        //}
-        //
-        //private void CvsCross_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (!_isDragging)
-        //        return;
-        //
-        //    System.Windows.Point pos = Mouse.GetPosition(BasedImage);
-        //
-        //    double x = Math.Min(pos.X, _cropstartPoint.X);
-        //    double y = Math.Min(pos.Y, _cropstartPoint.Y);
-        //
-        //    double w = Math.Abs(pos.X - _cropstartPoint.X);
-        //    double h = Math.Abs(pos.Y - _cropstartPoint.Y);
-        //
-        //    Canvas.SetLeft(_cropRect, x);
-        //    Canvas.SetTop(_cropRect, y);
-        //
-        //    _cropRect.Width = w;
-        //    _cropRect.Height = h;
-        //}
-        //
-        //private void CvsCross_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (!_isDragging)
-        //        return;
-        //
-        //    _isDragging = false;
-        //
-        //    cvsCross.ReleaseMouseCapture();
-        //
-        //    CropImage();
-        //
-        //    _cropRect.Visibility = Visibility.Collapsed;
-        //
-        //    _isCropMode = false;
-        //    Cursor = Cursors.Arrow;
-        //
-        //    cvsCross.MouseLeftButtonDown -= CvsCross_MouseLeftButtonDown;
-        //    cvsCross.MouseMove -= CvsCross_MouseMove;
-        //    cvsCross.MouseLeftButtonUp -= CvsCross_MouseLeftButtonUp;
-        //}
-        //
-        //private void CropImage()
-        //{
-        //    if (BaseImageSource == null)
-        //        return;
-        //
-        //    double left = Canvas.GetLeft(_cropRect);
-        //    double top = Canvas.GetTop(_cropRect);
-        //
-        //    Int32Rect rect = new Int32Rect(
-        //        (int)left,
-        //        (int)top,
-        //        (int)_cropRect.Width,
-        //        (int)_cropRect.Height);
-        //
-        //    if (rect.Width <= 0 || rect.Height <= 0)
-        //        return;
-        //
-        //    int x = Math.Max(0, rect.X);
-        //    int y = Math.Max(0, rect.Y);
-        //
-        //    int width = Math.Min(rect.Width, BaseImageSource.PixelWidth - x);
-        //    int height = Math.Min(rect.Height, BaseImageSource.PixelHeight - y);
-        //
-        //    if (width <= 0 || height <= 0)
-        //        return;
-        //
-        //    rect = new Int32Rect(x, y, width, height);
-        //
-        //    CroppedBitmap crop = new CroppedBitmap(BaseImageSource, rect);
-        //
-        //    BaseImageSource = crop;
-        //
-        //    BasedImage.Source = BaseImageSource;
-        //}
         #endregion
 
 
@@ -1887,35 +1667,6 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void pnlOuter_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
-            //if (_isCropMode)
-            //{
-            //    if (e.LeftButton == MouseButtonState.Pressed)
-            //    {
-            //        System.Windows.Point pos = e.GetPosition(BasedCanvas);
-            //        _cropstartPoint = pos; 
-            //        _isDragging = true;
-            //
-            //        RemoveCropSelectionVisual(); //이전 효과 제거
-            //
-            //        _cropRect = new Rectangle // 사각형 정의
-            //        {
-            //            Stroke = Brushes.Red,
-            //            StrokeThickness = 1,
-            //            StrokeDashArray = new DoubleCollection { 4, 2 },
-            //            Fill = new SolidColorBrush(Color.FromArgb(50, 255, 0, 0)), // 반투명 
-            //        };
-            //
-            //        Canvas.SetLeft(_cropRect, _cropstartPoint.X);
-            //        Canvas.SetTop(_cropRect, _cropstartPoint.Y);
-            //        cvsCross.Children.Add(_cropRect);//화면 표시
-            //
-            //        cvsCross.CaptureMouse(); // 캔버스 밖으로 나가도 드래그 유지되게
-            //        e.Handled = true;        // 이벤트 전파 막기
-            //    }
-            //    return;
-            //}
-
             if (e.MiddleButton == MouseButtonState.Pressed || BasedCanvas.Tool == ToolType.Move || Keyboard.IsKeyDown(Key.Space))
             {
                 _ptLastDragPoint = e.GetPosition(svTeaching);
@@ -1929,31 +1680,37 @@ namespace HDSInspector_AI.GUI.Windows
         {
             if (_isCropMode)
             {
-                GraphicsRectangle rect = BasedCanvas.GraphicsList.LastOrDefault() as GraphicsRectangle;
-                if (rect == null) return;
+                var lastItem = BasedCanvas.GraphicsList.Count > 0 ? BasedCanvas.GraphicsList[BasedCanvas.GraphicsList.Count - 1] : null;
 
-                int x = (int)rect.Left;
-                int y = (int)rect.Top;
-                int w = (int)(rect.Right-rect.Left);
-                int h = 
+                GraphicsRectangle rect = lastItem as GraphicsRectangle;
+
+                if (rect != null)
+                {
+                    int x = Math.Max(0, (int)Math.Round(rect.Left));
+                    int y = Math.Max(0, (int)Math.Round(rect.Top));
+
+                    int right = (int)Math.Min(BasedCanvas.ActualWidth, Math.Round(rect.Right));
+                    int bottom = (int)Math.Min(BasedCanvas.ActualHeight, Math.Round(rect.Bottom));
+
+                    int w = right - x;
+                    int h = bottom - y;
+
+                    if (w > 0 && h > 0)
+                    {
+                        OpenCvSharp.Rect cropRect =
+                            new OpenCvSharp.Rect(x, y, w, h);
+
+                        ApplyCrop(cropRect);
+                    }
+
+                    // 크롭용으로 생성한 Rectangle 제거
+                    BasedCanvas.GraphicsList.Remove(rect);
+                    BasedCanvas.RefreshClip();
+                }
+                ToolChange(ToolType.Rectangle);
+                return;
             }
-            //if (_isDragging) //드래그 중일때
-            //{
-            //    _isDragging = false;
-            //    cvsCross.ReleaseMouseCapture();
-            //    
-            //    if (_isCropMode ) //크롭모드일 때
-            //    {
-            //        double left = Canvas.GetLeft(_cropRect);
-            //        double top = Canvas.GetTop(_cropRect);
-            //
-            //        OpenCvSharp.Rect imageCropRect = ConvertCanvasRectToImageRect(left, top, _cropRect.Width, _cropRect.Height);
-            //        ApplyCrop(imageCropRect);
-            //        RemoveCropSelectionVisual();
-            //    }
-            //    return;
-            //}
-
+            
             //원래 로직
             if (chkBinarization.IsChecked == true)
             {
@@ -1976,25 +1733,6 @@ namespace HDSInspector_AI.GUI.Windows
         }
         private void pnlOuter_MouseMove(object sender, MouseEventArgs e)
         {
-            //if (_isCropMode && _isDragging && _cropRect != null)
-            //{
-            //    System.Windows.Point current = e.GetPosition(BasedImage);
-            //    // 시작점 대비 어느 방향으로 드래그하든 좌상단/크기가 맞게 계산
-            //    double x = Math.Min(_cropstartPoint.X, current.X);
-            //    double y = Math.Min(_cropstartPoint.Y, current.Y);
-            //    double w = Math.Abs(current.X - _cropstartPoint.X);
-            //    double h = Math.Abs(current.Y - _cropstartPoint.Y);
-            //    
-            //    Canvas.SetLeft(_cropRect, x);
-            //    Canvas.SetTop(_cropRect, y);
-            //    _cropRect.Width = w;
-            //    _cropRect.Height = h;
-            //
-            //    // 크롭 영역을 그리는 중에는 좌표 표시나 툴 이동을 하지 않으려면 여기서 return;
-            //    // 만약 크롭 영역을 그리면서 동시에 좌표 표시도 하고 싶다면 return을 지우세요.
-            //    return;
-            //}
-
             if (BaseImageSource == null || BasedImage == null || BasedCanvas == null)
                 return;
 
