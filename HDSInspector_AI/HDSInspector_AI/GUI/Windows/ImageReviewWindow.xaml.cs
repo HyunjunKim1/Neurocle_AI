@@ -311,8 +311,12 @@ namespace HDSInspector_AI.GUI.Windows
             if (_pyramidSources.Count == 0)
                 return;
 
-            // 첫표시는 제일 축소된거로 level 3
-            SetDisplayLevel(3);
+            if (BasedImage.Width <= D3D_MAX_TEXTURE_SIZE && BasedImage.Height <= D3D_MAX_TEXTURE_SIZE)
+                SetDisplayLevel(0);
+            else
+                // 첫표시는 제일 축소된거로 level 3
+                SetDisplayLevel(3);
+
             svTeaching.UpdateLayout();
 
             double viewerWidth = svTeaching.ViewportWidth;
@@ -397,55 +401,6 @@ namespace HDSInspector_AI.GUI.Windows
             return 3;
 
         }
-
-        private void ChangeDisplayLevelNeeded(double totalScale)
-        {
-            if (_pyramidSources.Count == 0)
-                return;
-
-            int newLevel = GetDisplayLevelByScale(totalScale);
-
-            if (newLevel == _displayLevel)
-                return;
-
-            if (!_pyramidSources.ContainsKey(newLevel))
-                return;
-
-            // 여기서 혹여나 현재 적용된것들 적용하고, Scale 비율 다시 생성함.
-            try
-            {
-                double oldRatio = _displayImageRatio;
-                double oldZoom = ZoomValue;
-                double oldTotalScale = oldRatio / oldZoom;
-
-                _displayLevel = newLevel;
-                _displayImageRatio = 1.0 / Math.Pow(2, _displayLevel);
-
-                BitmapSource displaySource = _pyramidSources[_displayLevel];
-
-                BasedImage.Source = displaySource;
-                BasedImage.Width = displaySource.PixelWidth;
-                BasedImage.Height = displaySource.PixelHeight;
-
-                BasedCanvas.Width = displaySource.PixelWidth;
-                BasedCanvas.Height = displaySource.PixelHeight;
-
-                double newZoom = oldTotalScale / _displayImageRatio;
-
-                if (newZoom < sldrScale.Minimum)
-                    newZoom = sldrScale.Minimum;
-                if (newZoom > sldrScale.Maximum)
-                    newZoom -= sldrScale.Maximum;
-
-                sldrScale.Value = newZoom;
-                UpdateScale();
-            }
-            catch (Exception ex)
-            {
-                GLB.AddLog("[ImageReviewWindow]", $@"{ex.Message}", SeverityLevel.ERROR);
-            }
-        }
-
         private void RefreshDisplayImage(Mat sourceMat)
         {
             if (sourceMat == null || sourceMat.Empty())
@@ -747,52 +702,9 @@ namespace HDSInspector_AI.GUI.Windows
                     Binarization();
             }
         }
-        private void ClipPos(ref Int32Rect arcTarget, System.Windows.Size anBoundary)
-        {
-            if (arcTarget.X < 0)
-                arcTarget.X = 0;
-            if (arcTarget.X >= anBoundary.Width)
-                arcTarget.X = (int)anBoundary.Width - 1;
-
-            if (arcTarget.Y < 0)
-                arcTarget.Y = 0;
-            if (arcTarget.Y >= anBoundary.Height)
-                arcTarget.Y = (int)anBoundary.Height - 1;
-
-            if (arcTarget.X + arcTarget.Width >= anBoundary.Width)
-                arcTarget.Width = (int)anBoundary.Width - arcTarget.X;
-            if (arcTarget.Y + arcTarget.Height >= anBoundary.Height)
-                arcTarget.Height = (int)anBoundary.Height - arcTarget.X;
-        }
 
         public void Binarization()
         {
-            /*
-            int nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter;
-
-            if ((bool)radSingleThreshold.IsChecked)
-            {
-                nLowerThreshold = (int)sldrThreshold.Value;
-                nUpperThreshold = 255;
-            }
-            else
-            {
-                nLowerThreshold = (int)sldrLowerThreshold.Value;
-                nUpperThreshold = (int)sldrUpperThreshold.Value;
-            }
-
-            nErosionIter = (int)sldrErosionIter.Value;
-            nDilationIter = (int)sldrDilationIter.Value;
-
-            try
-            {
-                Binarization(BaseImageSource, nLowerThreshold, nUpperThreshold, nErosionIter, nDilationIter);
-            }
-            catch
-            {
-                Debug.WriteLine("Exception occured in Binarization(TeachingViewerCtrl.xaml.cs)");
-            }
-            */
             try
             {
                 BitmapSource preprocessed = MakePreprocessedSource();
@@ -837,52 +749,6 @@ namespace HDSInspector_AI.GUI.Windows
                 GLB.AddLog("[ImageReviewWindow]", $@"{ex.Message} - Binarization", SeverityLevel.ERROR);
             }
         }
-        /*
-        public void Binarization(BitmapSource bitmapSource, int anLowerThreshold, int anUpperThreshold, int anErosionIter, int anDilationIter)
-        {
-            try
-            {
-                if (bitmapSource == null) return;
-                int width = bitmapSource.PixelWidth;
-                int height = bitmapSource.PixelHeight;
-
-                GraphicsBase graphic = BasedCanvas.SelectedGraphic;
-                if (graphic == null)
-                    return;
-
-                Int32Rect region = new Int32Rect();
-                if (graphic is GraphicsRectangleBase)
-                {
-                    region.X = 0;
-                    region.Y = 0;
-                    region.Width = (int)BasedCanvas.ActualWidth;
-                    region.Height = (int)BasedCanvas.ActualHeight;
-
-                    ClipPos(ref region, new System.Windows.Size(width, height));
-                }
-                else if (graphic is GraphicsPolyLine)
-                {
-                    region.X = ((GraphicsPolyLine)graphic).LeftProperty;
-                    region.Y = ((GraphicsPolyLine)graphic).TopProperty;
-                    region.Width = (int)Math.Round(((GraphicsPolyLine)graphic).WidthProperty) - 1;
-                    region.Height = (int)Math.Round(((GraphicsPolyLine)graphic).HeightProperty) - 1;
-
-                    ClipPos(ref region, new System.Windows.Size(width, height));
-                }
-
-                if (region.Width <= 0 || region.Height <= 0) // check region.
-                    return;
-
-                _algo.SetImage(bitmapSource);
-                _algo.GetBinaryImage(anLowerThreshold, anUpperThreshold, anErosionIter, anDilationIter);
-                BasedImage.Source = _algo.GetImage();
-            }
-            catch (Exception ex)
-            {
-                GLB.AddLog("[Review]", $@"{ex.Message} - ImageReviewWindow.cs", SeverityLevel.ERROR);
-            }
-        }
-        */
 
         private void sldrDilationIter_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
