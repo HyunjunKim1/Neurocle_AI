@@ -95,6 +95,8 @@
     <Compile Include="Class\Devices\devImageRendering.cs" />
     <Compile Include="Class\Devices\devNeurocle.cs" />
     <Compile Include="Class\Devices\AI_Lib\nrt.cs" />
+    <Compile Include="Class\Devices\NVML\NvmlMonitor.cs" />
+    <Compile Include="Class\Devices\NVML\NvmlNative.cs" />
     <Compile Include="Class\GlobalFunctions\ImageProcessing.cs" />
     <Compile Include="Class\Interface\IWindowService.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
