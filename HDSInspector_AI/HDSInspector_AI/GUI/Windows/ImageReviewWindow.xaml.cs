@@ -1,16 +1,19 @@
 ﻿using Common;
 using Common.Drawing;
 using ControlzEx.Standard;
+using HandyControl.Expression.Shapes;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.GUI.UserControls.ImageReivew;
 using OpenCvSharp;
 using OpenCvSharp.Aruco;
 using OpenCvSharp.WpfExtensions;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +23,12 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
+using Point = OpenCvSharp.Point;
+using Rectangle = System.Windows.Shapes.Rectangle;
+using Size = OpenCvSharp.Size;
+
 
 
 namespace HDSInspector_AI.GUI.Windows
@@ -73,7 +82,11 @@ namespace HDSInspector_AI.GUI.Windows
 
         private BitmapSource _finalsource; //최종 display된 이미지
 
+        private bool _isCropMode = false;
+        private bool _isDragging = false;
 
+        private System.Windows.Point _cropstartPoint;
+        private Rectangle _cropRect;
 
         #region Properties
 
@@ -184,6 +197,9 @@ namespace HDSInspector_AI.GUI.Windows
             this.btnZoomOut.Click += zoomBtn_Click;
             this.btnZoomToFit.Click += zoomBtn_Click;
 
+            this.btnAutoRotate.Click += AutoRotate_Click;
+            this.btnCrop.Click += Crop_Click;
+
             this.pnlOuter.MouseDown += pnlOuter_MouseDown;
             this.pnlOuter.MouseLeftButtonUp += pnlOuter_MouseLeftUp;
             this.pnlOuter.MouseWheel += pnlOuter_MouseWheel;
@@ -192,6 +208,7 @@ namespace HDSInspector_AI.GUI.Windows
             this.cvsCross.MouseEnter += cvsCross_MouseEnter;
             this.cvsCross.MouseLeave += cvsCross_MouseLeave;
 
+            
             #region About Binariztation.
             this.chkBinarization.Click += chkBinarization_Click;
             this.sldrLowerThreshold.ValueChanged += sldrLowerThreshold_ValueChanged;
@@ -311,13 +328,20 @@ namespace HDSInspector_AI.GUI.Windows
             if (_pyramidSources.Count == 0)
                 return;
 
-            if (BasedImage.Width <= D3D_MAX_TEXTURE_SIZE && BasedImage.Height <= D3D_MAX_TEXTURE_SIZE)
-                SetDisplayLevel(0);
-            else
-                // 첫표시는 제일 축소된거로 level 3
+            // 첫표시는 제일 축소된거로 level 3
+            
+            if (_srcMat != null && _srcMat.Width >= 16000 && _pyramidSources.ContainsKey(3))
+            {
+                // 원본 너비가 16000 이상일 때만 Level 3으로 시작
                 SetDisplayLevel(3);
-
-            svTeaching.UpdateLayout();
+            }
+            else
+            {
+                // 16000 미만일 때는 원본(Level 0) 혹은 적절한 기본 레벨 설정
+                SetDisplayLevel(0);
+            }
+              
+            svTeaching.UpdateLayout();  
 
             double viewerWidth = svTeaching.ViewportWidth;
             double viewerHeight = svTeaching.ViewportHeight;
@@ -335,8 +359,10 @@ namespace HDSInspector_AI.GUI.Windows
 
             if (_zoomToFitScale <= 0)
                 _zoomToFitScale = 0.05;
+            if (_zoomToFitScale > 5)
+                _zoomToFitScale = 1.0;
 
-            ZoomValue = _zoomToFitScale;
+                ZoomValue = _zoomToFitScale;
 
             svTeaching.ScrollToHorizontalOffset(0);
             svTeaching.ScrollToVerticalOffset(0);
@@ -611,6 +637,201 @@ namespace HDSInspector_AI.GUI.Windows
             ZoomAtPointLoc(newTotalScale, centerPoint);
         }
         #endregion
+
+        #region Rotate
+        private void AutoRotate_Click(object sender, RoutedEventArgs e)
+        {
+            if (BaseImageSource != null)
+                return;
+
+            Mat src = BaseImageSource.ToMat().Clone();
+            Mat rotated = new Mat(); //회전 이미지
+
+            Point2f[] corners = FindRectangleCorners(src);
+
+            if (corners != null)
+                return;
+
+            Point2f leftTop = corners[0];
+            Point2f rightTop = corners[1];
+
+            double angle = Math.Atan2(rightTop.Y - leftTop.Y, rightTop.X - leftTop.X)*180/Math.PI;
+
+            // 수평이면 무시
+            if (Math.Abs(angle) == 0.1)
+                return;
+
+            Point2f center = new Point2f(src.Width/2, src.Height/2);
+
+            Mat rotMat = Cv2.GetRotationMatrix2D(center, angle, 1.0);
+
+            Cv2.WarpAffine(src, rotated, rotMat, src.Size()); //아핀 변환
+
+            BitmapSource result = BitmapSourceConverter.ToBitmapSource(rotated);
+
+            UpdateDxRendererSource(result);
+
+        }
+
+        private Point2f[] FindRectangleCorners(Mat src)
+        {
+            Mat gray = new Mat();
+
+            Cv2.CvtColor(
+                src,
+                gray,
+                ColorConversionCodes.BGR2GRAY
+            );
+
+
+            Cv2.GaussianBlur(
+                gray,
+                gray,
+                new Size(5, 5),
+                0
+            );
+
+
+            Mat edge = new Mat();
+
+            Cv2.Canny(
+                gray,
+                edge,
+                50,
+                150
+            );
+
+
+            Cv2.FindContours(
+                edge,
+                out Point[][] contours,
+                out _,
+                RetrievalModes.External,
+                ContourApproximationModes.ApproxSimple
+            );
+
+
+            double maxArea = 0;
+            Point2f[] result = null;
+
+
+            foreach (var contour in contours)
+            {
+                double area = Cv2.ContourArea(contour);
+
+                if (area < maxArea)
+                    continue;
+
+
+                double peri = Cv2.ArcLength(contour, true);
+
+
+                Point[] approx =
+                    Cv2.ApproxPolyDP(
+                        contour,
+                        peri * 0.02,
+                        true
+                    );
+
+
+                // 꼭짓점 4개인 사각형
+                if (approx.Length == 4)
+                {
+                    maxArea = area;
+
+                    result =
+                        approx
+                        .Select(p => new Point2f(p.X, p.Y))
+                        .ToArray();
+                }
+            }
+
+
+            if (result == null)
+                return null;
+
+
+            return SortCorners(result);
+        }
+
+        private Point2f[] SortCorners(Point2f[] pts)
+        {
+            var ordered = new Point2f[4];
+
+
+            // 좌상단 = x+y 최소
+            ordered[0] =
+                pts.OrderBy(p => p.X + p.Y).First();
+
+
+            // 우하단 = x+y 최대
+            ordered[2] =
+                pts.OrderByDescending(p => p.X + p.Y).First();
+
+
+            // 우상단 = x-y 최대
+            ordered[1] =
+                pts.OrderByDescending(p => p.X - p.Y).First();
+
+
+            // 좌하단 = x-y 최소
+            ordered[3] =
+                pts.OrderBy(p => p.X - p.Y).First();
+
+
+            return ordered;
+        }
+        #endregion
+
+        #region Crop
+
+        private GraphicsRectangle _cropGraphic;
+
+        private void Crop_Click(object sender, RoutedEventArgs e)
+        {
+            _isCropMode = !_isCropMode; //크롭모드  껐다 켜기
+
+            if (_isCropMode)
+            {
+                cvsCross.Cursor = Cursors.Cross;
+                btnCrop.Opacity = 0.6;
+                ToolChange(ToolType.Rectangle);
+            }
+            else
+            {
+                cvsCross.Cursor = Cursors.Arrow;
+                btnCrop.Opacity = 1.0;
+                ToolChange(ToolType.Pointer);
+                //RemoveCropSelectionVisual();
+            }
+        }//여기는 ok
+
+        // === OpenCvSharp Mat 기반 실제 크롭 처리 ===
+        private void ApplyCrop(OpenCvSharp.Rect cropRect)
+        {
+            if (cropRect.Width <= 0 || cropRect.Height <= 0) return;
+
+            // 원본 Mat에서 해당 영역만 잘라 새 Mat으로 복사 (원본 보존을 위해 Clone)
+            using (Mat croppedRegion = new Mat(_srcMat, cropRect))
+            {
+                Mat croppedResult = croppedRegion.Clone();
+                //BitmapSource Result = BitmapSourceConverter.ToBitmapSource(croppedResult);
+                RefreshDisplayImage(croppedResult); // 기존 화면 렌더링 함수로 교체해서 사용
+            }
+        }
+
+        // === 선택 사각형 시각 요소 제거 ===
+        private void RemoveCropSelectionVisual()
+        {
+            if (_cropRect != null)
+            {
+                cvsCross.Children.Remove(_cropRect);
+                _cropRect = null;
+            }
+        }
+        #endregion
+
+
 
         #region Binarization-Controller Event Handler.
 
@@ -1142,6 +1363,10 @@ namespace HDSInspector_AI.GUI.Windows
             chkSobel.IsChecked = false;
             chkGauss.IsChecked = false;
             chkMedian.IsChecked = false;
+            btnCrop.Opacity = 1.0;          // 투명도 초기화
+            RemoveCropSelectionVisual();
+            cvsCross.Cursor = Cursors.Arrow;// 다시 클릭 가능하게 설정
+            _isCropMode = false;
         }
 
         private BitmapSource MakePreprocessedSource()
@@ -1315,6 +1540,40 @@ namespace HDSInspector_AI.GUI.Windows
 
         private void pnlOuter_MouseLeftUp(object sender, MouseButtonEventArgs e)
         {
+            if (_isCropMode)
+            {
+                var lastItem = BasedCanvas.GraphicsList.Count > 0 ? BasedCanvas.GraphicsList[BasedCanvas.GraphicsList.Count - 1] : null;
+
+                GraphicsRectangle rect = lastItem as GraphicsRectangle;
+
+                if (rect != null)
+                {
+                    int x = Math.Max(0, (int)Math.Round(rect.Left));
+                    int y = Math.Max(0, (int)Math.Round(rect.Top));
+
+                    int right = (int)Math.Min(BasedCanvas.ActualWidth, Math.Round(rect.Right));
+                    int bottom = (int)Math.Min(BasedCanvas.ActualHeight, Math.Round(rect.Bottom));
+
+                    int w = right - x;
+                    int h = bottom - y;
+
+                    if (w > 0 && h > 0)
+                    {
+                        OpenCvSharp.Rect cropRect =
+                            new OpenCvSharp.Rect(x, y, w, h);
+
+                        ApplyCrop(cropRect);
+                    }
+
+                    // 크롭용으로 생성한 Rectangle 제거
+                    BasedCanvas.GraphicsList.Remove(rect);
+                    BasedCanvas.RefreshClip();
+                }
+                ToolChange(ToolType.Rectangle);
+                return;
+            }
+            
+            //원래 로직
             if (chkBinarization.IsChecked == true)
             {
                 if (BasedCanvas.SelectedGraphic != null)
