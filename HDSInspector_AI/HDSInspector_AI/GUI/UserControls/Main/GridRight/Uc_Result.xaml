@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="HDSInspector_AI.GUI.UserControls.Main.GridRight.Uc_Control"
+﻿<UserControl x:Class="HDSInspector_AI.GUI.UserControls.Main.GridRight.Uc_Result"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridRight"
              mc:Ignorable="d" 
-             d:DesignHeight="540" d:DesignWidth="768" Background="#121d2f">
+             d:DesignHeight="180" d:DesignWidth="768" Background="#121d2f">
     <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
         <Border.Effect>
             <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
@@ -14,9 +14,8 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition/>
-                    <RowDefinition/>
                 </Grid.RowDefinitions>
-                <Button Grid.Row="0" Content="TEST BUTTON" FontSize="40" Foreground="White" Click="Button_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Height="100" Width="450"/>
+                
                 <Button Grid.Row="1" Content="SHOW" FontSize="40" Foreground="White" Click="Button_Click_1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="100" Width="450"/>
 
             </Grid>

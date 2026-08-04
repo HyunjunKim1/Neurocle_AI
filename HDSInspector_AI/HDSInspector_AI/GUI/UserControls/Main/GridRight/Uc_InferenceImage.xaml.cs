@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
 {
     /// <summary>
-    /// Uc_DefectMap.xaml에 대한 상호 작용 논리
+    /// Uc_InferenceImage.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class Uc_DefectMap : UserControl
+    public partial class Uc_InferenceImage : UserControl
     {
-        public Uc_DefectMap()
+        public Uc_InferenceImage()
         {
             InitializeComponent();
         }

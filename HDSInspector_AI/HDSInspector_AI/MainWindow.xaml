@@ -6,13 +6,12 @@
         xmlns:local="clr-namespace:HDSInspector_AI"
         xmlns:UserCtrlLeft="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridLeft"
         xmlns:UserCtrlRight="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridRight"
-        xmlns:UserCtrlMiddle="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridMiddle"
         xmlns:busyIndicator="https://github.com/Peoky/BusyIndicator"
         mc:Ignorable="d"
         WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        WindowState="Maximized" Height="1080" Width="1920" Title="Haesung DS LF AVI Version 1.0.0" Closed="Window_Closed">
+        WindowState="Maximized" Height="1080" Width="1152" Title="Haesung DS LF AVI Version 1.0.0" Closed="Window_Closed">
 
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
@@ -52,7 +51,6 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.5*"/>
             <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Grid Left -->
@@ -73,26 +71,21 @@
             </Border>
         </Grid>
 
-        <!-- Grid Middle -->
-        <Grid x:Name="GridMiddle" Grid.Column="1">
-
-        </Grid>
-
         <!-- Grid Right -->
         <Grid x:Name="GridRight" Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2.5*"/>
-                <RowDefinition Height="1.5*"/>
-                <RowDefinition Height="4*"/>
+                <RowDefinition Height="2.5*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Border Padding="2"  Grid.Row="0">
-                <UserCtrlRight:Uc_DefectMap/>
+                <UserCtrlRight:Uc_DefectImage/>
             </Border>
             <Border Padding="2"  Grid.Row="1">
-                <UserCtrlRight:Uc_DefectCount/>
+                <UserCtrlRight:Uc_InferenceImage/>
             </Border>
             <Border Padding="2" Grid.Row="2">
-                <UserCtrlRight:Uc_Control/>
+                <UserCtrlRight:Uc_Result/>
             </Border>
         </Grid>
     </Grid>

@@ -1,7 +1,6 @@
 ﻿using Common;
 using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
-using HDSInspector_AI.GUI.UserControls.Main.GridMiddle;
 using HDSInspector_AI.GUI.UserControls.Main.GridRight;
 using HDSInspector_AI.GUI.Windows;
 using MahApps.Metro.Controls;
@@ -236,13 +235,10 @@ namespace HDSInspector_AI
                             GLB.Windows.Log     = GLB.Windows.CreateUserControl<Uc_Log>();
                             GLB.Windows.Status  = GLB.Windows.CreateUserControl<Uc_Status>();
 
-                            // Grid Middle uc
-                            GLB.Windows.Vision  = GLB.Windows.CreateUserControl<Uc_Vision>();
-
                             // Grid Right uc
-                            GLB.Windows.Control = GLB.Windows.CreateUserControl<Uc_Control>();
-                            GLB.Windows.DefectCount = GLB.Windows.CreateUserControl<Uc_DefectCount>();
-                            GLB.Windows.DefectMap = GLB.Windows.CreateUserControl<Uc_DefectMap>();
+                            GLB.Windows.DefectImage = GLB.Windows.CreateUserControl<Uc_DefectImage>();
+                            GLB.Windows.InferenceImage = GLB.Windows.CreateUserControl<Uc_InferenceImage>();
+                            GLB.Windows.Result = GLB.Windows.CreateUserControl<Uc_Result>();
 
                         });
                         break;

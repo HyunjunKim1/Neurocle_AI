@@ -1,7 +1,6 @@
 ﻿using ControlzEx.Behaviors;
 using HDSInspector_AI.Class.Interface;
 using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
-using HDSInspector_AI.GUI.UserControls.Main.GridMiddle;
 using HDSInspector_AI.GUI.UserControls.Main.GridRight;
 using HDSInspector_AI.GUI.Windows;
 using System;
@@ -43,13 +42,10 @@ namespace HDSInspector_AI.Class.Manager
         public Uc_Log           Log;
         public Uc_Status        Status;   
         
-        // Grid Middle uc
-        public Uc_Vision        Vision;
-
         // Grid Right uc
-        public Uc_Control       Control;
-        public Uc_DefectCount   DefectCount;
-        public Uc_DefectMap     DefectMap;
+        public Uc_DefectImage       DefectImage;
+        public Uc_InferenceImage    InferenceImage;
+        public Uc_Result            Result;
 
         public void ThreadSorting()
         {

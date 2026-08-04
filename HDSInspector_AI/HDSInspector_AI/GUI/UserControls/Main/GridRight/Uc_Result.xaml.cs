@@ -20,18 +20,13 @@ using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
 {
     /// <summary>
-    /// Uc_Control.xaml에 대한 상호 작용 논리
+    /// Uc_Result.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class Uc_Control : UserControl
+    public partial class Uc_Result : UserControl
     {
-        public Uc_Control()
+        public Uc_Result()
         {
             InitializeComponent();
-        }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //GLB.ImgProc.ImageMerge("D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_R.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_G.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\L03K023R01\\GrabImage_00_B.bmp");
-            GLB.ImgProc.ExtractUnits("D:\\ftp\\Images\\Detection_AI\\SourceImages\\Merged.bmp", "D:\\ftp\\Images\\Detection_AI\\SourceImages\\Unit.bmp");
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)

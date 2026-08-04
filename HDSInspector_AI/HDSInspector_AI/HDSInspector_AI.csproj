@@ -108,8 +108,8 @@
     <Compile Include="GUI\UserControls\Main\GridLeft\SubUc_StatusCtrl.xaml.cs">
       <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Main\GridRight\Uc_Control.xaml.cs">
-      <DependentUpon>Uc_Control.xaml</DependentUpon>
+    <Compile Include="GUI\UserControls\Main\GridRight\Uc_Result.xaml.cs">
+      <DependentUpon>Uc_Result.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\UserControls\Main\GridLeft\Uc_HW.xaml.cs">
       <DependentUpon>Uc_HW.xaml</DependentUpon>
@@ -120,14 +120,11 @@
     <Compile Include="GUI\UserControls\Main\GridLeft\Uc_Status.xaml.cs">
       <DependentUpon>Uc_Status.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Main\GridMiddle\Uc_Vision.xaml.cs">
-      <DependentUpon>Uc_Vision.xaml</DependentUpon>
+    <Compile Include="GUI\UserControls\Main\GridRight\Uc_InferenceImage.xaml.cs">
+      <DependentUpon>Uc_InferenceImage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GUI\UserControls\Main\GridRight\Uc_DefectCount.xaml.cs">
-      <DependentUpon>Uc_DefectCount.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="GUI\UserControls\Main\GridRight\Uc_DefectMap.xaml.cs">
-      <DependentUpon>Uc_DefectMap.xaml</DependentUpon>
+    <Compile Include="GUI\UserControls\Main\GridRight\Uc_DefectImage.xaml.cs">
+      <DependentUpon>Uc_DefectImage.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\Windows\ImageReviewWindow.xaml.cs">
       <DependentUpon>ImageReviewWindow.xaml</DependentUpon>
@@ -150,7 +147,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Main\GridRight\Uc_Control.xaml">
+    <Page Include="GUI\UserControls\Main\GridRight\Uc_Result.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -166,15 +163,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Main\GridMiddle\Uc_Vision.xaml">
+    <Page Include="GUI\UserControls\Main\GridRight\Uc_InferenceImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="GUI\UserControls\Main\GridRight\Uc_DefectCount.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="GUI\UserControls\Main\GridRight\Uc_DefectMap.xaml">
+    <Page Include="GUI\UserControls\Main\GridRight\Uc_DefectImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
