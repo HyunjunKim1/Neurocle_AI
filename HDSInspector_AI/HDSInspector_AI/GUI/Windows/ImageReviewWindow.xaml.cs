@@ -328,20 +328,12 @@ namespace HDSInspector_AI.GUI.Windows
             if (_pyramidSources.Count == 0)
                 return;
 
-            // 첫표시는 제일 축소된거로 level 3
-            
-            if (_srcMat != null && _srcMat.Width >= 16000 && _pyramidSources.ContainsKey(3))
-            {
-                // 원본 너비가 16000 이상일 때만 Level 3으로 시작
-                SetDisplayLevel(3);
-            }
-            else
-            {
-                // 16000 미만일 때는 원본(Level 0) 혹은 적절한 기본 레벨 설정
+            if (BasedImage.Width <= D3D_MAX_TEXTURE_SIZE && BasedImage.Height <= D3D_MAX_TEXTURE_SIZE)
                 SetDisplayLevel(0);
-            }
-              
-            svTeaching.UpdateLayout();  
+            else
+                SetDisplayLevel(3);
+
+            svTeaching.UpdateLayout();
 
             double viewerWidth = svTeaching.ViewportWidth;
             double viewerHeight = svTeaching.ViewportHeight;
@@ -830,8 +822,6 @@ namespace HDSInspector_AI.GUI.Windows
             }
         }
         #endregion
-
-
 
         #region Binarization-Controller Event Handler.
 

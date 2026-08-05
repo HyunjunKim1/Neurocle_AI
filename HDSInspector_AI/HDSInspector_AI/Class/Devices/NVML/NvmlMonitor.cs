@@ -189,7 +189,7 @@ namespace HDSInspector_AI.Class.Devices.NVML
 
                 LastError = null;
 
-                return false;
+                return true;
             }
 
         }

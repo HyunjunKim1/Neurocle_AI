@@ -255,8 +255,8 @@ namespace HDSInspector_AI
 
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            var mainWindow = new MainWindow();
-                            mainWindow.Show();
+                            GLB.Windows.Main = new MainWindow();
+                            GLB.Windows.Main.Show();
                         }));
                         return;
                 }

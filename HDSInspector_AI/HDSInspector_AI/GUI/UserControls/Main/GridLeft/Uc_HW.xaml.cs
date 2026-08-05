@@ -1,6 +1,9 @@
-﻿using HDSInspector_AI.Class.Devices.NVML;
+﻿using ControlzEx.Behaviors;
+using HDSInspector_AI.Class.Devices.NVML;
+using HDSInspector_AI.Class.Manager;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.PerformanceData;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
 {
@@ -21,7 +25,8 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
     /// </summary>
     public partial class Uc_HW : UserControl
     {
-        private NvmlMonitor _nvmlMonitor;
+        private HardwareMonitorManager _hwMonitor;
+
         public Uc_HW()
         {
             InitializeComponent();
@@ -30,39 +35,78 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
             //Unloaded += Uc_HW_Unloaded;
         }
 
-        //private void Uc_HW_Loaded(object sender, RoutedEventArgs e)
+        //private async void Uc_HW_Loaded(object sender, RoutedEventArgs e)
         //{
-        //    if (_nvmlMonitor != null)
-        //        return;
+        //    if (_hwMonitor != null) return;
         //
-        //    _nvmlMonitor = new NvmlMonitor();
-        //
-        //    bool initialized = _nvmlMonitor.Initialize(gpuIndex:0);
+        //    _hwMonitor = new HardwareMonitorManager(driveName: "E:\\", gpuIndex:0);
+        //    bool initialized = _hwMonitor.Initialize();
         //
         //    if(!initialized)
         //    {
-        //        MessageBox.Show(_nvmlMonitor.LastError, "NVML 이니셜 실패", MessageBoxButton.OK, MessageBoxImage.Error);
+        //        GLB.WarningMessage(_hwMonitor.LastError, "Class 초기화 실패", GLB.Windows.Main);
         //
         //        return;
         //    }
         //
-        //    bool success = _nvmlMonitor.TryGetGpuUtilization(out uint gpuUsage);
+        //    // CPU PerformanceCounter의 첫 유효 샘플을 위해 잠시 기다린 후 조회
+        //    await Task.Delay(1000);
         //
-        //    if (!success) 
+        //    HardwareStatus status = await _hwMonitor.ReadStatusAsync();
+        //    StringBuilder msg = new StringBuilder();
+        //
+        //    msg.AppendLine($"CPU 사용률 : {status.CpuUsagePercent}");
+        //
+        //    if(status.GpuMemoryUsagePercent > 0)
         //    {
-        //        MessageBox.Show(_nvmlMonitor.LastError, "GPU 정보 조회 실패", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //
-        //        return;
+        //        msg.AppendLine($"GPU 사용률 : {status.GpuMemoryUsagePercent}");
+        //        msg.AppendLine($"GPU VRAM : {status.GpuMemoryUsedBytes} / {status.GpuMemoryTotalBytes}");
+        //    }
+        //    else
+        //    {
+        //        msg.AppendLine($"GPU 사용률 : 0");
         //    }
         //
-        //    MessageBox.Show("성공\n" + $"GPU 개수 : {_nvmlMonitor.DeviceCount}\n" + $"사용 GPU Index : {_nvmlMonitor.GpuIndex}" + $"GPU 이용률 : {gpuUsage}", "TEST", MessageBoxButton.OK, MessageBoxImage.Information);
+        //    if(status.isDriveReady)
+        //    {
+        //        msg.AppendLine($"E 드라이브 사용률 : {status.DriveUsagePercent}");
+        //        msg.AppendLine($"E 드라이브 사용량 : {status.DriveUsedBytes} / {status.DriveTotalBytes}");
+        //        msg.AppendLine($"E 드라이브 남은 용량 : {FormatBytes(status.DriveFreeBytes)}");
+        //    }
+        //    else
+        //    {
+        //        msg.AppendLine("E 드라이브 사용 불가");
+        //    }
         //
+        //    if (!string.IsNullOrWhiteSpace(status.ErrorMessage))
+        //    {
+        //        msg.AppendLine();
+        //        msg.AppendLine("오류정보");
+        //        msg.AppendLine(status.ErrorMessage);
+        //    }
+        //
+        //    MessageBox.Show(msg.ToString(), "HW 통합테스트", MessageBoxButton.OK, MessageBoxImage.Information);
         //}
         //private void Uc_HW_Unloaded(object sender, RoutedEventArgs e)
         //{
-        //    _nvmlMonitor?.Dispose();
-        //    _nvmlMonitor = null;
+        //    _hwMonitor?.Dispose();
+        //    _hwMonitor = null;
         //}
-
+        //
+        //private static string FormatBytes(ulong bytes)
+        //{
+        //    const double gb = 1024.0 * 1024.0 * 1024.0;
+        //    const double tb = gb * 1024.0;
+        //
+        //    if (bytes >= tb) return $"{bytes / tb:F2} TB";
+        //    
+        //    return $"{bytes / gb:F1} GB";
+        //}
+        //private static string FormatBytes(long bytes)
+        //{
+        //    if (bytes < 0) return "0 GB";
+        //    
+        //    return FormatBytes((ulong)bytes);
+        //}
     }
 }

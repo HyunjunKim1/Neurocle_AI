@@ -27,14 +27,16 @@ namespace HDSInspector_AI.Class.Manager
         public enum WINDOW_NAME
         {
             // 추가적인 Form들 여기에 추가 후 제어
+            MAIN,
             REVIEW,
         }
 
         private readonly List<WeakReference<Window>> _openedWindows = new List<WeakReference<Window>>();
         private readonly Dictionary<Type, object> _windowInstances = new Dictionary<Type, object>();
 
-        // 기능 동작하는 Windows
-        public ImageReviewWindow Review = new ImageReviewWindow();
+        // Windows
+        public MainWindow        Main; 
+        public ImageReviewWindow Review;
 
         // Main UserControl
         // Grid Left uc

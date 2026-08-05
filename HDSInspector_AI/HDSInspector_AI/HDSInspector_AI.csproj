@@ -99,6 +99,7 @@
     <Compile Include="Class\Devices\NVML\NvmlNative.cs" />
     <Compile Include="Class\GlobalFunctions\ImageProcessing.cs" />
     <Compile Include="Class\Interface\IWindowService.cs" />
+    <Compile Include="Class\Manager\HardwareMonitorManager.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
     <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
