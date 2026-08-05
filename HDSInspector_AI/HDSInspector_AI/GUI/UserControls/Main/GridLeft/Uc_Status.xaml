@@ -102,31 +102,19 @@
                 <Label Grid.Column="0" Grid.Row="1" Content="Model Name" FontSize="14" Style="{StaticResource RoundedLabelStyle}"/>
                 <hc:ComboBox x:Name="cb_ModelName" Grid.Column="1" Grid.Row="1" Width="170" Height="45"/>
 
-                <StackPanel Grid.Column="0" Grid.Row="2">
-                    <Grid Height="55">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="4*"/>
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Width="25" Height="25" HorizontalAlignment="Center" x:Name="iBox_Grabber"
-                               Source="/HDSInspector_AI;component/Resources/CHECK_OFF.png"
-                               RenderOptions.BitmapScalingMode="HighQuality" />
-                        <Label Grid.Column="1" Grid.Row="0" Content="Grabber" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
-                        <Button Grid.Column="1" HorizontalAlignment="Right" FontSize="12" FontFamily="Arial" Content="Connect" Margin="0,0,10,0" Style="{StaticResource RoundedGreenButton}"/>
-                    </Grid>
-                </StackPanel>
                 
-                <StackPanel Grid.Column="1" Grid.Row="2">
+                
+                <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
                     <Grid Height="55">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="4*"/>
                         </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Width="25" Height="25" HorizontalAlignment="Center" x:Name="iBox_MainSW"
+                        <Image Grid.Column="0" Width="40" Height="40" HorizontalAlignment="Center" x:Name="iBox_MainSW"
                                Source="/HDSInspector_AI;component/Resources/CHECK_OFF.png"
                                RenderOptions.BitmapScalingMode="HighQuality" />
-                        <Label Grid.Column="1" Grid.Row="0" Content="Main S/W" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
-                        <Button Grid.Column="1" HorizontalAlignment="Right" FontSize="12" FontFamily="Arial" Content="Connect" Style="{StaticResource RoundedGreenButton}"/>
+                        <Label Grid.Column="1" Grid.Row="0" Content="Main S/W" FontSize="25" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+                        <Button Grid.Column="1" HorizontalAlignment="Right" Margin="0, 0, 30, 0" FontSize="22" FontFamily="Arial" Content="Connect" Style="{StaticResource RoundedGreenButton}"/>
                     </Grid>
                 </StackPanel>
 

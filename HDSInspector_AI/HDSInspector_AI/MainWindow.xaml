@@ -11,7 +11,7 @@
         WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        WindowState="Maximized" Height="1080" Width="1152" Title="Haesung DS LF AVI Version 1.0.0" Closed="Window_Closed">
+        WindowState="Maximized" Height="1080" Width="1152" Title="Haesung DS LF AVI AI Version 1.0.0" Closed="Window_Closed">
 
     <Window.Background>
         <SolidColorBrush Color="#242121"/>

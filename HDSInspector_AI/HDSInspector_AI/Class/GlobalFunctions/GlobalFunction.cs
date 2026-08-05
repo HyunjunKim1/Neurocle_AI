@@ -92,20 +92,20 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public Logger           Logger      = Logger.GetLogger();
         public Setting          Setting     = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
         public ImageProcessing  ImgProc     = new ImageProcessing();
-
-
         public devServerMain       Server   = new devServerMain();
 
         // Class Manager
-        public SequenceManager  Sequence    = new SequenceManager();
+        public SequenceManager          Sequence    = new SequenceManager();
+        public HardwareMonitorManager   Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
+        public WindowManager            Windows     = new WindowManager();
         //public CameraManager    Cameras     = new CameraManager();
-        public WindowManager    Windows     = new WindowManager();
 
         #endregion
 
         public void Dispose()
         {
-            Sequence.Dispose();
+            Hardware?.Dispose();
+            Sequence?.Dispose();
         }
 
         #region Global Functions

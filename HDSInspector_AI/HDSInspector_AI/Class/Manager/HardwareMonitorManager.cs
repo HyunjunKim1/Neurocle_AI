@@ -145,7 +145,7 @@ namespace HDSInspector_AI.Class.Manager
 
         private void ReadGpuStatus(HardwareStatus status, ref string errorMessage)
         {
-            status.IsGPUAvailable = _isGpuAvailable;
+            status.IsGpuAvailable = _isGpuAvailable;
 
             if (!_isGpuAvailable)
             {
@@ -158,7 +158,7 @@ namespace HDSInspector_AI.Class.Manager
 
             if (utilizationSuccess)
             {
-                status.GpuMemoryUsagePercent = gpuUsage;
+                status.GpuUsagePercent = gpuUsage;
                 status.GpuMemoryControllerUsagePercent = memoryControllerUsage;
             }
             else
@@ -170,7 +170,7 @@ namespace HDSInspector_AI.Class.Manager
             {
                 status.GpuMemoryTotalBytes = totalBytes;
                 status.GpuMemoryUsedBytes = usedBytes;
-                status.gpuMemoryFreeBytes = freeBytes;
+                status.GpuMemoryFreeBytes = freeBytes;
             }
             else
                 AppendError(ref errorMessage, $"GPU 메모리 조회 실패 : {_nvmlMonitor.LastError}");
@@ -184,21 +184,21 @@ namespace HDSInspector_AI.Class.Manager
 
                 if (!drive.IsReady)
                 {
-                    status.isDriveReady = false;
+                    status.IsDriveReady = false;
 
                     AppendError(ref errorMessage, $"{_driveName} 드라이브가 준비되지 않았습니다.");
 
                     return;
                 }
 
-                status.isDriveReady = true;
+                status.IsDriveReady = true;
                 status.DriveTotalBytes = (ulong)drive.TotalSize;
                 status.DriveFreeBytes = (ulong)drive.AvailableFreeSpace;
                 status.DriveUsedBytes = (ulong)drive.TotalSize - (ulong)drive.AvailableFreeSpace;
             }
             catch (Exception ex)
             {
-                status.isDriveReady = false;
+                status.IsDriveReady = false;
 
                 AppendError(ref errorMessage, $"{_driveName} 드라이브 조회 실패 : {ex.Message}");
             }
@@ -210,7 +210,11 @@ namespace HDSInspector_AI.Class.Manager
                 return;
 
             if (string.IsNullOrWhiteSpace(currentMessage))
+            {
+                currentMessage = newMessage;
+
                 return;
+            }
 
             currentMessage += Environment.NewLine + newMessage;
         }
@@ -289,6 +293,9 @@ namespace HDSInspector_AI.Class.Manager
         public float CpuUsagePercent { get; set; }
 
         // GPU 연산 사용률
+        public float GpuUsagePercent { get; set; }
+
+        // GPU 메모리 컨트롤러 사용률
         public uint? GpuMemoryControllerUsagePercent { get; set; }
 
         // GPU 전체 VRAM 용량
@@ -298,7 +305,7 @@ namespace HDSInspector_AI.Class.Manager
         public ulong GpuMemoryUsedBytes { get; set; }
 
         // GPU 남은 BRAM
-        public ulong gpuMemoryFreeBytes { get; set; }
+        public ulong GpuMemoryFreeBytes { get; set; }
 
         // E드라이브로 쓸거같은데, 드라이브 전체 용량
         public ulong DriveTotalBytes { get; set; }
@@ -331,14 +338,13 @@ namespace HDSInspector_AI.Class.Manager
 
                 return GpuMemoryUsedBytes * 100.0 / GpuMemoryTotalBytes;
             }
-        set { }
         }
 
         // 드라이브 접근 가능 여부
-        public bool isDriveReady { get; set; }
+        public bool IsDriveReady { get; set; }
 
         // NVML GPU 조회 가능 여부
-        public bool IsGPUAvailable { get; set; }
+        public bool IsGpuAvailable { get; set; }
 
         // HW 조회 오류 메세지
         public string ErrorMessage { get; set; }

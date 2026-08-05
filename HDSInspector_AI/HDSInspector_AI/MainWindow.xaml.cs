@@ -40,6 +40,11 @@ namespace HDSInspector_AI
                     GLB.Setting.Save();
 
                     GLB.AddLog("MAIN", "프로그램을 종료합니다.", SeverityLevel.INFO);
+
+                    /*
+                     * 여기서 다 종료 해뿌자 메모리 누수 없도록
+                     */
+                    GLB.Dispose();
                     GLB.Logger.Close();
                     System.Diagnostics.Process.GetCurrentProcess().Kill();
                     //Environment.Exit(0);
