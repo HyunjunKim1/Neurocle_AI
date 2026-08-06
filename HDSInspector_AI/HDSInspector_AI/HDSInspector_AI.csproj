@@ -102,6 +102,7 @@
     <Compile Include="Class\Manager\HardwareMonitorManager.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
+    <Compile Include="Class\Models\LogDisplayItem.cs" />
     <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
       <DependentUpon>Uc_Histogram.xaml</DependentUpon>
     </Compile>

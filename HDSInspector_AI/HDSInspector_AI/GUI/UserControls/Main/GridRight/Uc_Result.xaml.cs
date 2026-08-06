@@ -31,6 +31,8 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            for (int i = 0; i < 100; i++)
+                GLB.AddLog("test", "TEST", Common.SeverityLevel.INFO);
             GLB.Windows.Review.Dispatcher.Invoke(new Action(() =>
             {
                 if (GLB.Windows.Review.Visibility == Visibility.Visible)

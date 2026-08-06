@@ -5,14 +5,234 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridLeft"
              mc:Ignorable="d" 
-             d:DesignHeight="460" d:DesignWidth="384" Background="#121d2f">
+             d:DesignHeight="460" d:DesignWidth="384" Background="#121d2f"
+             Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded">
+    <UserControl.Resources>
+        <!-- 기본 -->
+        <Style x:Key="LogButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="MinWidth" Value="52"/>
+            <Setter Property="Padding" Value="5.0"/>
+            <Setter Property="Margin" Value="4, 0, 0, 0"/>
+            <Setter Property="Foreground" Value="#D9E2F0"/>
+            <Setter Property="Background" Value="#26364D"/>
+            <Setter Property="BorderBrush" Value="#4B607C"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#355071"/>
+                                <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="#69C7F0"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#17263B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- List View Item -->
+        <Style x:Key="LogItemStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#D9E2F0"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#24344B"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Focusable" Value="False"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1C2B42"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#263B58"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- 기존 로그 Level 색상 -->
+        <Style x:Key="LogLevelTextStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground" Value="#4FC3F7"/>
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding LevelText}" Value="INFO">
+                    <Setter Property="Foreground" Value="#66BB6A"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding LevelText}" Value="WARN">
+                    <Setter Property="Foreground" Value="#FFA726"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding LevelText}" Value="ERROR">
+                    <Setter Property="Foreground" Value="#EF5350"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding LevelText}" Value="FATAL">
+                    <Setter Property="Foreground" Value="#FF1744"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding LevelText}" Value="DEBUG">
+                    <Setter Property="Foreground" Value="#AB47BC"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="LogCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#C8D3E0"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border x:Name="CheckBorder" Width="15" Height="15" Background="#17263B" BorderBrush="#60758E" BorderThickness="1" CornerRadius="3" VerticalAlignment="Center">
+                                <!-- Mark up 양식은 여기서 참조하면 됨~ -->
+                                <!-- https://learn.microsoft.com/ko-kr/dotnet/desktop/wpf/graphics-multimedia/path-markup-syntax -->
+                                <Path x:Name="CheckMark" Data="M 2 7 L 6 11 L 13 3" Stroke="#4FC3F7" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter Margin="6, 0, 0, 0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#4FC3F7"/>
+                                <Setter TargetName="CheckBorder" Property="Background" Value="#203B55"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="BorderBrush" Value="#81D4FA"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="MinWidth" Value="12"/>
+            <Setter Property="Background" Value="#17263B"/>
+            <Setter Property="Foreground" Value="#4B607C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <!-- Scrollbar 전체 외곽 -->
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True" Margin="1">
+                            <Grid>
+                                <Track x:Name="PART_Track" IsDirectionReversed="True" Focusable="False" Margin="0">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageUpCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Background="{TemplateBinding Foreground}" MinHeight="30" Margin="2">
+                                            <Thumb.Template>
+                                                <ControlTemplate TargetType="Thumb">
+                                                    <Border x:Name="ThumbBorder" Background="{TemplateBinding Background}" CornerRadius="5"/>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ThumbBorder" Property="Background" Value="#69C7F0"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsDragging" Value="True">
+                                                            <Setter TargetName="ThumbBorder" Property="Background" Value="#29B6F6"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
+                                    </Track.Thumb>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageDownCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                    </Track.IncreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
         <Border.Effect>
             <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
         </Border.Effect>
         <Border Padding="8">
             <Grid>
-
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="34"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Header -->
+                <Grid Grid.Row="0" MinHeight="34">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="System Log" Foreground="white" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Border Background="#26364D" CornerRadius="8" Padding="7,2" Margin="8, 0, 0, 0">
+                            <TextBlock x:Name="tbkLogCount" Text="0" Foreground="#4FC3F7" FontSize="10" FontWeight="Bold"/>
+                        </Border>
+                    </StackPanel>
+                    <CheckBox x:Name="cBoxAutoScroll" Grid.Column="1" Content="Auto Scroll" IsChecked="True" Style="{StaticResource LogCheckBoxStyle}" VerticalAlignment="Center" Margin="0, 0, 6, 0"/>
+                    <Button Grid.Column="2" Style="{StaticResource LogButtonStyle}" Click="ClearButton_Click">
+                        <TextBlock Text="Clear" Foreground="White" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+                <!-- Column Header -->
+                <Border Grid.Row="1" Background="#1A2940" CornerRadius="3" Padding="4, 0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="72"/>
+                            <ColumnDefinition Width="58"/>
+                            <ColumnDefinition Width="72"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Time" Foreground="#8495AA" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Level" Foreground="#8495AA" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="System" Foreground="#8495AA" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="Message" Foreground="#8495AA" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Log List -->
+                <ListView x:Name="lvLogs" Grid.Row="2" ItemsSource="{Binding LogItems}" ItemContainerStyle="{StaticResource LogItemStyle}" Background="Transparent"
+                          BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                          VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MinHeight="29" Margin="4,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="72"/>
+                                    <ColumnDefinition Width="58"/>
+                                    <ColumnDefinition Width="72"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{Binding TimeText}" Foreground="#8495AA" FontFamily="Consolas" FontSize="9" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding LevelText}" Style="{StaticResource LogLevelTextStyle}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding System}" Foreground="#81D4FA" FontSize="9" FontWeight="SemiBold" 
+                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding System}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Message}" Foreground="#D9E2F0" FontSize="10" TextWrapping="Wrap" Margin="2,4,0,4" ToolTip="{Binding Message}" VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </Grid>
         </Border>
     </Border>

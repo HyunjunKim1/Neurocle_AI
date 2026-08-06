@@ -12,6 +12,8 @@ using System.IO;
 using HDSInspector_AI.GUI.Windows.Popup;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.Manager;
+using HDSInspector_AI.Class.Models;
+using System.Diagnostics;
 
 namespace HDSInspector_AI.Class.GlobalFunctions
 {
@@ -46,6 +48,11 @@ namespace HDSInspector_AI.Class.GlobalFunctions
     {
         private static readonly Lazy<GlobalFunction> _instance = new Lazy<GlobalFunction>();
         public static GlobalFunction GLB => _instance.Value;
+
+        #region Events
+        // 실시간 GUI 로그 전달 및 저장 이벤트
+        public event Action<LogDisplayItem> LogAdded;
+        #endregion
 
         #region Global Member variables
 
@@ -110,12 +117,28 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         #region Global Functions
 
-        public void AddLog(string system, string Msg, SeverityLevel lvl)
+        public void AddLog(string system, string message, SeverityLevel level)
         {
-            Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
+            LogDisplayItem logItem = new LogDisplayItem
             {
-                Logger.Log(system, lvl, Msg);
-            }));
+                Time = DateTime.Now,
+                System = system,
+                Level = level,
+                Message = message
+            };
+
+            try
+            {
+                Logger.Log(system, level, message);
+            }
+            catch (Exception ex) { Debug.WriteLine($"{ex.Message}"); }
+
+            // Observer Pattern // 구독 해놓은 Control 들에게 전달
+            try
+            {
+                LogAdded?.Invoke(logItem);
+            }
+            catch(Exception ex) { Debug.WriteLine($"{ex.Message}"); }
         }
         public void CleanLog()
         {
