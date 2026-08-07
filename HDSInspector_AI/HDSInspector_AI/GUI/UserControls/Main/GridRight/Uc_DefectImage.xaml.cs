@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Common;
+using HDSInspector_AI.Class.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,17 +14,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
-{
-    /// <summary>
-    /// Uc_DefectMap.xaml에 대한 상호 작용 논리
-    /// </summary>
-    public partial class Uc_DefectImage : UserControl
+{/// <summary>
+ /// 불량 이미지 상태 표시 UserControl
+ /// </summary>
+    public partial class Uc_DefectImage :UserControl
     {
         public Uc_DefectImage()
         {
             InitializeComponent();
         }
-    }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+    }       
 }
