@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using HDSInspector_AI.Class.Models;
+using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
 using System;
 using System.Collections.Concurrent;
@@ -520,6 +521,193 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             var cropRect = new Int32Rect(startX, startY, endX - startX, endY - startY);
             return new CroppedBitmap(bitmapSource, cropRect);
         }
+    }
 
+    public class DefectImageCutter
+    {
+        private const int ColumnCount = 5;
+        private const int SetCount = 2;
+
+        /// <summary>
+        /// selectPieceImage 
+        /// 
+        /// 1 : REF
+        /// 2 : DEF
+        /// 3 : REF + DEF
+        /// </summary>
+        /// <param name="mergedImage"></param>
+        /// <param name="selectedIndexList"></param>
+        /// <param name="pairItems"></param>
+        /// <param name="selectPieceImage"></param>
+        /// <returns></returns>
+        public bool CuttingImage(BitmapSource mergedImage, int defectCount, out List<DefectImagePairItem> pairItems)
+        {
+            pairItems = new List<DefectImagePairItem>();
+
+            if (mergedImage == null) return false;
+            if (defectCount <= 0) return false;
+
+            // 가로는 항상 5개인걸로
+            if(mergedImage.PixelWidth % ColumnCount != 0) return false;
+
+            // Width / 5로 Tile 하나 크기 계산
+            int tileSize = mergedImage.PixelWidth / ColumnCount;
+
+            if(tileSize <= 0) return false;
+
+            int requiredRowGroupCount = (defectCount + ColumnCount - 1) / ColumnCount;
+            int requireHeight = requiredRowGroupCount * tileSize * SetCount;
+
+            if (mergedImage.PixelHeight < requireHeight) return false;
+
+            for(int index=0; index < defectCount; index++)
+            {
+                // 1~5, 6~10 ...
+                int rowGroup = index / ColumnCount;
+                // 0,1,2,3,4 반복
+                int column = index % ColumnCount;
+                int x = column * tileSize;
+
+                // row group 0, REF Y = 0, DEF Y = TileSize
+                // row group 1, REF Y = tilesize * 2, DEF Y = tilesize * 3 ...
+                int referenceY = rowGroup * tileSize * SetCount;
+                int defectY = referenceY + tileSize;
+
+                Int32Rect referenceRect = new Int32Rect(x, referenceY, tileSize, tileSize);
+                Int32Rect defectRect = new Int32Rect(x, defectY, tileSize, tileSize);
+
+                CroppedBitmap referenceImage = new CroppedBitmap(mergedImage, referenceRect);
+                CroppedBitmap defectImage = new CroppedBitmap(mergedImage, defectRect);
+
+                // 다른 Thread에서도 안전하게 사용~
+                referenceImage.Freeze();
+                defectImage.Freeze();
+
+                pairItems.Add(new DefectImagePairItem
+                {
+                    index = index + 1,
+                    ReferenceImage = referenceImage,
+                    DefectImage = defectImage,
+                });
+            }
+
+            return pairItems.Count == defectCount;
+
+            /*
+            // 두줄 단위로 정확하게 떨어져야함. clamping 하자
+            if (mergedImage.PixelHeight % pairHeight != 0) return false;
+
+            int rowCount = mergedImage.PixelHeight / pairHeight;
+            int maxIndex = selectedIndexList.Max();
+            int minIndex = selectedIndexList.Min();
+
+            int maxImageCount = ColumnCount * rowCount;
+
+            if (minIndex < 0 || maxIndex >= maxImageCount) return false;
+
+            // 원본 pixel format 확인
+            int bitsPerPixel = mergedImage.Format.BitsPerPixel;
+            if (bitsPerPixel <= 0) return false;
+
+            int bytesPerPixel = bitsPerPixel / 8;
+            if (bytesPerPixel != 1 && bytesPerPixel != 3 && bytesPerPixel != 4) return false;
+
+            int sourceStride = mergedImage.PixelWidth & bytesPerPixel;
+            byte[] mergedBuffer = new byte[sourceStride * mergedImage.PixelHeight];
+
+            mergedImage.CopyPixels(mergedBuffer, sourceStride, 0);
+
+            // for문보다 foreach가 더 빠름. 인덱싱 할필요 없는건 다 foreach로 돌리자
+            foreach(int imageIndex in selectedIndexList)
+            {
+                int currentRow = imageIndex / ColumnCount;
+                int currentColumn = imageIndex % ColumnCount;
+
+                BitmapSource referenceImage = null;
+                BitmapSource defectImage = null;
+
+                for(int setIndex = 0; setIndex < SetCount; setIndex++)
+                {
+                    if ((selectPieceImage & (1 << setIndex)) == 0)
+                        continue;
+
+                    BitmapSource pieceImage = CutPiece(mergedImage, mergedBuffer, sourceStride, bytesPerPixel, cutWidth, cutHeight, currentRow, currentColumn, setIndex);
+0
+                    if (pieceImage == null) continue;
+
+                    if (setIndex == 0)
+                        referenceImage = pieceImage;
+                    else if (setIndex == 1)
+                        defectImage = pieceImage;
+                }
+
+                pairItems.Add(new DefectImagePairItem
+                {
+                    index = imageIndex + 1,
+                    ReferenceImage = referenceImage,
+                    DefectImage = defectImage
+                });
+            }
+
+            return pairItems.Count > 0;
+            */
+        }
+
+        private BitmapSource CutPiece(BitmapSource source, byte[] sourceBuffer, int sourceStride, int bytesPerPixel, int cutWidth, int cutHeight, int currentRow, int currentColumn, int setIndex)
+        {
+            int destinationStride = cutWidth * bytesPerPixel;
+            byte[] pieceBuffer = new byte[destinationStride * cutHeight];
+            int sourceStartX = currentColumn * cutWidth;
+            int sourceStartY = currentRow * cutHeight + SetCount + setIndex * cutHeight;
+
+            for (int y = 0; y < cutHeight; y++)
+            {
+                int sourceOffset = (sourceStartY + y) * sourceStride + sourceStartX * bytesPerPixel;
+                int destinationOffset = y * destinationStride;
+
+                Buffer.BlockCopy(sourceBuffer, sourceOffset, pieceBuffer, destinationOffset, destinationStride);
+            }
+
+            BitmapSource pieceImage = BitmapSource.Create(cutWidth, cutHeight, source.DpiX, source.DpiY, source.Format, source.Palette, pieceBuffer, destinationStride);
+
+            pieceImage.Freeze();
+
+            return pieceImage;
+        }
+    }
+
+    // 이미지에 대한 정보 기록이된 Txt를 파싱하는 클래스
+    public class DefectTextParser
+    {
+        public bool TryGetDefectCount(string textPath, out int defectCount)
+        {
+            defectCount = 0;
+
+            if (string.IsNullOrWhiteSpace(textPath)) return false;
+            if (!File.Exists(textPath)) return false;
+
+            try
+            {
+                string[] lines = File.ReadAllLines(textPath);
+
+                if (lines == null) return false;
+
+                foreach (string line in lines)
+                {
+                    // 공백라인은 에러
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+
+                    defectCount++;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                defectCount = 0;
+
+                return false;
+            }
+        }
     }
 }

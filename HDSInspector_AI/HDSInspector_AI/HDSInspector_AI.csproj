@@ -104,6 +104,7 @@
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
     <Compile Include="Class\Models\DefectImageFileSet.cs" />
+    <Compile Include="Class\Models\DefectImagePairItem.cs" />
     <Compile Include="Class\Models\InspectionInfo.cs" />
     <Compile Include="Class\Models\LogDisplayItem.cs" />
     <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
@@ -114,6 +115,9 @@
     </Compile>
     <Compile Include="GUI\UserControls\Main\GridLeft\SubUc_StatusCtrl.xaml.cs">
       <DependentUpon>SubUc_StatusCtrl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\Main\GridRight\SubUc_DefectPairPanel.xaml.cs">
+      <DependentUpon>SubUc_DefectPairPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\UserControls\Main\GridRight\Uc_Result.xaml.cs">
       <DependentUpon>Uc_Result.xaml</DependentUpon>
@@ -151,6 +155,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GUI\UserControls\Main\GridLeft\SubUc_StatusCtrl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\Main\GridRight\SubUc_DefectPairPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

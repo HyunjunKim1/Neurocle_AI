@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace HDSInspector_AI.Class.Manager
 {
@@ -31,6 +33,9 @@ namespace HDSInspector_AI.Class.Manager
         public InspectionInfo CurrentInfo { get; private set; }
         public string CurrentSystemDirectory { get; private set; }
         public string LastError {  get; private set; }
+
+        // Main S/W에서 GrabDone이던 Inspection Done이던 뭐던 이벤트 받아오면 바로 발생시키자.
+        public event Action<DefectImageFileSet> InspectionImageReady;
 
         public bool HasCurrentInfo
         {
@@ -76,7 +81,7 @@ namespace HDSInspector_AI.Class.Manager
             }
         }
 
-        public void ClearJob()
+        public void ClearInfo()
         {
             lock (_syncLock)
             {
@@ -86,30 +91,64 @@ namespace HDSInspector_AI.Class.Manager
             }
         }
 
-        // 경로 확인
-        public bool IsCurrentSystemDirectoryReady()
+        /// <summary>
+        /// Main S/W의 검사 완료 신호를 처리
+        /// Main S/W에서 검사 완료 신호를 받으면 이 함수를 호출하여 최신 검사번호의 불량 이미지 세트를 가져오고 InspectionImageReady 이벤트를 발생시킴.
+        /// 일단 이게 호출되면 PNG / TXT 저장이 모두 완료되었다고 가정함.
+        /// 그래서 이거 메인에서 플래그 받을땐 저장 끝난 시점에 받아야함
+        /// </summary>
+        /// <param name="sequenceNumber"></param>
+        /// <returns></returns>
+        public bool ProcessInspectionComplete(int sequenceNumber)
         {
-            lock (_syncLock)
+            DefectImageFileSet fileSet;
+
+            lock(_syncLock)
             {
                 LastError = null;
 
                 if (!ValidateCurrentInfo()) return false;
+                if(sequenceNumber < 0)
+                {
+                    LastError = $"잘못된 검사 번호입니다. : {sequenceNumber}";
 
-                if (!Directory.Exists(CurrentSystemDirectory)) { LastError = "system 경로가 존재하지 않습니다."; return false; }
+                    return false;
+                }
 
-                return true;
+                if(!Directory.Exists(CurrentSystemDirectory))
+                {
+                    LastError = $"System 경로가 존재하지 않습니다. : {CurrentSystemDirectory}";
+
+                    return false;
+                }
+
+                fileSet = CreateSequenceFileSet(sequenceNumber);
             }
+
+            // Event는 Lock 밖에서 호출해야함
+            // 혹시나 UI 작업 수행가능성이 있기에 lock 안에서 호출하면 씹히거나 버벅거리거나 할지도..
+
+            try
+            {
+                InspectionImageReady?.Invoke(fileSet);
+            }
+            catch (Exception ex)
+            {
+                LastError = $"InspectionImageReady Event 처리 실패함 : {ex.Message}";
+
+                return false;
+            }
+
+            return true;
         }
 
-        // 현재 System 폴더에서 최신 검사번호 파일셋을 가져옴.
-        public bool TryGetLastestFileSet(out DefectImageFileSet fileSet)
+        private DefectImageFileSet CreateSequenceFileSet(int sequenceNumber)
         {
-            fileSet = null;
-            LastError = null;
+            List<ParsedImageFile> parsedFiles = ParseFiles(CurrentSystemDirectory);
+            List<ParsedImageFile> sequenceFiles = parsedFiles.Where(x => x.SequenceNumber == sequenceNumber).ToList();
 
-            if (!ValidateCurrentInfo()) return false;
-
-            return TryGetLatestFileSetInternal(CurrentSystemDirectory, out fileSet);
+            // png,txt가 다 없어도 FileSet은 정상생성.
+            return CreateFileSet(CurrentSystemDirectory, sequenceNumber, sequenceFiles);
         }
 
         // 지정한 검사 번호 파일 세트를 가져옴
@@ -130,84 +169,9 @@ namespace HDSInspector_AI.Class.Manager
 
                 if (sequenceFiles.Count == 0) { LastError = "검사번호의 불량 이미지는 없습니다."; return false; }
 
-                fileSet = CreateFileSet(CurrentSystemDirectory,seqNum, sequenceFiles);
+                fileSet = CreateFileSet(CurrentSystemDirectory, seqNum, sequenceFiles);
 
                 return fileSet.HasAnyImage;
-            }
-        }
-        public bool TryGetAllFileSets(out List<DefectImageFileSet> fileSets)
-        {
-            lock (_syncLock)
-            {
-                fileSets = new List<DefectImageFileSet>();
-
-                LastError = null;
-
-                if (!ValidateCurrentInfo()) { return false; }
-
-                if (!Directory.Exists(CurrentSystemDirectory))
-                {
-                                        LastError = $"system 경로가 존재하지 않습니다: " + $"{CurrentSystemDirectory}";
-
-                    return false;
-                }
-
-                List<ParsedImageFile> parsedFiles = ParseFiles(CurrentSystemDirectory);
-
-                if (parsedFiles.Count == 0)
-                {
-                    LastError =$"불량 이미지가 없습니다: " + $"{CurrentSystemDirectory}";
-
-                    return false;
-                }
-
-                IEnumerable<IGrouping<int, ParsedImageFile>>
-
-                groupedFiles = parsedFiles.GroupBy(file => file.SequenceNumber).OrderBy(group => group.Key);
-
-                foreach (IGrouping<int, ParsedImageFile> group in groupedFiles)
-                {
-
-                    DefectImageFileSet fileSet = CreateFileSet(CurrentSystemDirectory, group.Key, group.ToList());
-
-                    if (fileSet.HasAnyImage)
-                        fileSets.Add(fileSet);
-                }
-
-                return fileSets.Count > 0;
-            }
-        }
-
-        private bool TryGetLatestFileSetInternal(string systemDirectory, out DefectImageFileSet fileSet)
-        {
-            fileSet = null;
-
-            if (string.IsNullOrWhiteSpace(systemDirectory)) { LastError = "system 경로가 설정되지 않았습니다."; return false; }
-
-            if (!Directory.Exists(systemDirectory)) { LastError = $"system 경로가 존재하지 않습니다: " + $"{systemDirectory}"; return false; }
-
-            try
-            {
-                List<ParsedImageFile> parsedFiles = ParseFiles(systemDirectory);
-
-                if (parsedFiles.Count == 0) { LastError = $"불량 이미지가 없습니다: " + $"{systemDirectory}"; return false; }
-
-                int lastestSequence = parsedFiles.Max(file => file.SequenceNumber);
-
-                List<ParsedImageFile> lastestFiles = parsedFiles.Where(file => file.SequenceNumber == lastestSequence).ToList();
-                fileSet = CreateFileSet(systemDirectory, lastestSequence, lastestFiles);
-
-                if (!fileSet.HasAnyImage) { LastError = "최신 검사번호에 PNG 이미지가 없습니다."; return false; }
-
-                return true;
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                LastError = ex.Message; return false;
-            }
-            catch (Exception ex)
-            {
-                LastError = ex.Message; return false;
             }
         }
 
@@ -220,6 +184,7 @@ namespace HDSInspector_AI.Class.Manager
             return true;
         }
 
+
         private static List<ParsedImageFile> ParseFiles(string systemDirectory)
         {
             List<ParsedImageFile> result = new List<ParsedImageFile>();
@@ -230,28 +195,28 @@ namespace HDSInspector_AI.Class.Manager
             {
 
                 string fileName = Path.GetFileName(filePath);
-                Match match =FileNameRegex.Match(fileName);
+                Match match = FileNameRegex.Match(fileName);
 
-                if (!match.Success) 
+                if (!match.Success)
                     continue;
 
                 int sequenceNumber;
 
-                if (!int.TryParse(match.Groups[1].Value, out sequenceNumber)) 
+                if (!int.TryParse(match.Groups[1].Value, out sequenceNumber))
                     continue;
 
-                
+
 
                 FileInfo fileInfo = new FileInfo(filePath);
 
-                result.Add(new ParsedImageFile 
-                    {
-                        SequenceNumber = sequenceNumber,
-                        CameraCode = match.Groups[2].Value,
-                        Extension = match.Groups[3].Value.ToLowerInvariant(),
-                        FilePath = filePath,
-                        LastWriteTime = fileInfo.LastWriteTime
-                    }
+                result.Add(new ParsedImageFile
+                {
+                    SequenceNumber = sequenceNumber,
+                    CameraCode = match.Groups[2].Value,
+                    Extension = match.Groups[3].Value.ToLowerInvariant(),
+                    FilePath = filePath,
+                    LastWriteTime = fileInfo.LastWriteTime
+                }
                 );
             }
 
@@ -261,18 +226,18 @@ namespace HDSInspector_AI.Class.Manager
         private static DefectImageFileSet CreateFileSet(string systemDirectory, int sequenceNumber, IList<ParsedImageFile> files)
         {
             DefectImageFileSet result = new DefectImageFileSet
-                {
+            {
                 SequenceNumber = sequenceNumber,
                 SystemDirectory = systemDirectory
 
-                };
+            };
 
             foreach (ParsedImageFile file in files)
             {
                 bool isPng = string.Equals(file.Extension, "png", StringComparison.OrdinalIgnoreCase);
                 bool isTxt = string.Equals(file.Extension, "txt", StringComparison.OrdinalIgnoreCase);
 
-                switch(file.CameraCode)
+                switch (file.CameraCode)
                 {
                     case TopCode:
                         if (isPng) { result.TopImagePath = file.FilePath; }

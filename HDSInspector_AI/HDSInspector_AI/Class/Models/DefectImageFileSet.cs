@@ -40,8 +40,13 @@ namespace HDSInspector_AI.Class.Models
         public DateTime LastWriteTime { get; set; }
 
         public bool HasTopImage => !string.IsNullOrWhiteSpace(TopImagePath) && File.Exists(TopImagePath);
+        public bool HasTopText => !string.IsNullOrWhiteSpace(TopTextPath) && File.Exists(TopTextPath);
+
         public bool HasBottomImage => !string.IsNullOrWhiteSpace(BottomImagePath) && File.Exists(BottomImagePath);
+        public bool HasBottomText => !string.IsNullOrWhiteSpace(BottomTextPath) && File.Exists(BottomTextPath);
+
         public bool HasTransImage => !string.IsNullOrWhiteSpace(TransImagePath) && File.Exists(TransImagePath);
+        public bool HasTransText => !string.IsNullOrWhiteSpace(TransTextPath) && File.Exists(TransTextPath);
 
         public bool HasAnyImage => HasTopImage || HasBottomImage || HasTransImage;
     }

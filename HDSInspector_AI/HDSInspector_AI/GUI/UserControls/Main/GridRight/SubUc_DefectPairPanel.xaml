@@ -1,0 +1,128 @@
+﻿<UserControl x:Class="HDSInspector_AI.GUI.UserControls.Main.GridRight.SubUc_DefectPairPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridRight"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <!-- 이미지 셀 -->
+        <Style x:Key="ImageCellBorderStyle" TargetType="Border">
+            <Setter Property="Width" Value="108"/>
+            <Setter Property="Height" Value="108"/>
+            <Setter Property="Background" Value="#0C1523"/>
+            <Setter Property="BorderBrush" Value="#3A506D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        
+        <!-- 가로 ScrollBar -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="MinHeight" Value="12"/>
+            <Setter Property="Background" Value="#17263B"/>
+            <Setter Property="Foreground" Value="#4B607C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True" Margin="1">
+                            <Track x:Name="PART_Track" IsDirectionReversed="False" Orientation="Horizontal" Focusable="False">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageLeftCommand" Background="Transparent" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Background="{TemplateBinding Foreground}" MinWidth="35" Margin="2">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="ThumbBorder" Background="{TemplateBinding Background}" CornerRadius="5"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#69C7F0"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#29B6F6"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageRightCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="0, 4, 0, 0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="48"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- Ref Label -->
+        <Border Grid.Row="0" Grid.Column="0" Background="#1A2940" BorderBrush="#324A68" BorderThickness="1" CornerRadius="4" Margin="0, 0, 4, 4">
+            <TextBlock Text="REF" Foreground="#66BB6A" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        
+        <!-- REF Image -->
+        <ScrollViewer x:Name="svReference" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0, 0, 0, 4" PanningMode="HorizontalOnly" ScrollChanged="svReference_ScrollChanged">
+            <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ImageCellBorderStyle}">
+                            <Grid>
+                                <Image Source="{Binding ReferenceImage}" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                <Border Background="#99000000" CornerRadius="3" Padding="4, 1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3">
+                                    <TextBlock Text="{Binding IndexText}" Foreground="White" FontFamily="Consolas" FontSize="9"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- DEF Label -->
+        <Border Grid.Row="1" Grid.Column="0" Background="#1A2940" BorderBrush="#324A68" BorderThickness="1" CornerRadius="4" Margin="0, 0, 4, 0">
+            <TextBlock Text="DEF" Foreground="#66BB6A" FontSize="17" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        
+        <!-- DEF Image -->
+        <ScrollViewer x:Name="svDefect" Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly" ScrollChanged="svDefect_ScrollChanged">
+            <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ImageCellBorderStyle}">
+                            <Grid>
+                                <Image Source="{Binding DefectImage}" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                <Border Background="#99000000" CornerRadius="3" Padding="4, 1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3">
+                                    <TextBlock Text="{Binding IndexText}" Foreground="White" FontFamily="Consolas" FontSize="9"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
