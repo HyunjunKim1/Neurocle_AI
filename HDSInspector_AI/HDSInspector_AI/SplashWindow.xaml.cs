@@ -225,21 +225,10 @@ namespace HDSInspector_AI
                         break;
 
                     case 90:
-                        // Initialize Windows & UserControls
+                        // Initialize Windows 
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             GLB.Windows.CreateWindows(Class.Manager.WindowManager.WINDOW_NAME.REVIEW);
-
-                            // Grid Left uc
-                            GLB.Windows.HW      = GLB.Windows.CreateUserControl<Uc_HW>();
-                            GLB.Windows.Log     = GLB.Windows.CreateUserControl<Uc_Log>();
-                            GLB.Windows.Status  = GLB.Windows.CreateUserControl<Uc_Status>();
-
-                            // Grid Right uc
-                            GLB.Windows.DefectImage = GLB.Windows.CreateUserControl<Uc_DefectImage>();
-                            GLB.Windows.InferenceImage = GLB.Windows.CreateUserControl<Uc_InferenceImage>();
-                            GLB.Windows.Result = GLB.Windows.CreateUserControl<Uc_Result>();
-
                         });
                         break;
 

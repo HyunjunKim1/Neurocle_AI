@@ -61,13 +61,13 @@
                 <RowDefinition Height="4*"/>
             </Grid.RowDefinitions>
             <Border Padding="2"  Grid.Row="0">
-                <UserCtrlLeft:Uc_Status/>
+                <UserCtrlLeft:Uc_Status x:Name="ucStatus"/>
             </Border>
             <Border Padding="2"  Grid.Row="1">
-                <UserCtrlLeft:Uc_HW/>
+                <UserCtrlLeft:Uc_HW x:Name="ucHW"/>
             </Border>
             <Border Padding="2" Grid.Row="2">
-                <UserCtrlLeft:Uc_Log HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                <UserCtrlLeft:Uc_Log HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="ucLog"/>
             </Border>
         </Grid>
 
@@ -79,13 +79,13 @@
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Border Padding="2"  Grid.Row="0">
-                <UserCtrlRight:Uc_DefectImage/>
+                <UserCtrlRight:Uc_DefectImage x:Name="ucDefectImage"/>
             </Border>
             <Border Padding="2"  Grid.Row="1">
-                <UserCtrlRight:Uc_InferenceImage/>
+                <UserCtrlRight:Uc_InferenceImage x:Name="ucInferenceImage"/>
             </Border>
             <Border Padding="2" Grid.Row="2">
-                <UserCtrlRight:Uc_Result/>
+                <UserCtrlRight:Uc_Result x:Name="ucResult"/>
             </Border>
         </Grid>
     </Grid>

@@ -90,26 +90,26 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
             }
 
             if (fileSet.HasTopImage)
-                LoadCameraImage(fileSet.TopImagePath, TopDefectPairs, "TOP");
+                LoadCameraImage(fileSet.TopImagePath, fileSet.TopTextPath, TopDefectPairs, "TOP");
 
             if (fileSet.HasBottomImage)
-                LoadCameraImage(fileSet.TopImagePath, BottomDefectPairs, "BOTTOM");
+                LoadCameraImage(fileSet.BottomImagePath, fileSet.BottomTextPath, BottomDefectPairs, "BOTTOM");
 
             if (fileSet.HasTransImage)
-                LoadCameraImage(fileSet.TopImagePath, TransDefectPairs, "TRANS");
+                LoadCameraImage(fileSet.TransImagePath, fileSet.TransTextPath, TransDefectPairs, "TRANS");
 
             pnlTop.ScrollToStart();
             pnlBottom.ScrollToStart();
             pnlTrans.ScrollToStart();
         }
 
-        public void LoadCameraImage(string imagePath, ObservableCollection<DefectImagePairItem> targetCollection, string camName)
+        public void LoadCameraImage(string imagePath, string textPath, ObservableCollection<DefectImagePairItem> targetCollection, string camName)
         {
             try
             {
                 // txt에서 실제 불량 개수 확인
                 int defectCount;
-                bool textSucc = _textParser.TryGetDefectCount(imagePath.Substring(0, imagePath.Length - 4) + ".txt", out defectCount);
+                bool textSucc = _textParser.TryGetDefectCount(textPath, out defectCount);
                 if (!textSucc) 
                 {
                     GLB.AddLog("DEFECT", $"{camName} txt 읽기 실패 : {imagePath}", SeverityLevel.ERROR);
@@ -176,7 +176,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
             if(!succ)
                 GLB.AddLog("DEFECT", $"Simulation Trigger 실패 : [{currentSequence}] / {GLB.DefectImage.LastError}", SeverityLevel.ERROR);
 
-            GLB.AddLog("DEFECT", $"Simulation Trigger : Strip [{currentSequence:D6}]", SeverityLevel.ERROR);
+            GLB.AddLog("DEFECT", $"Simulation Trigger : Strip [{currentSequence:D6}]", SeverityLevel.INFO);
 
             _simultationSequence++;
         }

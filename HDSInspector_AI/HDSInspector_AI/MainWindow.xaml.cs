@@ -28,6 +28,18 @@ namespace HDSInspector_AI
         public MainWindow()
         {
             InitializeComponent();
+
+            GLB.Windows.Main = this;
+            
+            // Left
+            GLB.Windows.Status  = ucStatus;
+            GLB.Windows.HW      = ucHW;
+            GLB.Windows.Log     = ucLog;
+
+            // Right
+            GLB.Windows.DefectImage     = ucDefectImage;
+            GLB.Windows.InferenceImage  = ucInferenceImage;
+            GLB.Windows.Result          = ucResult;
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -29,12 +29,16 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
 
         public void SetInspectionInfo(string equipmentNumber, string productName, string orderNumber)
         {
-            GLB.Windows.Status.Dispatcher.BeginInvoke(new Action(() =>
+            if (!Dispatcher.CheckAccess())
             {
-                tbkEquipmentNum.Text = equipmentNumber;
-                tbkProductName.Text = string.IsNullOrWhiteSpace(productName) ? "-" : productName.Trim();
-                tbkOrderNumber.Text = string.IsNullOrWhiteSpace(orderNumber) ? "-" : orderNumber.Trim();
-            }));
+                Dispatcher.BeginInvoke(new Action(() => SetInspectionInfo(equipmentNumber, productName, orderNumber)));
+
+                return;
+            }
+
+            tbkEquipmentNum.Text = equipmentNumber;
+            tbkProductName.Text = string.IsNullOrWhiteSpace(productName) ? "-" : productName.Trim();
+            tbkOrderNumber.Text = string.IsNullOrWhiteSpace(orderNumber) ? "-" : orderNumber.Trim();
 
             InspectionInfo info = new InspectionInfo();
             info.EquipmentID = equipmentNumber;
