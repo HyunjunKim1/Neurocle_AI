@@ -41,7 +41,7 @@ namespace HDSInspector_AI
             GLB.Windows.InferenceImage  = ucInferenceImage;
             GLB.Windows.Result          = ucResult;
         }
-
+        
         private void Window_Closed(object sender, EventArgs e)
         {
             if (!GLB.IsRunning)

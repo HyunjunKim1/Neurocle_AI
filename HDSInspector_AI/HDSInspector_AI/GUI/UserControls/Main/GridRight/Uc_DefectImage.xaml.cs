@@ -169,7 +169,14 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
 
         private void btnSimulationTrigger_Click(object sender, RoutedEventArgs e)
         {
-            GLB.Windows.Status.SetInspectionInfo("EAV44", "(AS)48QFN(4.9X4.9) 3A694R01 9X37X1 R10", "105421727J01");
+            InspectionInfo info = new InspectionInfo
+            {
+                EquipmentID = "EAV44",
+                ProductName = "(AS)48QFN(4.9X4.9) 3A694R01 9X37X1 R10",
+                OrderNumber = "105421727J01"
+            };
+
+            GLB.DefectImage.SetInfo(info);
 
             int currentSequence = _simultationSequence;
             bool succ = GLB.DefectImage.ProcessInspectionComplete(currentSequence);

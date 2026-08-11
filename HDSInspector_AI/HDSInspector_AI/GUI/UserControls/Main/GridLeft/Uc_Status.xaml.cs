@@ -25,32 +25,56 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
         public Uc_Status()
         {
             InitializeComponent();
+
+            Loaded      += UserControl_Loaded;
+            Unloaded += UserControl_Unloaded;
         }
 
-        public void SetInspectionInfo(string equipmentNumber, string productName, string orderNumber)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            GLB.DefectImage.InspectionInfoChanged -= DefectImage_InspectionInfoChanged;
+            GLB.DefectImage.InspectionInfoChanged += DefectImage_InspectionInfoChanged;
+
+            if (GLB.DefectImage.CurrentInfo != null)
+                SetInspectionInfo(GLB.DefectImage.CurrentInfo);
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            GLB.DefectImage.InspectionInfoChanged -= DefectImage_InspectionInfoChanged;
+        }
+
+        private void DefectImage_InspectionInfoChanged(InspectionInfo info)
+        {
+            SetInspectionInfo(info);
+        }
+
+        public void SetInspectionInfo(InspectionInfo info)
         {
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.BeginInvoke(new Action(() => SetInspectionInfo(equipmentNumber, productName, orderNumber)));
+                Dispatcher.BeginInvoke(new Action(() => SetInspectionInfo(info)));
 
                 return;
             }
 
-            tbkEquipmentNum.Text = equipmentNumber;
-            tbkProductName.Text = string.IsNullOrWhiteSpace(productName) ? "-" : productName.Trim();
-            tbkOrderNumber.Text = string.IsNullOrWhiteSpace(orderNumber) ? "-" : orderNumber.Trim();
+            tbkEquipmentNum.Text = string.IsNullOrWhiteSpace(info.EquipmentID) ? "-" : info.EquipmentID;
+            tbkProductName.Text  = string.IsNullOrWhiteSpace(info.ProductName) ? "-" : info.ProductName;
+            tbkOrderNumber.Text  = string.IsNullOrWhiteSpace(info.OrderNumber) ? "-" : info.OrderNumber;
 
-            InspectionInfo info = new InspectionInfo();
-            info.EquipmentID = equipmentNumber;
-            info.ProductName = productName;
-            info.OrderNumber = orderNumber;
-
-            GLB.DefectImage.SetInfo(info);
         }
 
         public void ClearInspectionInfo()
         {
-            SetInspectionInfo("-", "-", "-");
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(ClearInspectionInfo));
+
+                return;
+            }
+            tbkEquipmentNum.Text = "-";
+            tbkProductName.Text  = "-";
+            tbkOrderNumber.Text  = "-";
         }
 
         public void SetMainSWConnected(bool isConnected)
@@ -68,5 +92,6 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
             btnMainSwConnect.Content = isConnected ? "Connected" : "Connect";
             btnMainSwConnect.Background = isConnected ? System.Windows.Media.Brushes.SeaGreen : Brushes.Firebrick;
         }
+
     }
 }

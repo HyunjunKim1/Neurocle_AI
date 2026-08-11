@@ -132,18 +132,16 @@ namespace HDSInspector_AI
                     case 30:
                         if (GLB.Setting.General.Simulation == true)
                         {
-                            Logging("Simulation skip - Server open.. !", SeverityLevel.INFO);
+                            Logging("Simulation skip - Client Connect.. !", SeverityLevel.INFO);
                             SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
                         else
                         {
-                            Logging("Server open.. !", SeverityLevel.INFO);
+                            Logging("Connect.. !", SeverityLevel.INFO);
 
                             try
                             {
-                                GLB.Server.SetParameter_IP("500");
-                                GLB.Server.SetParameter_Log(GLB.AddLog);
-                                GLB.Server.StartServer();
+                                GLB.Client.Connect();
 
                                 SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                             }

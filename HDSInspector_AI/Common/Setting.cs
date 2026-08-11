@@ -127,7 +127,8 @@ namespace Common
         #region Members
         public int MachineType;
         public string CamType;              // Camera Type
-        public string MachineIP;            //설비의 IP
+        public string MachineIP;            // Main 설비의 IP
+        public int MachinePort;             // Main 설비 포트
 
         public bool Simulation;
 
@@ -160,6 +161,7 @@ namespace Common
             IniFile ini = new IniFile(m_Path);
             MachineType         = ini.Read("MACHINE", "Type", 0);
             MachineIP           = ini.Read("MACHINE", "IP", "127.0.0.1");
+            MachinePort         = ini.Read("MACHINE", "Port", 500);
             Simulation          = ini.Read("MACHINE", "Simulation", false);
 
             UseServeralScan     = ini.Read("MACHINE", "SeveralScan", false);
@@ -185,6 +187,7 @@ namespace Common
             IniFile ini = new IniFile(m_Path);
             ini.Write("MACHINE", "Type", MachineType);
             ini.Write("MACHINE", "IP", MachineIP);
+            ini.Write("MACHINE", "Port", MachinePort);
             ini.Write("MACHINE", "Simulation", Simulation);
 
             ini.Write("MACHINE", "SeveralScan", UseServeralScan);

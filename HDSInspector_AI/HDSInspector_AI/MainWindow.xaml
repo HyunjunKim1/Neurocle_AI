@@ -11,7 +11,7 @@
         WindowStyle="ThreeDBorderWindow" WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         HorizontalAlignment="Center" VerticalAlignment="Center"
-        WindowState="Maximized" Height="1080" Width="1152" Title="Haesung DS LF AVI AI Version 1.0.0" Closed="Window_Closed">
+        WindowState="Maximized" Height="910" Width="1152" Title="Haesung DS LF AVI AI Version 1.0.0" Closed="Window_Closed">
 
     <Window.Background>
         <SolidColorBrush Color="#242121"/>
@@ -56,9 +56,9 @@
         <!-- Grid Left -->
         <Grid x:Name="GridLeft" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2.5*"/>
-                <RowDefinition Height="2.5*"/>
-                <RowDefinition Height="4*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="3*"/>
             </Grid.RowDefinitions>
             <Border Padding="2"  Grid.Row="0">
                 <UserCtrlLeft:Uc_Status x:Name="ucStatus"/>

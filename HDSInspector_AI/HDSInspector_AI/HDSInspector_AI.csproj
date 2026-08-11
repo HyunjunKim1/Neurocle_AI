@@ -58,6 +58,10 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -202,7 +206,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Class\Devices\devServerMain.cs" />
+    <Compile Include="Class\Devices\devClientMain.cs" />
     <Compile Include="Class\Devices\devSapera.cs" />
     <Compile Include="Class\GlobalFunctions\CustomDB.cs" />
     <Compile Include="Class\GlobalFunctions\CustomThread.cs" />
@@ -320,6 +324,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="HDS_AI.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

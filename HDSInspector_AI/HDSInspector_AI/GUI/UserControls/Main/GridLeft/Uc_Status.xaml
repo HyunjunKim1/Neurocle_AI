@@ -7,7 +7,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol" 
              x:Class="HDSInspector_AI.GUI.UserControls.Main.GridLeft.Uc_Status"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="384" Background="#121d2f">
+             d:DesignHeight="260" d:DesignWidth="384" Background="#121d2f"
+             Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded">
     <UserControl.Resources>
         <!-- 왼쪽 항목 제목-->
         <Style x:Key="StatusLabelStyle" TargetType="TextBlock">

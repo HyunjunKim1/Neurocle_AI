@@ -59,34 +59,35 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public string StartupPath = Directory.GetCurrentDirectory();
         public bool IsRunning = false;
 
-        DateTime m_StartTime;
-        TimeSpan m_RunTime;
-        DateTime m_NowTime;
-        DateTime m_EndTime;
+        private DateTime _startTime;
+        private TimeSpan _runTime;
+        private DateTime _nowTime;
+        private DateTime _endTime;
 
         public DateTime StartTime
         {
-            get { return m_StartTime; }
-            set { m_StartTime = value; }
+            get { return _startTime; }
+            set { _startTime = value; }
         }
 
         public TimeSpan RunTime
         {
-            get { return m_RunTime; }
-            set { m_RunTime = value; }
+            get { return _runTime; }
+            set { _runTime = value; }
         }
 
         public DateTime NowTime
         {
-            get { return m_NowTime; }
-            set { m_NowTime = value; }
+            get { return _nowTime; }
+            set { _nowTime = value; }
         }
 
         public DateTime EndTime
         {
-            get { return m_EndTime; }
-            set { m_EndTime = value; }
+            get { return _endTime; }
+            set { _endTime = value; }
         }
+
 
         #endregion
 
@@ -99,7 +100,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public Logger           Logger      = Logger.GetLogger();
         public Setting          Setting     = new Setting(Directory.GetCurrentDirectory() + $@"\..\Config");
         public ImageProcessing  ImgProc     = new ImageProcessing();
-        public devServerMain    Server      = new devServerMain();
+        public devClientMain    Client      = new devClientMain();
 
         // Class Manager
         public SequenceManager          Sequence    = new SequenceManager();

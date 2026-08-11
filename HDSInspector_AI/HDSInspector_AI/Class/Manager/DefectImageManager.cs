@@ -1,4 +1,5 @@
-﻿using HDSInspector_AI.Class.Models;
+﻿using HDSInspector_AI.Class.Devices;
+using HDSInspector_AI.Class.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,6 +38,9 @@ namespace HDSInspector_AI.Class.Manager
         // Main S/W에서 GrabDone이던 Inspection Done이던 뭐던 이벤트 받아오면 바로 발생시키자.
         public event Action<DefectImageFileSet> InspectionImageReady;
 
+        // 데이터 등록용
+        public event Action<InspectionInfo> InspectionInfoChanged;
+
         public bool HasCurrentInfo
         {
             get
@@ -56,6 +60,8 @@ namespace HDSInspector_AI.Class.Manager
         // Main에서 받은 정보 설정
         public bool SetInfo(InspectionInfo info)
         {
+            InspectionInfo copiedInfo;
+
             lock (_syncLock)
             {
                 LastError = null;
@@ -66,19 +72,46 @@ namespace HDSInspector_AI.Class.Manager
                 if (!info.IsValid)
                 { LastError = "받은 정보가 올바르지 않습니다."; return false; }
 
-                InspectionInfo copiedInfo = new InspectionInfo
+                copiedInfo = new InspectionInfo
                 {
                     EquipmentID = info.EquipmentID.Trim(),
                     ProductName = info.ProductName.Trim(),
                     OrderNumber = info.OrderNumber.Trim()
                 };
 
-                string systemDir = Path.Combine(_rootDirectory, copiedInfo.EquipmentID, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
                 CurrentInfo = copiedInfo;
-                CurrentSystemDirectory = systemDir;
-
-                return true;
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.EquipmentID, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
+
+            InspectionInfoChanged?.Invoke(copiedInfo);
+
+            return true;
+        }
+        public bool SetInfo(Product_Info info)
+        {
+            InspectionInfo copiedInfo;
+
+            lock (_syncLock)
+            {
+                LastError = null;
+
+                if (info.DeviceName == null)
+                { LastError = "작업 정보가 Null입니다."; return false; }
+
+                copiedInfo = new InspectionInfo
+                {
+                    EquipmentID = info.DeviceName.Trim(),
+                    ProductName = info.ProductName.Trim(),
+                    OrderNumber = info.OrderNumber.Trim()
+                };
+
+                CurrentInfo = copiedInfo;
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.EquipmentID, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
+            }
+
+            InspectionInfoChanged?.Invoke(copiedInfo);
+
+            return true;
         }
 
         public void ClearInfo()
