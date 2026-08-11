@@ -74,13 +74,13 @@ namespace HDSInspector_AI.Class.Manager
 
                 copiedInfo = new InspectionInfo
                 {
-                    EquipmentID = info.EquipmentID.Trim(),
+                    DeviceName = info.DeviceName.Trim(),
                     ProductName = info.ProductName.Trim(),
                     OrderNumber = info.OrderNumber.Trim()
                 };
 
                 CurrentInfo = copiedInfo;
-                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.EquipmentID, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
 
             InspectionInfoChanged?.Invoke(copiedInfo);
@@ -100,13 +100,13 @@ namespace HDSInspector_AI.Class.Manager
 
                 copiedInfo = new InspectionInfo
                 {
-                    EquipmentID = info.DeviceName.Trim(),
+                    DeviceName = info.DeviceName.Trim(),
                     ProductName = info.ProductName.Trim(),
                     OrderNumber = info.OrderNumber.Trim()
                 };
 
                 CurrentInfo = copiedInfo;
-                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.EquipmentID, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
 
             InspectionInfoChanged?.Invoke(copiedInfo);

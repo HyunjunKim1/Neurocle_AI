@@ -171,7 +171,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
         {
             InspectionInfo info = new InspectionInfo
             {
-                EquipmentID = "EAV44",
+                DeviceName = "EAV44",
                 ProductName = "(AS)48QFN(4.9X4.9) 3A694R01 9X37X1 R10",
                 OrderNumber = "105421727J01"
             };

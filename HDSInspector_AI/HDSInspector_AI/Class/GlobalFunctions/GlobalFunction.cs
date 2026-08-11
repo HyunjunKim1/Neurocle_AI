@@ -115,6 +115,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         {
             Hardware?.Dispose();
             Sequence?.Dispose();
+            Client?.Dispose();
         }
 
         #region Global Functions

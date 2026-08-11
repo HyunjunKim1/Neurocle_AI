@@ -58,7 +58,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
                 return;
             }
 
-            tbkEquipmentNum.Text = string.IsNullOrWhiteSpace(info.EquipmentID) ? "-" : info.EquipmentID;
+            tbkEquipmentNum.Text = string.IsNullOrWhiteSpace(info.DeviceName) ? "-" : info.DeviceName;
             tbkProductName.Text  = string.IsNullOrWhiteSpace(info.ProductName) ? "-" : info.ProductName;
             tbkOrderNumber.Text  = string.IsNullOrWhiteSpace(info.OrderNumber) ? "-" : info.OrderNumber;
 

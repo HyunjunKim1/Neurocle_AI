@@ -13,7 +13,7 @@ namespace HDSInspector_AI.Class.Models
     // Main에서 받아올 데이터들, 이거 Verify 이미지 경로 탐색할떄 쓸거임 
     public class InspectionInfo
     {
-        public string EquipmentID { get; set; }
+        public string DeviceName { get; set; }
         public string ProductName { get; set; }
         public string OrderNumber { get; set; }
         public bool IsValid
@@ -21,7 +21,7 @@ namespace HDSInspector_AI.Class.Models
             get
             {
                 return
-                    IsValidPathSegment(EquipmentID) &&
+                    IsValidPathSegment(DeviceName) &&
                     IsValidPathSegment(ProductName) &&
                     IsValidPathSegment(OrderNumber);
             }

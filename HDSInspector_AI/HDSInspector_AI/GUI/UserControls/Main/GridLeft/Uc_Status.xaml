@@ -110,7 +110,7 @@
                         <ColumnDefinition Width="0.8*"/>
                         <ColumnDefinition Width="55"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="105"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="tbkEquipmentNum" Text="EAV01" Grid.Column="0" FontSize="23" FontWeight="Bold" Style="{StaticResource StatusLabelStyle}" 
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>

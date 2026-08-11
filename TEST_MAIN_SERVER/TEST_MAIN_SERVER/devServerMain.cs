@@ -6,65 +6,40 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TEST_MAIN_SERVER
 {
-    internal class devServerMain
+    internal class devServerMain : IDisposable
     {
-        private WhileThread _threadListen;
-        private WhileThread _threadProcessMessageAndSend;
+        private TcpListener _listener;
+        private TcpClient _client;
+        private NetworkStream _networkStream;
 
-        private Socket _server;
-        private Socket _client = null;
-        private bool _disposed = false;
+        private Thread _listenThread;
+        private Thread _receiveThread;
+        private Thread _sendThread;
+
+        private readonly ConcurrentQueue<MainPacket> _sendQueue;
+        private readonly AutoResetEvent _sendSignal;
+        private readonly object _connectionLock;
+        private volatile bool _running;
+        private volatile bool _clientConnected;
+
+        private bool _disposed;
 
         public delegate void CallBack_Logging(string text);
         private CallBack_Logging _callback_Logging = null;
 
-        private ConcurrentQueue<string> _q_RecvCommand = new ConcurrentQueue<string>();
-        private bool _clientConnected = false;
-
         public bool UseLog { get; set; }
-        public string FailReason { get; set; }
-
-        // Ansi 설정해서 char = 1byte로
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct Product_Info
-        {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 10)]
-            public string DeviceName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 100)]
-            public string ProductName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 30)]
-            public string OrderNumber;
-
-            public byte[] Serialize()
-            {
-                var buffer = new byte[Marshal.SizeOf(typeof(Product_Info))];
-
-                var gch = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                var pBuffer = gch.AddrOfPinnedObject();
-
-                Marshal.StructureToPtr(this, pBuffer, false);
-                gch.Free();
-
-                return buffer;
-            }
-        }
+        public bool ClientConnected { get { return _clientConnected; } }
 
         public devServerMain()
         {
-            _server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            _threadListen = new WhileThread(200, ThreadServer);
-            _threadProcessMessageAndSend = new WhileThread(100, ThreadProcess);
-        }
-
-        public void SetParameter_IP(int Port)
-        {
-            _server.Bind(new IPEndPoint(IPAddress.Any, Port));
-            _server.Listen(10); // 소켓 접속 대기 개수임. 10개까지 설정해놓고 테스트
+            _sendQueue = new ConcurrentQueue<MainPacket>();
+            _sendSignal = new AutoResetEvent(false);
+            _connectionLock = new object();
         }
 
         public void SetParameter_Log(CallBack_Logging callBack_Logging)
@@ -82,201 +57,258 @@ namespace TEST_MAIN_SERVER
         {
             Dispose();
         }
-        public void Dispose()
+
+        public void StartServer(int port)
         {
-            // 이미 Dispose했으면 패스.
-            if (_disposed)
-                return;
+            if (_running) return;
+            _running = true;
+            _listener = new TcpListener(IPAddress.Any, port);
+            _listener.Start();
+            _listenThread = new Thread(ListenThread);
+            _listenThread.IsBackground = true;
+            _listenThread.Start();
 
-            StopServer();
+            _sendThread = new Thread(SendThread);
+            _sendThread.IsBackground = true;
+            _sendThread.Start();
 
-            // 쓰레드가 종료되길 기다린다.
-            _threadProcessMessageAndSend.Stop();
-            _threadListen.Stop();
-
-            _disposed = true;
+            Logging($"Main Server listen - {port}");
         }
 
-        private void ThreadServer()
+        private void ListenThread()
+        {
+            while(_running)
+            {
+                try
+                {
+                    TcpClient client = _listener.AcceptTcpClient();
+
+                    // 어짜피 한 Main에 하나의 AI Server만 붙음
+                    CloseClientConnection();
+
+                    lock (_connectionLock)
+                    {
+                        _client = client;
+                        _networkStream = client.GetStream();
+                        _clientConnected = true;
+                    }
+
+                    Logging("AI Client Connected");
+
+                    StartReceiveThread();
+                }
+                catch (Exception ex)
+                {
+                    Logging($"Listen error -{ex.Message}");
+                }
+            }
+        }
+
+        private void StartReceiveThread()
+        {
+            _receiveThread = new Thread(ReceiveThread);
+            _receiveThread.IsBackground = true;
+            _receiveThread.Start();
+        }
+
+        private void ReceiveThread()
         {
             try
             {
-                if (_client == null)
+                while(_running && _clientConnected)
                 {
-                    _client = _server.Accept();                    
-                    Logging($"[Main] Client Connected!!!");
-                    Logging($"[Main] IP: {(_client.RemoteEndPoint as IPEndPoint).Address}, Port: {(_client.RemoteEndPoint as IPEndPoint).Port}");
-                    _clientConnected = true;
+                    NetworkStream stream;
+                    lock ((_connectionLock))
+                    {
+                        stream = _networkStream;
+                    }
+
+                    if (stream == null) break;
+
+                    MainPacket packet = PacketStreamHelper.ReadPacket(stream);
+                    ProcessPacket(packet);
                 }
-
-                byte[] buffer = new byte[1024];
-                _client.Receive(buffer);
-
-                string receivedData = Encoding.ASCII.GetString(buffer);
-                receivedData = receivedData.Trim('\0');
-
-                if(receivedData == null || receivedData == string.Empty)
-                    CloseClientConnection();
-                else
-                    AddRecvCommand(receivedData);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Logging($"[Main] ThreadServer(): {ex.Message}");
+                if(_running)
+                {
+                    Logging($"Receive Error : {ex.Message}");
+                }
+            }
+            finally
+            {
                 CloseClientConnection();
             }
         }
 
-        private void ThreadProcess()
+        private void ProcessPacket(MainPacket packet)
         {
-            if (_clientConnected == false)
-                return;
+            Logging($"[AI → Main] {packet.Command}");
 
-            try
+            switch(packet.Command)
             {
-                ReceiveAndSendCommand();
-            }
-            catch (Exception ex)
-            {
-                Logging($"[Main] ThreadProcess(): {ex.Message}");
+                case MainCommand.R_INSPECTION_INFO:
+                    Logging($"[Main → AI] Product Info ACK");
+                    break;
+
+                case MainCommand.R_STRIP_NUMBER:
+                    {
+                        int stripNumber = IntPayload.Deserialize(packet.Payload);
+                        Logging($"[Main → AI] Strip ACK : {stripNumber}");
+                    }
+                    break;
+
+                case MainCommand.R_INSPECTION_DONE:
+                    {
+                        int stripNumber = IntPayload.Deserialize(packet.Payload);
+                        Logging($"[Main → AI] Inspection Done ACK : {stripNumber}");
+                    }
+                    break;
+
+                case MainCommand.INFERENCE_DONE:
+                    {
+                        int stripNumber = IntPayload.Deserialize(packet.Payload);
+                        Logging($"[Main → AI] AI Inference Done : {stripNumber}");
+                    }
+                    break;
+
+                case MainCommand.PING:
+                    Send(MainCommand.PONG);
+                    break;
+
+                case MainCommand.PONG:
+                    break;
             }
         }
-        public void StartServer()
+
+        public void Send(MainCommand command, byte[] payload = null)
         {
-            _threadProcessMessageAndSend.Start();
-            _threadListen.Start();
+            if (!_running) return;
+
+            _sendQueue.Enqueue(new MainPacket(command, payload));
+            _sendSignal.Set();
+        }
+
+        private void SendThread()
+        {
+            while(_running)
+            {
+                _sendSignal.WaitOne(100);
+
+                if (!_running) break;
+                if (!_clientConnected) continue;
+
+                while(_sendQueue.TryDequeue(out MainPacket packet))
+                {
+                    try
+                    {
+                        NetworkStream stream;
+
+                        lock(_connectionLock)
+                        {
+                            stream = _networkStream;
+                        }
+
+                        if (stream == null) break;
+
+                        PacketStreamHelper.WritePacket(stream, packet);
+
+                        Logging($"[Main → AI] {packet.Command}");
+                    }
+                    catch(Exception ex)
+                    {
+                        Logging($"Main Send Error {ex.Message}");
+                        CloseClientConnection();
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        #region Test Send
+
+        public void SendProductInfo(ProductInfo pInfo)
+        {
+            if (pInfo == null) return;
+            Send(MainCommand.INSPECTION_INFO, pInfo.Serialize());
+        }
+
+        public void SendStripNumber(int stripNumber)
+        {
+            Send(MainCommand.STRIP_NUMBER, IntPayload.Serialize(stripNumber));
+        }
+
+        public void SendInspectionDone(int stripNumber)
+        {
+            Send(MainCommand.INSPECTION_DONE, IntPayload.Serialize(stripNumber));
+        }
+
+        #endregion
+
+        private void CloseClientConnection()
+        {
+            bool wasConnected = _clientConnected;
+            lock (_connectionLock)
+            {
+                _clientConnected = false;
+                try
+                {
+                    _networkStream?.Close();
+                }
+                catch { }
+                try
+                {
+                    _client?.Close();
+                }
+                catch (Exception ex)
+                {
+                    Logging($"[Main] CloseClientConnection(): {ex.Message}");
+                }
+
+                _networkStream = null;
+                _client = null;
+            }
+
+            if(wasConnected) Logging($"[Main] CloseClientConnection()");
         }
 
         public void StopServer()
         {
-            _threadListen.Pause();
-            _threadProcessMessageAndSend.Pause();
+            _running = false;
+            _sendSignal.Set();
+
             CloseClientConnection();
-        }
-        public bool IsClientConnedted()
-        {
-            return _clientConnected;
-        }
-
-        private void CloseClientConnection()
-        {
-            try
-            {
-                Logging($"[Main] Client Disconnected!!!");
-
-                _clientConnected = false;
-                _client?.Close();
-                _client = null;
-
-                ClearCommand();
-            }
-            catch (Exception ex)
-            {
-                Logging($"[Main] CloseClientConnection(): {ex.Message}");
-            }
-        }
-
-        private void AddRecvCommand(string command)
-        {
-            try
-            {
-                Logging($"[Main] Recv: {command}");
-
-                _q_RecvCommand.Enqueue(command);
-            }
-            catch (Exception ex)
-            {
-                Logging($"[Main] AddRecvCommand(): {ex.Message}");
-            }
-        }
-
-        private void ClearCommand()
-        {
-            while (_q_RecvCommand.TryDequeue(out string command))
-            {
-            }
-        }
-
-        int _stripNumber = 0;
-        bool _isInspectionDone = false;
-        bool _isInferenceDone = false;
-
-        private void ReceiveAndSendCommand()
-        {
-            // 메세지 받을 수 있는 상태일 경우에만 처리하도록 추가해야함.
-
-            if (_q_RecvCommand.TryDequeue(out string command) == false)
-                return;
-
 
             try
             {
-                string[] splitMessages = command.Trim().Split(',');
-
-                bool isInvalidMessage = false;
-
-                switch (splitMessages[0])
-                {
-                    case "INSPECTION_INFO":
-                        if (splitMessages.Length != 1) { isInvalidMessage = true; break; }
-
-                        Product_Info pInfo = new Product_Info();
-                        pInfo.ProductName = "EAV44";
-                        pInfo.DeviceName = "(AS)48QFN(4.9X4.9) 3A694R01 9X37X1 R10";
-                        pInfo.OrderNumber = "105421727J01";
-
-                        _client.Send(pInfo.Serialize());
-                        break;
-
-                    case "STRIP_NUMBER":
-                        if (splitMessages.Length != 4) { isInvalidMessage = true; break; }
-
-                        if (int.TryParse(splitMessages[1], out _stripNumber) == false)
-                        {
-                            isInvalidMessage = true;
-                            break;
-                        }
-
-                        SendCommand($"STRIP_NUMBER,{_stripNumber:0.0}");
-                        break;
-
-                    case "INSPECTION_DONE":
-                        if (splitMessages.Length != 2) { isInvalidMessage = true; break; }
-
-                        _isInspectionDone = splitMessages[1] == "DONE" ? true : false;
-
-                        SendCommand($"INSPECTION_DONE,SUCC,{_isInspectionDone}");
-                        break;
-
-                    case "INFERENCE_DONE":
-                        if (splitMessages.Length != 3) { isInvalidMessage = true; break; }
-
-                        _isInferenceDone = splitMessages[1] == "DONE" ? true : false;
-
-                        SendCommand($"R_INSPECTION_DONE,{_isInspectionDone}");
-                        break;
-
-                    default:
-                        Logging($"[Main Server] Undefined command: {command}");
-                        return;
-                }
-
-                if (isInvalidMessage == true)
-                {
-                    Logging($"[Main Server] It doesn't match the format: {command}");
-                    return;
-                }
+                _listener?.Stop();
             }
-            catch (Exception ex)
-            {
-                return;
-            }
+            catch { }
+
+            JoinThread(_receiveThread);
+            JoinThread(_sendThread);
+            JoinThread(_listenThread);
+
+            _listener = null;
         }
 
-        public void SendCommand(string command)
+        private static void JoinThread(Thread thread)
         {
-            _client.Send(Encoding.ASCII.GetBytes(command + "\r\n"));
-            Logging($"[Main Test Server] Send: {command}");
+            try
+            {
+                if (thread != null && thread.IsAlive) thread.Join(1000);
+            }
+            catch { }
+        }
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            StopServer();
+            _sendSignal.Dispose();
+            _disposed = true;
         }
     }
 }

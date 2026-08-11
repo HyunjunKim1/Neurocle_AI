@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,37 +22,108 @@ namespace TEST_MAIN_SERVER
     /// </summary>
     public partial class MainWindow : Window
     {
-        devServerMain devServer;
+        devServerMain _server;
         public MainWindow()
         {
             InitializeComponent();
 
-            devServer = new devServerMain();
+            _server = new devServerMain();
+            _server.UseLog = true;
+            _server.SetParameter_Log(AddLog);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void AddLog(string message)
         {
-            if(int.TryParse(tBoxPort.Text, out int port) == false) { return; }
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(() => AddLog(message)));
 
-            devServer.SetParameter_IP(port);
-            devServer.StartServer();
+                return;
+            }
+
+            lstLog.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+
+            if (lstLog.Items.Count > 0)
+            {
+                lstLog.ScrollIntoView(lstLog.Items[lstLog.Items.Count - 1]);
+            }
+
+            tbkConnection.Text = _server.ClientConnected ? "Connected" : "Disconnected";
+        }
+
+        private void btnListen_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(tBoxPort.Text, out int port)) 
+            {
+                MessageBox.Show("Port 확인필요~");
+
+                return;
+            }
+
+            _server.StartServer(port);
 
             btnListen.IsEnabled = false;
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
 
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void btnSendInfo_click(object sender, RoutedEventArgs e)
         {
-            devServer.SendCommand($"STRIP_NUMBER,1");
+            ProductInfo info = CreateProductInfo();
+            _server.SendProductInfo(info);
         }
 
-        private void Button_Click_3(object sender, RoutedEventArgs e)
+        private void btnSendStrip_Click(object sender, RoutedEventArgs e)
         {
-            devServer.SendCommand($"INSPECTION_DONE,SUCC");
+            if (!TryGetStripNumber(out int stripNumber)) return;
+
+            _server.SendStripNumber(stripNumber);
+        }
+
+        private void btnInspectionDone_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryGetStripNumber(out int stripNumber)) return;
+            _server.SendInspectionDone(stripNumber);
+        }
+
+        private ProductInfo CreateProductInfo()
+        {
+            return new ProductInfo
+            {
+                DeviceName = tBoxEquipment.Text.Trim(),
+                ProductName = tBoxProduct.Text.Trim(),
+                OrderNumber = tBoxOrder.Text.Trim(),
+            };
+        }
+
+        private bool TryGetStripNumber(out int stripNumber)
+        {
+            if (!int.TryParse(tbStripNumber.Text, out stripNumber) || stripNumber <= 0)
+            {
+                MessageBox.Show("Strip 번호 확인 필요~");
+                return false;
+            }
+            return true;
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            _server.Dispose();
+        }
+
+        private void btnFullSequence_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryGetStripNumber(out int stripNumber)) return;
+
+            // 제품 정보
+            _server.SendProductInfo(CreateProductInfo());
+            Thread.Sleep(100);
+
+            // Strip 번호
+            _server.SendStripNumber(stripNumber);
+            Thread.Sleep(100);
+
+            // 검사 파일 저장 완료
+            _server.SendInspectionDone(stripNumber);
         }
     }
 }

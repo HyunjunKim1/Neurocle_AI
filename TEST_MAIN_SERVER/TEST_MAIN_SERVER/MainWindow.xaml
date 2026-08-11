@@ -5,13 +5,64 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TEST_MAIN_SERVER"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <TextBox x:Name="tBoxPort" HorizontalAlignment="Left" Margin="140,79,0,0" TextWrapping="Wrap" Text="Port" VerticalAlignment="Top" Width="215" Height="45"/>
-        <Button x:Name="btnListen" Content="Listen" HorizontalAlignment="Left" Margin="385,79,0,0" VerticalAlignment="Top" Height="45" Width="170" Click="Button_Click"/>
-        <Button Content="Product Info" HorizontalAlignment="Left" Margin="195,217,0,0" VerticalAlignment="Top" Height="67" Width="105" Click="Button_Click_1"/>
-        <Button Content="Strip num" HorizontalAlignment="Center" Margin="0,217,0,0" VerticalAlignment="Top" Height="67" Width="104" Click="Button_Click_2"/>
-        <Button Content="Inspection Done" HorizontalAlignment="Left" Margin="490,217,0,0" VerticalAlignment="Top" Height="67" Width="105" Click="Button_Click_3"/>
+        Title="MainWindow" Height="620" Width="800" Closing="Window_Closing">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <GroupBox Grid.Row="0" Header="Server" Padding="10" Margin="0, 0, 0, 10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Port" Width="80" VerticalAlignment="Center"/>
+                <TextBox x:Name="tBoxPort" Width="120" Height="28" Text="500"/>
+                <Button x:Name="btnListen" Content="Listen" Width="100" Height="28" Margin="10,0,0,0" Click="btnListen_Click"/>
+                <TextBlock x:Name="tbkConnection" Text="Disconnected" Margin="20, 0, 0, 0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="Inspection Info" Padding="10" Margin="0, 0, 0, 10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="35"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Equipment" VerticalAlignment="Center"/>
+                <TextBox x:Name="tBoxEquipment" Grid.Row="0" Grid.Column="1" Text="EAV44" Margin="4"/>
+                <TextBlock Grid.Row="1" Text="Product" VerticalAlignment="Center"/>
+                <TextBox x:Name="tBoxProduct" Grid.Row="1" Grid.Column="1" Text="(AS)48QFN(4.9X4.9) 3A694R01 9X37X1 R10" Margin="4"/>
+                <TextBlock Grid.Row="2" Text="Order" VerticalAlignment="Center"/>
+                <TextBox x:Name="tBoxOrder" Grid.Row="2" Grid.Column="1" Text="105421727J01" Margin="4"/>
+                <Button Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Content="Send Info" Margin="5" Click="btnSendInfo_click"/>
+            </Grid>
+        </GroupBox>
+        <!-- Strip -->
+
+        <GroupBox Grid.Row="2" Header="Strip" Padding="10" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Strip Number" Width="120" VerticalAlignment="Center"/>
+                <TextBox x:Name="tbStripNumber" Width="100" Height="28" Text="1"/>
+                <Button Content="Send Strip" Width="110" Height="28" Margin="10,0,0,0" Click="btnSendStrip_Click"/>
+                <Button Content="Inspection Done" Width="140" Height="28" Margin="10,0,0,0" Click="btnInspectionDone_Click"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Sequence Test -->
+        <GroupBox Grid.Row="3" Header="Auto Test" Padding="10" Margin="0,0,0,10">
+            <Button Content="Send Info → Strip → Inspection Done" Width="280" Height="35" Click="btnFullSequence_Click"/>
+        </GroupBox>
+
+        <TextBlock Grid.Row="4" Text="Communication Log" FontWeight="Bold" Margin="0,0,0,5"/>
+        <ListBox x:Name="lstLog" Grid.Row="5"/>
     </Grid>
 </Window>

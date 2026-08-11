@@ -90,45 +90,381 @@ namespace HDSInspector_AI.Class.Devices
     }
 
     /// <summary>
-    /// 실제로 AI S/W에서 사용
+    /// Main S/W TCP Client
+    /// 
+    /// 1. Main S/W 연결
+    /// 2. Packet 송수신
+    /// 3. Packet Parsing
+    /// 4. Event 전달
+    /// 
+    /// UI 또는 Defect Manager 직접 제어하지 않음.
     /// </summary>
-    public class devClientMain
+    public class devClientMain : IDisposable
     {
-        private TcpClient _tcpClient       = null;
-        private StreamReader _reader       = null;
-        private StreamWriter _writer       = null;
-        private NetworkStream _ntsStream   = null;
+        private TcpClient _tcpClient;
+        private NetworkStream _networkStream;
 
-        private CustomThread _taskReceive;
-        private CustomThread _taskProcess;
+        private Thread _receiveThread;
+        private Thread _sendThread;
+        private Thread _connectionThread;
 
-        private bool _connected = false;
-        private List<string> _recvMsgList;
-        private List<E_SEND_CMD_MAIN> _sendMsgList;
+        private readonly ConcurrentQueue<MainPacket> _sendQueue;
+        private readonly AutoResetEvent _sendSignal;
+        private readonly object _connectionLock;
+        private volatile bool _running;
+        private volatile bool _connected;
 
-        public S_Recv_Data _recvData;
-        public S_Send_Data _sendData;
+        private DateTime _lastPingTime;
+        private DateTime _lastPongTime;
 
-        private object _lockObj_Recv;
-        private object _lockObj_Send;
+        private bool _disposed;
+
+        #region Event
+
+        public event Action<ProductInfo> ProductInfoReceived;
+        public event Action<int> StripNumberReceived;
+
+        // 검사랑 Image 저장 완료까지
+        public event Action<int> InspectionCompleted;
+        public event Action<bool> ConnectionChanged;
+
+        #endregion
+
+
 
         public devClientMain()
         {
-            _recvMsgList = new List<string>();
-            _sendMsgList = new List<E_SEND_CMD_MAIN>();
-
-            _recvData = new S_Recv_Data();
-            _sendData = new S_Send_Data();
-
-            _lockObj_Recv = new object();
-            _lockObj_Send = new object();
-
-            _taskProcess = new CustomThread(50, Thread_Process);
-            _taskReceive = new CustomThread(50, Thread_Receive);
+            _sendQueue = new ConcurrentQueue<MainPacket>();
+            _sendSignal = new AutoResetEvent(false);
+            _connectionLock = new object();
+            _lastPingTime = DateTime.MinValue;
+            _lastPongTime = DateTime.Now;
         }
+
+        public bool Connected
+        {
+            get { return _connected; }
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            Stop();
+
+            _sendSignal.Dispose();
+            _disposed = true;
+        }
+
+        #region Start / Stop
+
+        public void Start()
+        {
+            if (_running) return;
+
+            _running = true;
+
+            _connectionThread = new Thread(ConnectionThread);
+            _connectionThread.IsBackground = true;
+            _connectionThread.Name = "MainSW Connection";
+            _connectionThread.Start();
+
+            // 송신 Thread
+            _sendThread = new Thread(SendThread);
+            _sendThread.IsBackground = true;
+            _sendThread.Name = "MainSW Send";
+            _sendThread.Start();
+        }
+
+        public void Stop()
+        {
+            _running = false;
+            _sendSignal.Set();
+            DisconnectInternal();
+
+            JoinThread(_receiveThread);
+            JoinThread(_sendThread);
+            JoinThread(_connectionThread);
+        }
+
+        private static void JoinThread(Thread thread)
+        {
+            try
+            {
+                if(thread != null && thread.IsAlive)
+                    thread.Join(1000);
+            }
+            catch(Exception ex) { GLB.AddLog("COMMUNICATION", $"{ex.Message}", SeverityLevel.ERROR); }
+        }
+        #endregion
 
         #region Connect / Disconnect
 
+        private void ConnectionThread()
+        {
+            while(_running)
+            {
+                try
+                {
+                    if (!_connected)
+                        TryConnect();
+                    //else
+                    //    ProcessHeartbeat();
+                }
+                catch(Exception ex)
+                {
+                    GLB.AddLog("COMMUNICATION", $"Connection Thread Error : {ex.Message}", SeverityLevel.ERROR);
+
+                    DisconnectInternal();
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
+        private void TryConnect()
+        {
+            string ip = GLB.Setting.General.MachineIP;
+            int port = GLB.Setting.General.MachinePort;
+
+            try
+            {
+                TcpClient client = new TcpClient();
+
+                client.Connect(ip, port);
+
+                NetworkStream stream = client.GetStream();
+
+                lock(_connectionLock)
+                {
+                    _tcpClient = client;
+                    _networkStream = stream;
+                    _connected = true;
+                    _lastPongTime = DateTime.Now;
+                }
+
+                GLB.AddLog("COMMUNICATION", $"Main S/W Connected : {ip}, {port}", SeverityLevel.INFO);
+
+                ConnectionChanged?.Invoke(true);
+
+                StartReceiveThread();
+            }
+            catch(Exception ex)
+            {
+                GLB.AddLog("COMMUNICATION", $"Main S/W Connection Failed : {ip}, {port}, ex : {ex.Message}", SeverityLevel.ERROR);
+
+                DisconnectInternal();
+            }
+        }
+
+        private void StartReceiveThread()
+        {
+            if (_receiveThread != null && _receiveThread.IsAlive) return;
+
+            _receiveThread = new Thread(ReceiveThread);
+            _receiveThread.IsBackground = true;
+            _receiveThread.Name = "MainSW Receive";
+            _receiveThread.Start();
+        }
+
+        private void DisconnectInternal()
+        {
+            bool wasConnected = _connected;
+
+            lock(_connectionLock)
+            {
+                _connected = false;
+
+                try
+                {
+                    _networkStream?.Close();
+                }
+                catch { }
+
+                try
+                {
+                    _tcpClient?.Close();
+                }
+                catch { }
+
+                _networkStream = null;
+                _tcpClient = null;
+            }
+
+            if (wasConnected)
+            {
+                GLB.AddLog("COMMUNICATION", "Main S/W Disconnected", SeverityLevel.INFO);
+            }
+        }
+        #endregion
+
+        #region Receive
+
+        private void ReceiveThread()
+        {
+            try
+            {
+                while (_running && _connected)
+                {
+                    NetworkStream stream;
+                    lock (_connectionLock)
+                    {
+                        stream = _networkStream;
+                    }
+
+                    if (stream == null) break;
+
+                    MainPacket packet = PacketStreamHelper.ReadPacket(stream);
+
+                    if (packet == null) continue;
+
+                    ProcessPacket(packet);
+                }
+            }
+            catch (Exception ex) 
+            {
+                if(_running)
+                    GLB.AddLog("COMMUNICATION", $"{ex.Message}", SeverityLevel.ERROR);
+            }
+            finally
+            {
+                DisconnectInternal();
+            }
+        }
+
+        private void ProcessPacket(MainPacket packet)
+        {
+            if(packet == null) return;
+
+            GLB.AddLog("COMMUNICATION", $"[Main →AI] {packet.Command}", SeverityLevel.INFO);
+
+            switch(packet.Command)
+            {
+                case MainCommand.INSPECTION_INFO:
+                    ProductInfo info = ProductInfo.Deserialize(packet.Payload);
+                    ProductInfoReceived?.Invoke(info);
+
+                    Send(MainCommand.R_INSPECTION_INFO);
+                    break;
+
+                case MainCommand.STRIP_NUMBER:
+                    {
+                        int stripNumber = IntPayload.Deserialize(packet.Payload);
+                        StripNumberReceived?.Invoke(stripNumber);
+
+                        Send(MainCommand.R_STRIP_NUMBER, IntPayload.Serialize(stripNumber));
+                    }
+                    break;
+
+                case MainCommand.INSPECTION_DONE:
+                    {
+                        // 검사 완료 메세지 자체에  strip number를 포함하자
+                        int stripNumber = IntPayload.Deserialize(packet.Payload);
+                        InspectionCompleted?.Invoke(stripNumber);
+
+                        Send(MainCommand.R_INSPECTION_DONE, IntPayload.Serialize(stripNumber));
+                    }
+                    break;
+
+                case MainCommand.PING:
+                    {
+                        Send(MainCommand.PONG);
+                    }
+                    break;
+
+                case MainCommand.PONG:
+                    {
+                        _lastPongTime = DateTime.Now;
+                    }
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Send
+
+        public void Send(MainCommand command, byte[] payload = null)
+        {
+            if (!_running) return;
+
+            _sendQueue.Enqueue(new MainPacket(command, payload));
+            _sendSignal.Set();
+        }
+
+        public void SendInferenceDone(int stripNumber)
+        {
+            Send(MainCommand.INFERENCE_DONE, IntPayload.Serialize(stripNumber));
+        }
+
+        private void SendThread()
+        {
+            while (_running)
+            {
+                _sendSignal.WaitOne(500);
+
+                if (!_running) break;
+                if (!_connected) continue;
+
+                while (_sendQueue.TryDequeue(out MainPacket packet))
+                {
+                    try
+                    {
+                        NetworkStream stream;
+
+                        lock (_connectionLock)
+                        {
+                            stream = _networkStream;
+                        }
+
+                        if (stream == null) break;
+
+                        PacketStreamHelper.WritePacket(stream, packet);
+
+                        GLB.AddLog("COMMUNICATION", $"[AI → Main] {packet.Command}", SeverityLevel.INFO);
+                    }
+                    catch (Exception ex)
+                    {
+                        GLB.AddLog("COMMUNICATION", $"Send Error : {packet.Command}", SeverityLevel.ERROR);
+
+                        DisconnectInternal();
+
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        #endregion
+
+        #region Heartbeat
+
+        private void ProcessHeartbeat()
+        {
+            DateTime now = DateTime.Now;
+
+            // 5초마다 ping 날리기
+            if((now - _lastPingTime).TotalSeconds >= 5)
+            {
+                _lastPingTime = now;
+
+                Send(MainCommand.PING);
+            }
+
+            // 마지막 Pong 이후 30초 이상이면 이상한거로 판단하자
+            if((now- _lastPongTime).TotalSeconds >= 30)
+            {
+                GLB.AddLog("COMMUNICATION", "Main S/W Hearbeat Timeout", SeverityLevel.ERROR);
+
+                DisconnectInternal();
+            }
+        }
+
+        #endregion
+
+        #region Old
+        /*
         public void Connect()
         {
             string IP = GLB.Setting.General.MachineIP;
@@ -597,5 +933,8 @@ namespace HDSInspector_AI.Class.Devices
         }
 
         #endregion
+        */
+        #endregion
+
     }
 }

@@ -137,11 +137,11 @@ namespace HDSInspector_AI
                         }
                         else
                         {
-                            Logging("Connect.. !", SeverityLevel.INFO);
+                            Logging("Connect Main S/W... ", SeverityLevel.INFO);
 
                             try
                             {
-                                GLB.Client.Connect();
+                                GLB.Client.Start();
 
                                 SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                             }
