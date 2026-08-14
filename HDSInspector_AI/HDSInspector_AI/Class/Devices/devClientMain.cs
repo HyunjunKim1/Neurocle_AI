@@ -425,7 +425,7 @@ namespace HDSInspector_AI.Class.Devices
                     }
                     catch (Exception ex)
                     {
-                        GLB.AddLog("COMMUNICATION", $"Send Error : {packet.Command}", SeverityLevel.ERROR);
+                        GLB.AddLog("COMMUNICATION", $"Send Error : {packet.Command}, {ex.Message}", SeverityLevel.ERROR);
 
                         DisconnectInternal();
 
