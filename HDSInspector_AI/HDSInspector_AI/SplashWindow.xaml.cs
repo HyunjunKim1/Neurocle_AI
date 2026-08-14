@@ -95,20 +95,33 @@ namespace HDSInspector_AI
 
                     case 10:
                         Logging("Read Ini data", SeverityLevel.INFO);
-
-                        GLB.Setting.Load();
-
-                        Logging("Read Ini data - Success", SeverityLevel.INFO);
-
-                        SetImage(iBox_Init, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
-
-                        // Initialize Global Data
-                        // Log 기간 설정 및 삭제
-                        int nDeleteLogCount = Logger.CleanLog(GLB.Setting.General.LogKeepDate);
-                        if (nDeleteLogCount > 0)
+                        
+                        bool readIni = false;
+                        try
                         {
-                            string msg = $"최근에 기록된 {nDeleteLogCount}개의 로그 파일을 정리하였습니다.";
-                            Logging($"{msg}", SeverityLevel.INFO);
+                            readIni = GLB.Setting.Load();
+
+                            if (readIni)
+                            {
+                                Logging("Read Ini data - Success", SeverityLevel.INFO);
+
+                                SetImage(iBox_Init, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
+
+                                // Initialize Global Data
+                                // Log 기간 설정 및 삭제
+                                int nDeleteLogCount = Logger.CleanLog(GLB.Setting.General.LogKeepDate);
+                                if (nDeleteLogCount > 0)
+                                {
+                                    string msg = $"최근에 기록된 {nDeleteLogCount}개의 로그 파일을 정리하였습니다.";
+                                    Logging($"{msg}", SeverityLevel.INFO);
+                                }
+                            }
+
+                        }
+                        catch(Exception ex)
+                        {
+                            Logging($@"Ini read failed - {ex.Message}", SeverityLevel.ERROR);
+                            return;
                         }
                         break;
 

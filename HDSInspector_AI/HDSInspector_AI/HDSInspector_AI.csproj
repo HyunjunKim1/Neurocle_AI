@@ -105,8 +105,10 @@
     <Compile Include="Class\GlobalFunctions\ImageProcessing.cs" />
     <Compile Include="Class\Interface\IWindowService.cs" />
     <Compile Include="Class\Manager\DefectImageManager.cs" />
+    <Compile Include="Class\Manager\DefectJudgementEngine.cs" />
     <Compile Include="Class\Manager\DefectSpecManager.cs" />
     <Compile Include="Class\Manager\HardwareMonitorManager.cs" />
+    <Compile Include="Class\Manager\InferenceManager.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
     <Compile Include="Class\Models\InferenceResult\ClassificationResult.cs" />

@@ -1,12 +1,19 @@
-﻿using HDSInspector_AI.Class.Models;
+﻿using Common;
+using ControlzEx.Behaviors;
+using HDSInspector_AI.Class.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Manager
 {
+
+    /// <summary>   불량에 대한 Spec 정의    </summary>
+    /// <remarks>   hjkim, 2026-08-13.       </remarks>
+    
     public class DefectSpecManager
     {
         private readonly Dictionary<string, DefectSpec> _specs;
@@ -14,18 +21,11 @@ namespace HDSInspector_AI.Class.Manager
         public DefectSpecManager()
         {
             _specs = new Dictionary<string, DefectSpec>();
-
-            InitializeDefaultSpecs();
         }
 
         private string GetKey(InspectionCameraType cameraType, DefectClass defectClass)
         {
             return $"{cameraType}_{defectClass}";
-        }
-
-        private void Add(DefectSpec spec)
-        {
-            _specs[GetKey(spec.CameraType, spec.DefectClass)] = spec;
         }
 
         public DefectSpec GetSpec(InspectionCameraType cameraType, DefectClass defectClass)
@@ -37,156 +37,59 @@ namespace HDSInspector_AI.Class.Manager
             return null;
         }
 
-        // Spec 관리임. 이거 나중에 Ini 파일에서 읽어오도록 수정필요함
-        /* 수정필요 */
-        private void InitializeDefaultSpecs() 
+        public void LoadFromSetting()
         {
+            _specs.Clear();
 
-            // Top
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Top,
-                DefectClass = DefectClass.Particle,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                DirectJudgement = AIJudgement.OK,
-                Description = "상부 Particle 양품 처리"
-            });
+            AddFromSetting(InspectionCameraType.Top, DefectClass.Contamination, "TOP_CONTAMINANT");
+            AddFromSetting(InspectionCameraType.Top, DefectClass.Particle,      "TOP_PARTICLE");
+            AddFromSetting(InspectionCameraType.Top, DefectClass.UnderEtching,  "TOP_UNDERETCHING");
+            AddFromSetting(InspectionCameraType.Top, DefectClass.Flash,         "TOP_FLASH");
+            AddFromSetting(InspectionCameraType.Top, DefectClass.Void,          "TOP_VOID");
 
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Top,
-                DefectClass = DefectClass.UnderEtching,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                ThresholdUm = 40.0,
-                Description = "상부 미성형 40um 이상 NG"
-            });
+            AddFromSetting(InspectionCameraType.Bottom, DefectClass.Contamination,  "BOTTOM_CONTAMINANT");
+            AddFromSetting(InspectionCameraType.Bottom, DefectClass.Particle,       "BOTTOM_PARTICLE");
+            AddFromSetting(InspectionCameraType.Bottom, DefectClass.UnderEtching,   "BOTTOM_UNDERETCHING");
 
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Top,
-                DefectClass = DefectClass.Flash,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.OverFlowDistance,
-                ThresholdUm = 100.0,
-                Description = "Ag 도금 영역 기준 100um 이상 Flash NG"
-            });
+            AddFromSetting(InspectionCameraType.Trans, DefectClass.Particle,     "TRANS_PARTICLE");
+            AddFromSetting(InspectionCameraType.Trans, DefectClass.UnderEtching, "TRANS_UNDERETCHING");
+            AddFromSetting(InspectionCameraType.Trans, DefectClass.Punch,        "TRANS_PUNCH");
+
+        }
+
+        private void AddFromSetting(InspectionCameraType cameraType, DefectClass defectClass, string settingKey)
+        {
+            DefectSpecSettingItem setting = GLB.Setting.DefectSpec.Get(settingKey);
+
+            if (setting == null || !setting.Enable) return;
+
+            DefectJudgeMethod judgeMethod;
+            if (!System.Enum.TryParse(setting.JudgeMethod, true, out judgeMethod))
+                judgeMethod = DefectJudgeMethod.Direct;
+
+            AIJudgement directJudgement;
+            if (!System.Enum.TryParse(setting.DirectJudgement, true, out directJudgement))
+                directJudgement = AIJudgement.Unknown;
 
             Add(new DefectSpec
             {
-                CameraType = InspectionCameraType.Top,
-                DefectClass = DefectClass.Void,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                Description = "미도금 존재 시 NG"
+                CameraType = cameraType,
+                DefectClass = defectClass,
+                ClassificationThreshold = (float)setting.ClassificationThreshold,
+                ClassificationMargin = (float)setting.ClassificationMargin,
+                JudgeMethod = judgeMethod,
+                DirectJudgement = directJudgement,
+                ThresholdUm = setting.ThresholdUm,
             });
+        }
 
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Top,
-                DefectClass = DefectClass.Deformation,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.ReferenceDiffer,
-                ThresholdUm = 20.0,
-                Description = "REF 대비 20um 이상 변형 NG"
-            });
+        private void Add(DefectSpec spec)
+        {
+            if(spec == null) return;
 
-            // Bottom
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Bottom,
-                DefectClass = DefectClass.Particle,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                DirectJudgement = AIJudgement.OK,
-                Description = "하부 부유이물 양품 처리"
-            });
+            string key = GetKey(spec.CameraType, spec.DefectClass);
 
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Bottom,
-                DefectClass = DefectClass.Contamination,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Size,
-                ThresholdUm = 200.0,
-                Description = "하부 오염 200um 이상 NG"
-            });
-
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Bottom,
-                DefectClass = DefectClass.UnderEtching,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Size,
-                ThresholdUm = 40.0,
-                Description = "하부 미성형 40um 이상 NG"
-            });
-
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Bottom,
-                DefectClass = DefectClass.Deformation,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.ReferenceDiffer,
-                ThresholdUm = 20,
-                Description = "하부 변형 20um 이상 NG"
-            });
-
-
-            // Trans
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Trans,
-                DefectClass = DefectClass.Particle,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                DirectJudgement = AIJudgement.OK,
-                Description = "투과 부유이물 양품 처리"
-            });
-
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Trans,
-                DefectClass = DefectClass.UnderEtching,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Size,
-                ThresholdUm = 40.0,
-                Description = "투과 미성형 40um 이상 NG"
-            });
-
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Trans,
-                DefectClass = DefectClass.Deformation,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.ReferenceDiffer,
-                ThresholdUm = 20.0,
-                Description = "투과 변형 20um 이상 NG"
-            });
-
-            Add(new DefectSpec
-            {
-                CameraType = InspectionCameraType.Trans,
-                DefectClass = DefectClass.Punch,
-                ClassificationThreshold = 0.9f,
-                ClassificationMargin = 0.2f,
-                JudgeMethod = DefectJudgeMethod.Direct,
-                DirectJudgement = AIJudgement.NG,
-                Description = "투과 천공 존재 시 NG"
-            });
+            _specs[key] = spec;
         }
     }
 }

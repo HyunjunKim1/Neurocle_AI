@@ -29,4 +29,5 @@ namespace HDSInspector_AI.Class.Models
         // 추후 Recipe GUI 표시용
         public string Description { get; set; }
     }
+
 }

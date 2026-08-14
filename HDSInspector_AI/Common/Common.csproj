@@ -125,6 +125,7 @@
     <Compile Include="CommonPath.cs" />
     <Compile Include="ContextMenuHelper.cs" />
     <Compile Include="Converters.cs" />
+    <Compile Include="SettingDefectSpec.cs" />
     <Compile Include="DirectoryManager.cs" />
     <Compile Include="EquipInformation.cs" />
     <Compile Include="FileSupport.cs" />

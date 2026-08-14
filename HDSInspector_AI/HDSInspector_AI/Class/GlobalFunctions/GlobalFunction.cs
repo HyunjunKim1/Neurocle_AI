@@ -107,12 +107,15 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public WindowManager            Windows     = new WindowManager();
         public HardwareMonitorManager   Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
         public DefectImageManager       DefectImage = new DefectImageManager(@"E:\ImagePath");
+        public DefectSpecManager        DefectSpec  = new DefectSpecManager();
+        public InferenceManager         Inference   = new InferenceManager();
         //public CameraManager    Cameras     = new CameraManager();
 
         #endregion
 
         public void Dispose()
         {
+            //Inference?.Dispose();
             Hardware?.Dispose();
             Sequence?.Dispose();
             Client?.Dispose();

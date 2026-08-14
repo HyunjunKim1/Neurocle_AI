@@ -7,6 +7,8 @@ using System.IO;
 using System.Windows.Media.Media3D;
 using System.Security.Cryptography;
 using System.Runtime;
+using System.Xml.Schema;
+using System.Runtime.CompilerServices;
 
 namespace Common
 {
@@ -15,12 +17,18 @@ namespace Common
         private string m_Path = "";
         private string m_GeneralPath;
         private string m_DevicePath;
-        private string m_JobPath;
+
+        private string _neuroclePath;
+        private string _defectSpecPath;
 
         public string m_language_Path;
         
-        public Generals General;
-        public SubSystems SubSystem;
+        public Generals             General;
+        public SubSystems           SubSystem;
+        public Neurocles            Neurocle;
+        public DefectSpecSettings   DefectSpec;
+        public InferenceSettings    Inference;
+
 
         public Setting(string astrPath)
         {
@@ -28,8 +36,15 @@ namespace Common
             m_GeneralPath = m_Path + "\\Setting.ini";
             m_DevicePath = m_Path + "\\SubSystem.ini";
 
-            General = new Generals(m_GeneralPath);
-            SubSystem = new SubSystems(m_DevicePath);
+            _neuroclePath = "\\Neurocle.ini";
+            _defectSpecPath = "\\DefectSpec.ini";
+
+            General     = new Generals(m_GeneralPath);
+            SubSystem   = new SubSystems(m_DevicePath);
+
+            Neurocle    = new Neurocles(_neuroclePath);
+            Inference   = new InferenceSettings(_neuroclePath);
+            DefectSpec  = new DefectSpecSettings(_defectSpecPath);
         }
 
         public bool Exists()
@@ -38,47 +53,26 @@ namespace Common
             return false;
         }
 
-        public int Load()
+        public bool Load()
         {
-            int nRet = 0;
-            bool bCreate = false;
-            DateTime dt = DateTime.Now;
-            string dir = string.Format($"{m_Path}\\Setting_Backup\\{dt.Year.ToString()}-{dt.Month.ToString()}");
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-                bCreate = true;
-            }
+            bool ReadSucc = true;
 
-            if (!General.Load())
-            {
-                nRet += 1;
-            }
-            else
-            {
-                if (bCreate)
-                {
-                    File.Copy(m_DevicePath, dir + "\\SubSystem.ini");
-                }
-            }
-            if (!SubSystem.Load())
-            {
-                nRet += 2;
-            }
-            else
-            {
-                if (bCreate)
-                {
-                    File.Copy(m_GeneralPath, dir + "\\Setting.ini");
-                }
-            }
-            return nRet;
+            ReadSucc &= General.Load();
+            ReadSucc &= SubSystem.Load();
+            ReadSucc |= Neurocle.Load();
+            ReadSucc &= Inference.Load();
+            ReadSucc &= DefectSpec.Load();
+
+            return ReadSucc;
         }
 
         public void Save()
         {
             General.Save();
             SubSystem.Save();
+            Neurocle.Save();
+            Inference.Save(); 
+            DefectSpec.Save();
         }
 
         public void SettingConversion()
@@ -262,5 +256,268 @@ namespace Common
         public string ChannelType { get; set; } // 2,4,8,16,32, 총 채널 수
         public string Maker { get; set; } // 1,2,3,4,,,,
         public string BaudRate { get; set; } //9600, 116500...
+    }
+
+    public class Neurocles
+    {
+        private readonly string _path;
+
+        public int GpuIndex;
+        public NeurocleCameraSetting Top;
+        public NeurocleCameraSetting Bottom;
+        public NeurocleCameraSetting Trans;
+
+        public Neurocles(string path)
+        {
+            _path = path;
+
+            Top     = new NeurocleCameraSetting();
+            Bottom  = new NeurocleCameraSetting();
+            Trans   = new NeurocleCameraSetting();
+        }
+
+        public bool Load()
+        {
+            if (!File.Exists(_path))
+            {
+                using(FileStream fs = File.Create(_path)) { }
+
+                SetDefault();
+
+                Save();
+
+                return false;
+            }
+
+            IniFile ini = new IniFile(_path);
+
+            // Device
+            GpuIndex = ini.Read("DEVICE", "GpuIndex", 0);
+
+            LoadCamera(ini, "TOP", Top);
+            LoadCamera(ini, "BOTTOM", Bottom);
+            LoadCamera(ini, "TRANS", Trans);
+
+            return true;
+        }
+
+        private static void LoadCamera(IniFile ini, string section, NeurocleCameraSetting setting)
+        {
+            setting.ClassificationModelPath     = ini.Read(section, "ClassificationModel", "");
+            setting.ClassificationPredictorPath = ini.Read(section, "ClassificationPredictor", "");
+            setting.ClassificationBatchSize     = ini.Read(section, "ClassificationBatchSize", 64);
+
+            setting.SegmentationModelPath       = ini.Read(section, "SegmentationModel", "");
+            setting.SegmentationPredictorPath   = ini.Read(section, "SegmentationPredictor", "");
+            setting.SegmentationBatchSize       = ini.Read(section, "SegmentationBatchSize", 32);
+
+            setting.UseFP16 = ini.Read(section, "UseFP16", false);
+        }
+
+        public void Save()
+        {
+            IniFile ini = new IniFile(_path);
+
+            ini.Write("DEVICE", "GpuIndex", GpuIndex);
+
+            SaveCamera(ini, "TOP", Top);
+            SaveCamera(ini, "BOTTOM", Bottom);
+            SaveCamera(ini, "TRANS", Trans);
+        }
+
+        public static void SaveCamera(IniFile ini, string section, NeurocleCameraSetting setting)
+        {
+            // CLF
+            ini.Write(section, "ClassificationModel",     setting.ClassificationModelPath);
+            ini.Write(section, "ClassificationPredictor", setting.ClassificationPredictorPath);
+            ini.Write(section, "ClassificationBatchSize", setting.ClassificationBatchSize);
+
+            // SEG
+            ini.Write(section, "SegmentationModel",     setting.SegmentationModelPath);
+            ini.Write(section, "SegmentationPredictor", setting.SegmentationPredictorPath);
+            ini.Write(section, "SegmentationBatchSize", setting.SegmentationBatchSize);
+
+            ini.Write(section, "UseFP16", setting.UseFP16);
+        }
+
+        private void SetDefault()
+        {
+            GpuIndex = 0;
+            Top     = new NeurocleCameraSetting();
+            Bottom  = new NeurocleCameraSetting();
+            Trans   = new NeurocleCameraSetting();
+        }
+    }
+
+    public class NeurocleCameraSetting
+    {
+        public string ClassificationModelPath { get; set; }
+        public string ClassificationPredictorPath { get; set; }
+        public int ClassificationBatchSize { get; set; } = 64;
+
+        public string SegmentationModelPath { get; set; }
+        public string SegmentationPredictorPath { get; set; }
+        public int SegmentationBatchSize { get; set; } = 32;
+
+        public bool UseFP16 { get; set; }
+    }
+
+    public class InferenceSettings
+    {
+        private readonly string _path;
+
+        public double TopResolutionUmPerPixel;
+        public double BottomResolutionUmPerPixel;
+        public double TransResolutionUmPerPixel;
+
+        public InferenceSettings(string path) { _path = path; }
+
+        public bool Load()
+        {
+            if (!File.Exists(_path)) return false;
+
+            IniFile ini = new IniFile(_path);
+
+            TopResolutionUmPerPixel = ini.Read("INFERENCE", "TopResolutionUmPerPixel", 1.0);
+            BottomResolutionUmPerPixel = ini.Read("INFERENCE", "BottomResolutionUmPerPixel", 1.0);
+            TransResolutionUmPerPixel = ini.Read("INFERENCE", "TransResolutionUmPerPixel", 1.0);
+
+            return true;
+        }
+
+        public void Save()
+        {
+            IniFile ini = new IniFile(_path);
+
+            ini.Write("INFERENCE", "TopResolutionUmPerPixel", TopResolutionUmPerPixel);
+            ini.Write("INFERENCE", "BottomResolutionUmPerPixel", BottomResolutionUmPerPixel);
+            ini.Write("INFERENCE", "TransResolutionUmPerPixel", TransResolutionUmPerPixel);
+        }
+
+        public double GetResolution(string camera)
+        {
+            switch(camera.ToUpperInvariant())
+            {
+                case "TOP":
+                    return TopResolutionUmPerPixel;
+
+                case "BOTTOM":
+                    return BottomResolutionUmPerPixel;
+
+                case "TRANS":
+                    return TransResolutionUmPerPixel;
+
+                default:
+                    return 0.0;
+            }
+        }
+    }
+
+
+    public class DefectSpecSettings
+    {
+        private readonly string _path;
+        private readonly Dictionary<string, DefectSpecSettingItem> _items;
+
+        private static readonly string[] Sections =
+        {
+            "TOP_CONTAMINANT",
+            "TOP_PARTICLE",
+            "TOP_UNDERETCHING",
+            "TOP_FLASH",
+            "TOP_VOID",
+
+            "BOTTOM_CONTAMINANT",
+            "BOTTOM_PARTICLE",
+            "BOTTOM_UNDERETCHING",
+
+            "TRANS_PARTICLE",
+            "TRANS_UNDERETCHING",
+            "TRANS_PUNCH"
+        };
+
+        public DefectSpecSettings(string path)
+        {
+            _path = path;
+            _items = new Dictionary<string, DefectSpecSettingItem>();
+        }
+
+        public DefectSpecSettingItem Get(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return null;
+
+            DefectSpecSettingItem item;
+
+            if(_items.TryGetValue(key, out item)) return item;
+
+            return null;
+        }
+
+        public bool Load()
+        {
+            if (!File.Exists(_path))
+            {
+                using (FileStream fs = File.Create(_path)) { }
+
+                CreateDefaults();
+                Save();
+
+                return false;
+            }
+
+            IniFile ini = new IniFile(_path);
+
+            _items.Clear();
+
+            foreach(string section in Sections)
+            {
+                _items[section] = new DefectSpecSettingItem
+                {
+                    Enable = ini.Read(section, "Enable", true),
+                    ClassificationThreshold = ini.Read(section, "ClassificationThreshold", 0.90),
+                    ClassificationMargin = ini.Read(section, "ClassificationMargin", 0.20),
+                    JudgeMethod = ini.Read(section, "JudgeMethod", "Direct"),
+                    DirectJudgement = ini.Read(section, "DirectJudgement", "Unknown"),
+                    ThresholdUm = ini.Read(section, "ThresholdUm", 0.0)
+                };
+            }
+
+            return true;
+        }
+
+        public void Save()
+        {
+            IniFile ini = new IniFile(_path);
+
+            foreach(KeyValuePair<string, DefectSpecSettingItem> pair in _items)
+            {
+                DefectSpecSettingItem item = pair.Value;
+
+                ini.Write(pair.Key, "Enable", item.Enable);
+                ini.Write(pair.Key, "ClassificationThreshold", item.ClassificationThreshold);
+                ini.Write(pair.Key, "ClassificationMargin", item.ClassificationMargin);
+                ini.Write(pair.Key, "JudgeMethod", item.JudgeMethod);
+                ini.Write(pair.Key, "DirectJudgement", item.DirectJudgement);
+                ini.Write(pair.Key, "ThresholdUm", item.ThresholdUm);
+            }
+        }
+
+        private void CreateDefaults()
+        {
+            _items.Clear();
+
+            foreach(string section in Sections)
+            {
+                _items[section] = new DefectSpecSettingItem
+                {
+                    Enable = true,
+                    ClassificationThreshold = 0.90,
+                    ClassificationMargin = 0.20,
+                    JudgeMethod = "Direct",
+                    DirectJudgement = "Unknown",
+                    ThresholdUm = 0.0
+                };
+            }
+        }
     }
 }

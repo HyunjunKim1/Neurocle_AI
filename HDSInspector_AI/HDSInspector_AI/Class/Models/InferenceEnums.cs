@@ -24,7 +24,6 @@ namespace HDSInspector_AI.Class.Models
         UnderEtching,
         Flash,
         Void,
-        Deformation,
         Punch
     }
 
