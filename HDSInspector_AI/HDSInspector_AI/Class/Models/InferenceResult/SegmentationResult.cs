@@ -33,6 +33,9 @@ namespace HDSInspector_AI.Class.Models.InferenceResult
         public double HeightUm { get; set; }
         public double SizeUm { get; set; }
 
+        public double OverflowDistanceUm { get; set; }
+        public double ReferenceDifferenceUm { get; set; }
+
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
     }

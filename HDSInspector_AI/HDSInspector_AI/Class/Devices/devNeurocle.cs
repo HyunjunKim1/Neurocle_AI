@@ -106,17 +106,17 @@ namespace HDSInspector_AI.Class.Devices
         //    }
         //}
         //
-        //public void Dispose()
-        //{
-        //    if (_disposed) return;
-        //
-        //    // nrt wrapper가 IDisposable을 지원한다면 여기서 명시적으로 Dispose ㄱㄱ
-        //    _classificationPredictor = null;
-        //    _segmentationPredictor = null;
-        //    _device = null;
-        //    _disposed = true;
-        //
-        //}
+        public void Dispose()
+        {
+            //if (_disposed) return;
+            //
+            //// nrt wrapper가 IDisposable을 지원한다면 여기서 명시적으로 Dispose ㄱㄱ
+            //_classificationPredictor = null;
+            //_segmentationPredictor = null;
+            //_device = null;
+            //_disposed = true;
+        
+        }
         //
         ///// <summary>
         ///// Classification result output

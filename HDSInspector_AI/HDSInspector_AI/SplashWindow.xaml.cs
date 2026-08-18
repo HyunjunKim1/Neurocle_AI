@@ -101,10 +101,14 @@ namespace HDSInspector_AI
                         {
                             readIni = GLB.Setting.Load();
 
-                            if (readIni)
+                            if (!readIni)
                             {
-                                Logging("Read Ini data - Success", SeverityLevel.INFO);
+                                Logging("Read Ini data - Fail", SeverityLevel.ERROR);
 
+                                return;
+                            }
+                            else
+                            {
                                 SetImage(iBox_Init, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
 
                                 // Initialize Global Data
@@ -115,8 +119,11 @@ namespace HDSInspector_AI
                                     string msg = $"최근에 기록된 {nDeleteLogCount}개의 로그 파일을 정리하였습니다.";
                                     Logging($"{msg}", SeverityLevel.INFO);
                                 }
-                            }
+                                GLB.DefectSpec.LoadFromSetting();
 
+                                Logging("Read Ini data - Success", SeverityLevel.INFO);
+
+                            }
                         }
                         catch(Exception ex)
                         {

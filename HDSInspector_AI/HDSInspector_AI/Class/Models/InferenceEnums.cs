@@ -48,6 +48,6 @@ namespace HDSInspector_AI.Class.Models
         OverFlowDistance = 2,
 
         // REF, DEF 측정
-        ReferenceDiffer = 3
+        ReferenceDifference = 3
     }
 }

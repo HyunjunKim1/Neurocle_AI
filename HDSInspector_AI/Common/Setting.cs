@@ -36,8 +36,8 @@ namespace Common
             m_GeneralPath = m_Path + "\\Setting.ini";
             m_DevicePath = m_Path + "\\SubSystem.ini";
 
-            _neuroclePath = "\\Neurocle.ini";
-            _defectSpecPath = "\\DefectSpec.ini";
+            _neuroclePath = m_Path + "\\Neurocle.ini";
+            _defectSpecPath = m_Path + "\\DefectSpec.ini";
 
             General     = new Generals(m_GeneralPath);
             SubSystem   = new SubSystems(m_DevicePath);
@@ -59,7 +59,7 @@ namespace Common
 
             ReadSucc &= General.Load();
             ReadSucc &= SubSystem.Load();
-            ReadSucc |= Neurocle.Load();
+            ReadSucc &= Neurocle.Load();
             ReadSucc &= Inference.Load();
             ReadSucc &= DefectSpec.Load();
 

@@ -7,11 +7,28 @@ using System.Threading.Tasks;
 
 namespace HDSInspector_AI.Class.Manager
 {
-    public class InferenceManager
+    public class InferenceManager : IDisposable
     {
-        private devNeurocle _neurocle;
-        private DefectSpecManager _specManager;
-        private DefectJudgementEngine _judgeEngine;
+        private readonly devNeurocle _neurocle;
+        private readonly DefectSpecManager _specManager;
+        private readonly DefectJudgementEngine _judgeEngine;
+
+        public InferenceManager(DefectSpecManager specManager)
+        {
+            _specManager = specManager ?? throw new ArgumentNullException(nameof(specManager));
+            _judgeEngine = new DefectJudgementEngine();
+            _neurocle = new devNeurocle();
+        }
+
+        public devNeurocle Neurocle
+        {
+            get { return _neurocle; }
+        }
+
+        public void Dispose()
+        {
+            _neurocle?.Dispose();
+        }
 
         public void Process(/**/)
         {

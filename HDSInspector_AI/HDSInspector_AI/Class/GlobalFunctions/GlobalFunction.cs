@@ -108,8 +108,13 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public HardwareMonitorManager   Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
         public DefectImageManager       DefectImage = new DefectImageManager(@"E:\ImagePath");
         public DefectSpecManager        DefectSpec  = new DefectSpecManager();
-        public InferenceManager         Inference   = new InferenceManager();
+        public InferenceManager         Inference;
         //public CameraManager    Cameras     = new CameraManager();
+
+        private GlobalFunction()
+        {
+            Inference = new InferenceManager(DefectSpec);
+        }
 
         #endregion
 

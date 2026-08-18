@@ -2,6 +2,7 @@
 using HDSInspector_AI.Class.Models.InferenceResult;
 using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,14 +60,30 @@ namespace HDSInspector_AI.Class.Manager
 
                 case DefectJudgeMethod.Size:
                 case DefectJudgeMethod.OverFlowDistance:
-                case DefectJudgeMethod.ReferenceDiffer:
+                case DefectJudgeMethod.ReferenceDifference:
                     if(segmentation == null || !segmentation.Success)
                     {
                         result.Judgement = AIJudgement.Unknown;
                         result.JudgementReason = "Measurement failed";
                         break;
                     }
-                    result.SegmentationExcuted = true;
+                    result.SegmentationExecuted = true;
+
+                    switch (spec.JudgeMethod)
+                    {
+                        case DefectJudgeMethod.Size:
+                            result.MeasuredValueUm = segmentation.SizeUm;
+                            break;
+
+                        case DefectJudgeMethod.OverFlowDistance:
+                            result.MeasuredValueUm = segmentation.OverflowDistanceUm;
+                            break;
+
+                        case DefectJudgeMethod.ReferenceDifference:
+                            result.MeasuredValueUm = segmentation.ReferenceDifferenceUm;
+                            break;
+                    }
+
                     result.MeasuredValueUm = segmentation.SizeUm;
                     result.SpecValueUm = spec.ThresholdUm;
                     result.Judgement = segmentation.SizeUm >= spec.ThresholdUm ? AIJudgement.NG : AIJudgement.OK;

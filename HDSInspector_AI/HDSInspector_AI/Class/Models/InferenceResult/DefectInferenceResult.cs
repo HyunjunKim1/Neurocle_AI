@@ -16,7 +16,7 @@ namespace HDSInspector_AI.Class.Models.InferenceResult
 
         public float ClassificationProbability { get; set; }
         public float ClassificationMargin { get; set; }
-        public bool SegmentationExcuted { get; set; }
+        public bool SegmentationExecuted { get; set; }
 
         public double MeasuredValueUm { get; set; }
         public double SpecValueUm { get; set; }
