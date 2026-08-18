@@ -109,20 +109,17 @@
     <Compile Include="Class\Manager\DefectSpecManager.cs" />
     <Compile Include="Class\Manager\HardwareMonitorManager.cs" />
     <Compile Include="Class\Manager\InferenceManager.cs" />
+    <Compile Include="Class\Manager\InferenceStatisticsManager.cs" />
     <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
-    <Compile Include="Class\Models\InferenceResult\ClassificationResult.cs" />
+    <Compile Include="Class\Models\DefectSpecModel.cs" />
+    <Compile Include="Class\Models\InferenceConfigModel.cs" />
+    <Compile Include="Class\Models\InferenceModel.cs" />
     <Compile Include="Class\Models\DefectImageFileSet.cs" />
     <Compile Include="Class\Models\DefectImagePairItem.cs" />
-    <Compile Include="Class\Models\DefectSpec.cs" />
     <Compile Include="Class\Models\InferenceEnums.cs" />
-    <Compile Include="Class\Models\InferenceResult\DefectInferenceResult.cs" />
-    <Compile Include="Class\Models\InferenceResult\SegmentationResult.cs" />
-    <Compile Include="Class\Models\InferenceResult\StripInferenceResult.cs" />
     <Compile Include="Class\Models\InspectionInfo.cs" />
     <Compile Include="Class\Models\LogDisplayItem.cs" />
-    <Compile Include="Class\Models\NeurocleInferenceInput.cs" />
-    <Compile Include="Class\Models\NeurocleModelConfig.cs" />
     <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
       <DependentUpon>Uc_Histogram.xaml</DependentUpon>
     </Compile>
@@ -134,6 +131,12 @@
     </Compile>
     <Compile Include="GUI\UserControls\Main\GridRight\SubUc_DefectPairPanel.xaml.cs">
       <DependentUpon>SubUc_DefectPairPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\Main\GridRight\SubUc_InferenceCameraPanel.xaml.cs">
+      <DependentUpon>SubUc_InferenceCameraPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\UserControls\Main\GridRight\SubUc_InferenceImageTile.xaml.cs">
+      <DependentUpon>SubUc_InferenceImageTile.xaml</DependentUpon>
     </Compile>
     <Compile Include="GUI\UserControls\Main\GridRight\Uc_Result.xaml.cs">
       <DependentUpon>Uc_Result.xaml</DependentUpon>
@@ -175,6 +178,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GUI\UserControls\Main\GridRight\SubUc_DefectPairPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\Main\GridRight\SubUc_InferenceCameraPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="GUI\UserControls\Main\GridRight\SubUc_InferenceImageTile.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,7 +1,6 @@
 ﻿using Common;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.Models;
-using HDSInspector_AI.Class.Models.InferenceResult;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +10,18 @@ using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Manager
 {
+
+    /// <summary>   추론관련 Process 및 Sequence 관리    </summary>
+    /// <remarks>   hjkim, 2026-08-13.                   </remarks>
+
     public class InferenceManager : IDisposable
     {
         private devNeurocle _neurocle;
         private readonly DefectSpecManager _specManager;
         private readonly DefectJudgementEngine _judgeEngine;
+
+        public event Action<InferenceImageDisplayItem> InferenceImageReady;
+        public event Action<StripInferenceResult> StripInferenceCompleted;
 
         public InferenceManager(DefectSpecManager specManager)
         {
@@ -194,8 +200,33 @@ namespace HDSInspector_AI.Class.Manager
             /*
              * 6. Spec 판정
              */
-            return _judgeEngine.Judge(classification, segmentation, spec);
+            DefectInferenceResult result =  _judgeEngine.Judge(classification, segmentation, spec);
 
+            // UI에 띄우기
+            RaiseInferenceImage(input, result);
+
+            return result;
+        }
+
+        private void RaiseInferenceImage(NeurocleInferenceInput input, DefectInferenceResult result)
+        {
+            if (input == null || result == null)
+                return;
+
+            InferenceImageDisplayItem item = new InferenceImageDisplayItem
+            {
+                StripNumber = result.StripNumber,
+                CameraType = result.CameraType,
+                DefectIndex = result.DefectIndex,
+                DefectClass = result.DefectClass,
+                ClassName = result.ClassName,
+                Judgement = result.Judgement,
+                Probability = result.ClassificationProbability,
+                MeasuredValueUm = result.MeasuredValueUm,
+                DefectImage = input.DefectImage
+            };
+
+            InferenceImageReady?.Invoke(item);
         }
     }
 }

@@ -78,8 +78,9 @@ namespace HDSInspector_AI
             };
 
             bool success = GLB.DefectImage.SetInfo(info);
-
             if (!success) GLB.AddLog("MAIN", $"{GLB.DefectImage.LastError}", SeverityLevel.ERROR);
+
+            GLB.InferenceStatistics.SetInspectionInfo(info);
         }
 
         private void Client_StripNumberReceived(int stripNumber)

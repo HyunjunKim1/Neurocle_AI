@@ -28,25 +28,46 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
         public Uc_Result()
         {
             InitializeComponent();
+
+            Loaded += Uc_Result_Loaded;
+            Unloaded += Uc_Result_Unloaded;
+        }
+
+        private void Uc_Result_Loaded(object sender, RoutedEventArgs e)
+        {
+            GLB.InferenceStatistics.StatisticsChanged -= Statistics_Changed;
+            GLB.InferenceStatistics.StatisticsChanged += Statistics_Changed;
+        }
+
+        private void Uc_Result_Unloaded(object sender, RoutedEventArgs e)
+        {
+            GLB.InferenceStatistics.StatisticsChanged -= Statistics_Changed;
         }
 
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void Statistics_Changed(InferenceStatistics statistics)
         {
-            GLB.Windows.Review.Dispatcher.Invoke(new Action(() =>
+            if(!Dispatcher.CheckAccess())
             {
-                if (GLB.Windows.Review.Visibility == Visibility.Visible)
-                    GLB.Windows.Review.Visibility = Visibility.Hidden;
-                else
-                {
-                    GLB.Windows.Review.Topmost = true;
-                    GLB.Windows.Review.ShowInTaskbar = true;
-                    GLB.Windows.Review.Visibility = Visibility.Visible;
-                    GLB.Windows.Review.WindowState = WindowState.Normal;
+                Dispatcher.BeginInvoke(new Action(() => Statistics_Changed(statistics)));
 
-                    GLB.Windows.Review.Topmost = false;
-                }
-            }));
+                return;
+            }
+
+            if (statistics == null) return;
+
+            tbkProductOrder.Text = $"{statistics.ProductName} / {statistics.OrderNumber}";
+            tbkStripNumber.Text = statistics.CurrentStipNumber > 0 ? $"{statistics.CurrentStipNumber:D6}" : "[------]";
+
+            // Current Strip
+            tbkStripOK.Text = statistics.StripOKCount.ToString();
+            tbkStripNG.Text = statistics.StripNGCount.ToString();
+            tbkStripUnknown.Text = statistics.StripUnknownCount.ToString();
+
+            // Product / Order Total
+            tbkTotalOK.Text = statistics.TotalOKCount.ToString();
+            tbkTotalNG.Text = statistics.TotalNGCount.ToString();
+            tbkTotalUnknown.Text = statistics.TotalUnknownCount.ToString();
         }
     }
 }

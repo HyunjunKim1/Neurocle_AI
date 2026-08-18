@@ -1,5 +1,4 @@
 ﻿using HDSInspector_AI.Class.Models;
-using HDSInspector_AI.Class.Models.InferenceResult;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;

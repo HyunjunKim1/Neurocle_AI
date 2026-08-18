@@ -1,6 +1,5 @@
 ﻿using ControlzEx.Behaviors;
 using HDSInspector_AI.Class.Models;
-using HDSInspector_AI.Class.Models.InferenceResult;
 using HDSInspector_AI.GUI.Windows.Popup;
 using nrt;
 using OpenCvSharp;

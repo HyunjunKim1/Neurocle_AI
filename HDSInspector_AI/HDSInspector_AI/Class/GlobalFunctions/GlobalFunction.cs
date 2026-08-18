@@ -46,7 +46,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
     public class GlobalFunction : IDisposable
     {
-        private static readonly Lazy<GlobalFunction> _instance = new Lazy<GlobalFunction>();
+        private static readonly Lazy<GlobalFunction> _instance = new Lazy<GlobalFunction>(() => new GlobalFunction());
         public static GlobalFunction GLB => _instance.Value;
 
         #region Events
@@ -103,12 +103,13 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public devClientMain    Client      = new devClientMain();
 
         // Class Manager
-        public SequenceManager          Sequence    = new SequenceManager();
-        public WindowManager            Windows     = new WindowManager();
-        public HardwareMonitorManager   Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
-        public DefectImageManager       DefectImage = new DefectImageManager(@"E:\ImagePath");
-        public DefectSpecManager        DefectSpec  = new DefectSpecManager();
-        public InferenceManager         Inference;
+        public SequenceManager              Sequence    = new SequenceManager();
+        public WindowManager                Windows     = new WindowManager();
+        public HardwareMonitorManager       Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
+        public DefectImageManager           DefectImage = new DefectImageManager(@"E:\ImagePath");
+        public DefectSpecManager            DefectSpec  = new DefectSpecManager();
+        public InferenceStatisticsManager   InferenceStatistics = new InferenceStatisticsManager();
+        public InferenceManager             Inference;
         //public CameraManager    Cameras     = new CameraManager();
 
         private GlobalFunction()
@@ -120,7 +121,8 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
         public void Dispose()
         {
-            //Inference?.Dispose();
+            Inference?.Dispose();
+
             Hardware?.Dispose();
             Sequence?.Dispose();
             Client?.Dispose();

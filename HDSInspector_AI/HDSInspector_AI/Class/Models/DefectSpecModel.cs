@@ -21,7 +21,7 @@ namespace HDSInspector_AI.Class.Models
         public DefectJudgeMethod JudgeMethod { get; set; }
 
         // Direct 방식일때 최종 판정
-        public AIJudgement DirectJudgement {  get; set; }
+        public AIJudgement DirectJudgement { get; set; }
 
         // Size / Distance / Difference 기준
         public double ThresholdUm { get; set; }
@@ -29,5 +29,4 @@ namespace HDSInspector_AI.Class.Models
         // 추후 Recipe GUI 표시용
         public string Description { get; set; }
     }
-
 }
