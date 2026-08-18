@@ -59,7 +59,7 @@ namespace HDSInspector_AI.Class.Manager
                     break;
 
                 case DefectJudgeMethod.Size:
-                case DefectJudgeMethod.OverFlowDistance:
+                case DefectJudgeMethod.OverflowDistance:
                 case DefectJudgeMethod.ReferenceDifference:
                     if(segmentation == null || !segmentation.Success)
                     {
@@ -75,7 +75,7 @@ namespace HDSInspector_AI.Class.Manager
                             result.MeasuredValueUm = segmentation.SizeUm;
                             break;
 
-                        case DefectJudgeMethod.OverFlowDistance:
+                        case DefectJudgeMethod.OverflowDistance:
                             result.MeasuredValueUm = segmentation.OverflowDistanceUm;
                             break;
 
@@ -84,10 +84,9 @@ namespace HDSInspector_AI.Class.Manager
                             break;
                     }
 
-                    result.MeasuredValueUm = segmentation.SizeUm;
                     result.SpecValueUm = spec.ThresholdUm;
-                    result.Judgement = segmentation.SizeUm >= spec.ThresholdUm ? AIJudgement.NG : AIJudgement.OK;
-                    result.JudgementReason = $"Measured = {segmentation.SizeUm:F1}um / Spec = {spec.ThresholdUm:F1}um";
+                    result.Judgement = result.MeasuredValueUm >= spec.ThresholdUm ? AIJudgement.NG : AIJudgement.OK;
+                    result.JudgementReason = $"Measured = {result.MeasuredValueUm:F1}um / Spec = {spec.ThresholdUm:F1}um";
                     break;
             }
 

@@ -1,9 +1,11 @@
 ﻿using ControlzEx.Behaviors;
+using HDSInspector_AI.Class.Models;
 using HDSInspector_AI.GUI.Windows.Popup;
 using nrt;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,8 +16,9 @@ namespace HDSInspector_AI.Class.Devices
 {
     /// <summary>   Easy for use neuro-r functions. </summary>
     /// <remarks>   hjkim, 2026-03-26.              </remarks>
-    public class devNeurocle// : IDisposable
+    public class devNeurocle : IDisposable
     {
+        #region Old
         //// GPU
         //private Device _device;
         //
@@ -106,17 +109,17 @@ namespace HDSInspector_AI.Class.Devices
         //    }
         //}
         //
-        public void Dispose()
-        {
-            //if (_disposed) return;
-            //
-            //// nrt wrapper가 IDisposable을 지원한다면 여기서 명시적으로 Dispose ㄱㄱ
-            //_classificationPredictor = null;
-            //_segmentationPredictor = null;
-            //_device = null;
-            //_disposed = true;
-        
-        }
+        //public void Dispose()
+        //{
+        //    if (_disposed) return;
+        //    
+        //    // nrt wrapper가 IDisposable을 지원한다면 여기서 명시적으로 Dispose ㄱㄱ
+        //    _classificationPredictor = null;
+        //    _segmentationPredictor = null;
+        //    _device = null;
+        //    _disposed = true;
+        //
+        //}
         //
         ///// <summary>
         ///// Classification result output
@@ -276,6 +279,273 @@ namespace HDSInspector_AI.Class.Devices
         //
         //}
         //#endregion
+        #endregion
+
+        /*
+         * << devNeurocle 수행 역할 >>
+         *  1. GPU Device 초기화
+         *  2. 상부 CLF predictor, SEG predictor
+         *  3. 하부 CLF predictor, SEG predictor 
+         *  4. 투과 CLF predictor, SEG predictor
+         *  
+         *  여기선 OK/NG 판단 안함
+         *  Spec 비교 안함
+         *  단순히 NRT 실행과 AI 결과만 반환시킴
+         */
+
+        /*
+         *  INI → Config → GPU → 상부 / 하부 / 투과 Predictor → 프로그램 종료하기 전까지 재사용 하는 Sequence
+         */
+        private readonly object _inferenceLock = new object();
+        private readonly int _deviceIndex;
+        private Device _device;
+
+        // CLF
+        private Predictor _topClassifier;
+        private Predictor _bottomClassifier;
+        private Predictor _transClassifier;
+
+        // SEG
+        private Predictor _topSegmenter;
+        private Predictor _bottomSegmenter;
+        private Predictor _transSegmenter;
+
+        private bool _disposed;
+
+        public bool IsInitialized { get; private set; }
+        public string LastError { get; private set; }
+
+        public devNeurocle(int deviceIndex)
+        {
+            _deviceIndex = deviceIndex;
+        }
+
+        #region Initialize
+
+        public bool Initialize(IEnumerable<NeurocleModelConfig> configs)
+        {
+            LastError = null;
+
+            try
+            {
+                ReleaseAll();
+
+                _device = Device.get_gpu_device(_deviceIndex);
+
+                if (_device == null)
+                {
+                    LastError = "GPU Device 초기화 실패.";
+
+                    return false;
+                }
+                if (configs == null)
+                {
+                    LastError = "Neurocle Model Config가 없습니다.";
+
+                    return false;
+                }
+
+                foreach (NeurocleModelConfig config in configs)
+                {
+                    if (config == null) continue;
+
+                    Predictor classifier = CreatePredictor(config.ClassificationModelPath, config.ClassificationPredictorPath, config.ClassificationBatchSize, config.UseFP16, Model.MODELIO_OUT_CAM);
+                    Predictor segmenter = CreatePredictor(config.SegmentationModelPath, config.SegmentationPredictorPath, config.SegmentationBatchSize, config.UseFP16, Model.MODELIO_OUT_CAM);
+
+                    SetClassifier(config.CameraType, classifier);
+                    SetSegmenter(config.CameraType, segmenter);
+
+                    if (_topClassifier == null || _bottomClassifier == null || _transClassifier == null)
+                    {
+                        LastError = "Classification Predictor가 모두 준비되지 않았습니다.";
+
+                        ReleaseAll();
+
+                        return false;
+                    }
+                }
+                IsInitialized = true;
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LastError = $"Neurocle 초기화 오류 : {ex.Message}";
+
+                return false;
+            }
+        }
+
+        private Predictor CreatePredictor(string modelPath, string predictorPath, int batchSize, bool useFP16, int outputType)
+        {
+            Predictor predictor = null;
+
+            // 기존 최적화 Predictor 우선으로 함
+            if (!string.IsNullOrWhiteSpace(predictorPath) && File.Exists(predictorPath))
+            {
+                predictor = new Predictor(_device.id, predictorPath, false);
+
+
+                if (predictor.get_status() == Status.STATUS_SUCCESS) return predictor;
+
+                predictor.Dispose();
+                predictor = null;
+            }
+
+            // Predictor가 없으면 .net으로 대체
+            if (string.IsNullOrWhiteSpace(modelPath) || !File.Exists(modelPath)) { return null; }
+
+            predictor = new Predictor(modelPath, outputType, _device.id, batch_size: batchSize, fp16_flag: useFP16, threshold_flag: false, DevType.DEVICE_CUDA_GPU);
+
+            if (predictor.get_status() != Status.STATUS_SUCCESS)
+            {
+                string error = nrt.nrt.get_last_error_msg();
+
+                predictor.Dispose();
+                throw new Exception(error);
+            }
+
+            // 최초 생성된 Predictor 저장
+            if (!string.IsNullOrWhiteSpace(predictorPath))
+            {
+                string directory = Path.GetDirectoryName(predictorPath);
+
+                if (!string.IsNullOrWhiteSpace(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                predictor.save_predictor(predictorPath);
+            }
+
+            return predictor;
+        }
+        #endregion
+
+        #region Predictor
+
+        private void SetClassifier(InspectionCameraType cameraType, Predictor predictor)
+        {
+            switch (cameraType)
+            {
+                case InspectionCameraType.Top:
+                    _topClassifier = predictor;
+                    break;
+
+                case InspectionCameraType.Bottom:
+                    _bottomClassifier = predictor;
+                    break;
+
+                case InspectionCameraType.Trans:
+                    _transClassifier = predictor;
+                    break;
+            }
+        }
+
+        private void SetSegmenter(InspectionCameraType cameraType, Predictor predictor)
+        {
+            switch (cameraType)
+            {
+                case InspectionCameraType.Top:
+                    _topSegmenter = predictor;
+                    break;
+
+                case InspectionCameraType.Bottom:
+                    _bottomSegmenter = predictor;
+                    break;
+
+                case InspectionCameraType.Trans:
+                    _transSegmenter = predictor;
+                    break;
+            }
+        }
+
+        private Predictor GetClassifier(InspectionCameraType cameraType)
+        {
+            switch (cameraType)
+            {
+                case InspectionCameraType.Top:
+                    return _topClassifier;
+
+                case InspectionCameraType.Bottom:
+                    return _bottomClassifier;
+
+                case InspectionCameraType.Trans:
+                    return _transClassifier;
+
+                default:
+                    return null;
+            }
+        }
+
+        private Predictor GetSegmenter(InspectionCameraType cameraType) 
+        {
+            switch (cameraType)
+            {
+                case InspectionCameraType.Top:
+                    return _topSegmenter;
+
+                case InspectionCameraType.Bottom:
+                    return _bottomSegmenter;
+
+                case InspectionCameraType.Trans:
+                    return _transSegmenter;
+
+                default:
+                    return null;
+            }
+        }
+        #endregion
+
+        #region Release
+
+        private void ReleaseAll()
+        {
+            ReleasePredictor(ref _topClassifier);
+            ReleasePredictor(ref _bottomClassifier);
+            ReleasePredictor(ref _transClassifier);
+
+            ReleasePredictor(ref _topSegmenter);
+            ReleasePredictor(ref _bottomSegmenter);
+            ReleasePredictor(ref _transSegmenter);
+
+            _device = null;
+
+            IsInitialized = false;
+        }
+
+        private static void ReleasePredictor(ref Predictor predictor) 
+        {
+            if (predictor == null) return;
+
+            try
+            {
+                predictor.destroy();
+            }
+            catch { }
+
+            try
+            {
+                predictor.Dispose();
+            }
+            catch { }
+
+            predictor = null;
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            lock(_inferenceLock)
+            {
+                ReleaseAll();
+
+                _disposed = true;
+            }
+        }
+
+        #endregion
     }
 
 }

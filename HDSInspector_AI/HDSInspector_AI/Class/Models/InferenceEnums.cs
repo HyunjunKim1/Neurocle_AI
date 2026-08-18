@@ -45,7 +45,7 @@ namespace HDSInspector_AI.Class.Models
         Size = 1,
 
         // 정상 영역으로부터 벗어난 거리 측정
-        OverFlowDistance = 2,
+        OverflowDistance = 2,
 
         // REF, DEF 측정
         ReferenceDifference = 3

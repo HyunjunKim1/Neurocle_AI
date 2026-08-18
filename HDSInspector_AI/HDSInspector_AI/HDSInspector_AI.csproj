@@ -121,6 +121,8 @@
     <Compile Include="Class\Models\InferenceResult\StripInferenceResult.cs" />
     <Compile Include="Class\Models\InspectionInfo.cs" />
     <Compile Include="Class\Models\LogDisplayItem.cs" />
+    <Compile Include="Class\Models\NeurocleInferenceInput.cs" />
+    <Compile Include="Class\Models\NeurocleModelConfig.cs" />
     <Compile Include="GUI\UserControls\ImageReivew\Uc_Histogram.xaml.cs">
       <DependentUpon>Uc_Histogram.xaml</DependentUpon>
     </Compile>

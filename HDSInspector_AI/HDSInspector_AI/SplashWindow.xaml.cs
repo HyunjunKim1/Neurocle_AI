@@ -210,11 +210,18 @@ namespace HDSInspector_AI
 
                             try
                             {
+                                bool neurocleSuccess = GLB.Inference.InitializeNeurocle();
+
+                                if (!neurocleSuccess)
+                                {
+                                    Logging($"Neurocle Initialize Failed : {GLB.Inference.Neurocle?.LastError}", SeverityLevel.ERROR);
+                                }
+                                Logging($"Neurocle Initialize Success !", SeverityLevel.INFO);
                                 SetImage(iBox_Func, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                             }
                             catch (Exception ex)
                             {
-                                Logging($@"Fail initialized necessary functions.. - {ex.Message}", SeverityLevel.ERROR);
+                                Logging($"Neurocle Initialize Failed : {GLB.Inference.Neurocle?.LastError}, {ex.Message}", SeverityLevel.ERROR);
                                 return;
                             }
                         }
