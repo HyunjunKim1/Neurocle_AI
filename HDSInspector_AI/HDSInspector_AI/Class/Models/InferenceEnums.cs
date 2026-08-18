@@ -15,12 +15,16 @@ namespace HDSInspector_AI.Class.Models
     }
 
     // AI 분류 Class
+    /* 상부 5종 (오염, Particle, 미성형, Flash, 미도금)
+     * 하부 3종 (오염, Particle, 미성형)
+     * 투과 3종 (Particle, 미성형, 천공)
+     */
     public enum DefectClass
     {
         Unknown = 0,
 
         Particle,
-        Contamination,
+        Contaminant,
         UnderEtching,
         Flash,
         Void,

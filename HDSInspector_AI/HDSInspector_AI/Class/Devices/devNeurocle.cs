@@ -1,5 +1,6 @@
 ﻿using ControlzEx.Behaviors;
 using HDSInspector_AI.Class.Models;
+using HDSInspector_AI.Class.Models.InferenceResult;
 using HDSInspector_AI.GUI.Windows.Popup;
 using nrt;
 using OpenCvSharp;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
+using System.Windows.Media.Imaging;
 using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 
 namespace HDSInspector_AI.Class.Devices
@@ -350,20 +352,21 @@ namespace HDSInspector_AI.Class.Devices
                     if (config == null) continue;
 
                     Predictor classifier = CreatePredictor(config.ClassificationModelPath, config.ClassificationPredictorPath, config.ClassificationBatchSize, config.UseFP16, Model.MODELIO_OUT_CAM);
-                    Predictor segmenter = CreatePredictor(config.SegmentationModelPath, config.SegmentationPredictorPath, config.SegmentationBatchSize, config.UseFP16, Model.MODELIO_OUT_CAM);
+                    Predictor segmenter = CreatePredictor(config.SegmentationModelPath, config.SegmentationPredictorPath, config.SegmentationBatchSize, config.UseFP16, Model.MODELIO_OUT_PRED);
 
                     SetClassifier(config.CameraType, classifier);
                     SetSegmenter(config.CameraType, segmenter);
-
-                    if (_topClassifier == null || _bottomClassifier == null || _transClassifier == null)
-                    {
-                        LastError = "Classification Predictor가 모두 준비되지 않았습니다.";
-
-                        ReleaseAll();
-
-                        return false;
-                    }
                 }
+
+                if (_topClassifier == null || _bottomClassifier == null || _transClassifier == null)
+                {
+                    LastError = "Classification Predictor가 모두 준비되지 않았습니다.";
+
+                    ReleaseAll();
+
+                    return false;
+                }
+
                 IsInitialized = true;
 
                 return true;
@@ -495,6 +498,327 @@ namespace HDSInspector_AI.Class.Devices
                     return null;
             }
         }
+        #endregion
+
+        #region Classification
+
+        /// <summary>
+        /// Classification 수행
+        /// 260818_hjkim
+        /// </summary>
+        /// <param name="inferenceInput"></param>
+        /// <param name="classificationResult"></param>
+        /// <returns></returns>
+        public bool Classification(NeurocleInferenceInput inferenceInput, out ClassificationResult classificationResult)
+        {
+            classificationResult = null;
+            LastError = null;
+
+            if(!IsInitialized)
+            {
+                LastError = "Neurocle이 초기화 되지 않았습니다.";
+                return false;
+            }
+
+            if(inferenceInput == null || inferenceInput.DefectImage == null)
+            {
+                LastError = "Classification Input Image가 없습니다.";
+
+                return false;
+            }
+
+            Predictor predictor = GetClassifier(inferenceInput.CameraType);
+
+            if(predictor == null)
+            {
+                LastError = $"Classification Predictor가 없습니다 : {inferenceInput.CameraType}";
+
+                return false;
+            }
+
+            lock (_inferenceLock)
+            {
+                string tempPath = null;
+                Input input = null;
+                Result result = null;
+
+                try
+                {
+                    /*
+                     * 우선 툴 개발 단계에서는 
+                     * BitmapSource → Temp PNG → NRT Input 이렇게하자.
+                     * 
+                     * 나중에 Memory direct Input으로 변경해야함. 
+                     * 뭐 이런거 테스트도 Neuro-R을 사고 난 뒤에 해야겠지만
+                     */
+
+                    tempPath = SaveTemporaryImage(inferenceInput.DefectImage);
+
+                    input = new Input(tempPath, 3);
+                    result = predictor.predict(input);
+
+                    if (result == null || result.get_status() != Status.STATUS_SUCCESS)
+                    {
+                        LastError = $"Classification Predict 실패 : {nrt.nrt.get_last_error_msg()}";
+
+                        return false;
+                    }
+
+                    if (result.classes == null || result.classes.get_count() <= 0)
+                    {
+                        LastError = "Classification 결과가 없습니다.";
+
+                        return false;
+                    }
+
+                    nrt.Class topClass = result.classes.get(0);
+                    int top1ClassIndex = topClass.idx;
+                    float top1Probability = result.probs.get(0, top1ClassIndex);
+                    int classCount = predictor.get_num_classes();
+                    float top2Probability = 0.0f;
+
+                    for (int classIndex = 0; classIndex < classCount; classIndex++)
+                    {
+                        if (classIndex == top1ClassIndex) continue;
+                        float probability = result.probs.get(0, classIndex);
+
+                        if (probability > top2Probability)
+                            top2Probability = probability;
+                    }
+                    string className = predictor.get_class_name(top1ClassIndex);
+
+                    classificationResult = new ClassificationResult
+                    {
+                        StripNumber = inferenceInput.StripNumber,
+                        CameraType = inferenceInput.CameraType,
+                        DefectIndex = inferenceInput.DefectIndex,
+                        ClassIndex = top1ClassIndex,
+                        ClassName = className,
+                        DefectClass = ConvertDefectClass(className),
+                        Top1Probability = top1Probability,
+                        Top2Probability = top2Probability,
+                        Success = true
+                    };
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    LastError = $"Classification Exception : {ex.Message}";
+
+                    return false;
+                }
+                finally
+                {
+                    result?.Dispose();
+                    input?.Dispose();
+                    DeleteTemporaryFile(tempPath);
+                }
+            }
+        }
+
+        private static DefectClass ConvertDefectClass(string className)
+        {
+            if (string.IsNullOrWhiteSpace(className)) return DefectClass.Unknown;
+
+            string name = className.Trim().ToLowerInvariant();
+
+            switch(name)
+            {
+                case "particle":
+                    return DefectClass.Particle;
+
+                case "contatminant":
+                case "오염":
+                    return DefectClass.Contaminant;
+
+                case "underetching":
+                case "미성형":
+                    return DefectClass.UnderEtching;
+
+                case "flash":
+                    return DefectClass.Flash;
+
+                case "void":
+                case "미도금":
+                    return DefectClass.Void;
+
+                case "punch":
+                case "천공":
+                    return DefectClass.Punch;
+
+                default:
+                    return DefectClass.Unknown;
+
+            }
+        }
+
+        #endregion
+
+        #region Segmentation
+
+        /// <summary>
+        /// Segmentation 동작 구현
+        /// 260818_hjkim
+        /// </summary>
+        /// <param name="inferenceInput"></param>
+        /// <param name="defectClass"></param>
+        /// <param name="resolutionUmPerPixel"></param>
+        /// <param name="segmentationResult"></param>
+        /// <returns></returns>
+        public bool Segmentation(NeurocleInferenceInput inferenceInput, DefectClass defectClass, double resolutionUmPerPixel, out SegmentationResult segmentationResult)
+        {
+            segmentationResult = null;
+            LastError = null;
+
+            if (!IsInitialized)
+            {
+                LastError = "Neurocle이 초기화 되지 않았습니다.";
+
+                return false;
+            }
+            if(inferenceInput == null || inferenceInput.DefectImage == null)
+            {
+                LastError = $"Segmentation Input Image가 없습니다.";
+
+                return false;
+            }
+
+            Predictor predictor = GetSegmenter(inferenceInput.CameraType);
+
+            if (predictor == null)
+            {
+                LastError = $"Segmentation Predictor가 없습니다 : {inferenceInput.CameraType}";
+
+                return false;
+            }
+
+            lock (_inferenceLock)
+            {
+                string tempPath = null;
+                Input input = null;
+                Result result = null;
+
+                try
+                {
+                    tempPath = SaveTemporaryImage(inferenceInput.DefectImage);
+                    input = new Input(tempPath, 3);
+                    result = predictor.predict(input);
+
+                    if (result == null || result.get_status() != Status.STATUS_SUCCESS)
+                    {
+                        LastError = $"Segmentation Predict 실패 : {nrt.nrt.get_last_error_msg()}";
+
+                        return false;
+                    }
+
+                    if (result.blobs == null || result.blobs.get_count() <= 0)
+                    {
+                        LastError = $"Segmentation Blob이 없습니다.";
+
+                        return false;
+                    }
+
+                    // 일단 가장 큰 Blob을 선택하자
+                    Blob largestBlob = null;
+                    ulong largestArea = 0;
+
+                    int blobCount = (int)result.blobs.get_count();
+
+                    for (int i = 0; i < blobCount; i++)
+                    {
+                        Blob blob = result.blobs.get(i);
+
+                        if (largestBlob == null || blob.area > largestArea)
+                        {
+                            largestBlob = blob;
+                            largestArea = blob.area;
+                        }
+                    }
+
+                    if(largestBlob == null)
+                    {
+                        LastError = "Valid blob이 없습니다.";
+                        return false;
+                    }
+
+                    double widthUm = largestBlob.rect.width * resolutionUmPerPixel;
+                    double heightUm = largestBlob.rect.height * resolutionUmPerPixel;
+                    double sizeUm = Math.Max(widthUm, heightUm);
+
+                    segmentationResult = new SegmentationResult
+                    {
+                        StripNumber = inferenceInput.StripNumber,
+                        CameraType = inferenceInput.CameraType,
+                        DefectIndex = inferenceInput.DefectIndex,
+                        DefectClass = defectClass,
+                        ClassIndex = largestBlob.class_idx,
+                        Probability = largestBlob.prob,
+                        X = largestBlob.rect.x,
+                        Y = largestBlob.rect.y,
+                        WidthPixel = largestBlob.rect.width,
+                        HeightPixel = largestBlob.rect.height,
+                        AreaPixel = largestBlob.area,
+                        WidthUm = widthUm,
+                        HeightUm = heightUm,
+                        SizeUm = sizeUm,
+                        Success = true
+                    };
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    LastError = $"Segmentation Exception : {ex.Message}";
+
+                    return false;
+                }
+                finally
+                {
+                    result?.Dispose();
+                    input?.Dispose();
+                    DeleteTemporaryFile(tempPath);
+                }
+            }
+
+        }
+
+        #endregion
+
+        #region Image Helper.
+
+        private static string SaveTemporaryImage(System.Windows.Media.Imaging.BitmapSource image)
+        {
+            if(image == null) throw new ArgumentNullException(nameof(image));
+
+            string directory = Path.Combine(Path.GetTempPath(), "HDSInspector_AI", "Neurocle");
+            Directory.CreateDirectory(directory);
+
+            string filePath = Path.Combine(directory, Guid.NewGuid().ToString("N") + ".png");
+
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(image));
+
+            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                encoder.Save(stream);
+            }
+
+            return filePath;
+        }
+
+        private static void DeleteTemporaryFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+
+            try
+            {
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+            }
+            catch { }
+        }
+
         #endregion
 
         #region Release

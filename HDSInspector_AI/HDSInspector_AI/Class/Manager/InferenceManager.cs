@@ -1,6 +1,7 @@
 ﻿using Common;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.Models;
+using HDSInspector_AI.Class.Models.InferenceResult;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,35 +70,132 @@ namespace HDSInspector_AI.Class.Manager
             };
         }
 
-        public void Process(/**/)
+        private double GetResolution(InspectionCameraType cameraType)
         {
+            switch (cameraType)
+            {
+                case InspectionCameraType.Top:
+                    return GLB.Setting.Inference.TopResolutionUmPerPixel;
+
+                case InspectionCameraType.Bottom:
+                    return GLB.Setting.Inference.BottomResolutionUmPerPixel;
+
+                case InspectionCameraType.Trans:
+                    return GLB.Setting.Inference.TransResolutionUmPerPixel;
+
+                default:
+                    return 0.0;
+            }
+        }
+
+        private static DefectInferenceResult CreateUnknownResult(NeurocleInferenceInput input, string reason)
+        {
+            return new DefectInferenceResult
+            {
+                StripNumber = input.StripNumber,
+                CameraType = input.CameraType,
+                DefectIndex = input.DefectIndex,
+                DefectClass = DefectClass.Unknown,
+                Judgement = AIJudgement.Unknown,
+                JudgementReason = reason
+            };
+        }
+
+        /* 
+         *  260818_hjkim
+         *  << ProcessDefect 순서 >>
+         * 
+         *  Defect Pair 1개
+         *         ↓
+         *  NeurocleInference Input
+         *         ↓
+         *  Classification
+         *         │
+         *        조건 - 실패 → Unknown
+         *         ↓
+         *  DefectClass Top1, Top2
+         *         ↓
+         *  DefectSpecManager
+         *        조건 - Confidence 낮음 → Unknown
+         *        조건 - Margin 낮음 → Unknown
+         *    Direct인 경우
+         *        Particle - 양품
+         *        Void = NG
+         *        천공 = NG
+         *    Size 측정의 경우
+         *        SEG 해서 측정
+         *         ↓
+         *  DefectJudgementEngine : 여기서 바로 판정함      
+         */
+        public DefectInferenceResult ProcessDefect(NeurocleInferenceInput input)
+        {
+            if(input == null)
+            {
+                return new DefectInferenceResult
+                {
+                    Judgement = AIJudgement.Unknown,
+                    JudgementReason = "Inference Input is null"
+                };
+            }
+
+            if(_neurocle == null || !_neurocle.IsInitialized)
+                return CreateUnknownResult(input, "Neurocle is not initialized");
+
             /*
              * 1. Classification
              */
+            ClassificationResult classification;
+            bool classificationSuccess = _neurocle.Classification(input, out classification);
+            if (!classificationSuccess || classification == null)
+                return CreateUnknownResult(input, _neurocle.LastError);
 
             /*
-             * 2. Confidence 확인
+             * 2. Spec 조회
              */
+            DefectSpec spec = _specManager.GetSpec(input.CameraType, classification.DefectClass);
+            if (spec == null)
+                return _judgeEngine.Judge(classification, null, null);
 
             /*
-             * 3. Defect Spec 조회
+             * 3. Confidence / Margin 검사
+             * 
+             *    애매하면 Seg도 하지말자
              */
+            if (classification.Top1Probability < spec.ClassificationThreshold || classification.ProbabilityMargin < spec.ClassificationMargin)
+                return _judgeEngine.Judge(classification, null, spec);
 
             /*
-             * 4. 필요하면 Segmentation
+             * 4. Direct 판정 (particle / void / punch)
+             *    얘네들은 Spec이고 자시고 있기만 해도 바로 불량임
              */
+            if (spec.JudgeMethod == DefectJudgeMethod.Direct)
+                return _judgeEngine.Judge(classification, null, spec);
 
             /*
-             * 5. Measurement
+             * 5. Measurement 필요한 경우 (Seg로 할지 rule로 할지 하다가 전부 AI, Seg로하자 그냥)
              */
+            double resolution = GetResolution(input.CameraType);
+
+            SegmentationResult segmentation;
+            bool segmantationSuccess = _neurocle.Segmentation(input, classification.DefectClass, resolution, out segmentation);
+            if (!segmantationSuccess || segmentation == null)
+            {
+                segmentation = new SegmentationResult
+                {
+                    StripNumber = input.StripNumber,
+                    CameraType = input.CameraType,
+                    DefectIndex = input.DefectIndex,
+                    DefectClass = classification.DefectClass,
+                    Success = false,
+                    ErrorMessage = _neurocle.LastError
+                };
+            }
 
             /*
-             * 6. 최종 판정
+             * 6. Spec 판정
              */
+            return _judgeEngine.Judge(classification, segmentation, spec);
 
-            /*
-             * 7. Result Event
-             */
         }
     }
 }
