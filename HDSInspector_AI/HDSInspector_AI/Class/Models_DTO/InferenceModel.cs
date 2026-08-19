@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
-namespace HDSInspector_AI.Class.Models
+namespace HDSInspector_AI.Class.Models_DTO
 {
     public class NeurocleInferenceInput
     {
@@ -176,28 +176,5 @@ namespace HDSInspector_AI.Class.Models
 
         public int TotalCount => TotalOKCount + TotalNGCount + TotalUnknownCount;
         public int StripTotalCount => StripOKCount + StripNGCount + StripUnknownCount;
-    }
-
-    public class StripDefectData
-    {
-        public int StripNumber { get; set; }
-        public List<DefectImagePairItem> TopPairs { get; set; }
-        public List<DefectImagePairItem> BottomPairs { get; set; }
-        public List<DefectImagePairItem> TransPairs { get; set; }
-
-        public StripDefectData()
-        {
-            TopPairs = new List<DefectImagePairItem>();
-            BottomPairs = new List<DefectImagePairItem>();
-            TransPairs = new List<DefectImagePairItem>();
-        }
-
-        public int TotalCount
-        {
-            get
-            {
-                return TopPairs.Count + BottomPairs.Count + TransPairs.Count;
-            }
-        }
     }
 }

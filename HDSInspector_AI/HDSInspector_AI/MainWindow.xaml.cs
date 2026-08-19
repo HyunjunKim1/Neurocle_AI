@@ -64,6 +64,21 @@ namespace HDSInspector_AI
 
             GLB.Client.ConnectionChanged -= Client_ConnectionChanged;
             GLB.Client.ConnectionChanged += Client_ConnectionChanged;
+
+            GLB.DefectImage.InspectionImageReady -= DefectImage_InspectionImageReady;
+            GLB.DefectImage.InspectionImageReady += DefectImage_InspectionImageReady;
+        }
+
+        private async void DefectImage_InspectionImageReady(DefectImageFileSet fileSet)
+        {
+            try
+            {
+                await GLB.Inference.ProcessFileSetAsync(fileSet);
+            }
+            catch (Exception ex)
+            {
+                GLB.AddLog("INFERENCE", $"ProcessFileSetAsync Error : {ex.Message}", SeverityLevel.ERROR);
+            }
         }
 
         private void Client_ProductInfoReceived(ProductInfo pInfo)

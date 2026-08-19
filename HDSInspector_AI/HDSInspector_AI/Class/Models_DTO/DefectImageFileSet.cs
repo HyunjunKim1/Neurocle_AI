@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HDSInspector_AI.Class.Models
+namespace HDSInspector_AI.Class.Models_DTO
 {
     /// <summary>   Defect Item Model     </summary>
     /// <remarks>   hjkim, 2026-08-07.    </remarks>
@@ -25,7 +25,6 @@ namespace HDSInspector_AI.Class.Models
          * 근데 각각 경로를 나눠놓은 이유는 혹시나 추론 결과를 각기 다른 경로로 저장할 가능성이 있어서
          * 상부, 하부, 투과 이미지 경로를 각각 만듦
          */
-
         // 9011 상부
         public string TopImagePath { get; set; }
         public string TopTextPath { get; set; }
