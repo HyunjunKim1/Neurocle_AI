@@ -33,6 +33,7 @@ namespace HDSInspector_AI.Class.Manager
 
         public InspectionInfo CurrentInfo { get; private set; }
         public string CurrentSystemDirectory { get; private set; }
+        public string CurrentOutputSystemDirectory { get; private set; }
         public string LastError {  get; private set; }
 
         // Main S/W에서 GrabDone이던 Inspection Done이던 뭐던 이벤트 받아오면 바로 발생시키자.
@@ -80,7 +81,8 @@ namespace HDSInspector_AI.Class.Manager
                 };
 
                 CurrentInfo = copiedInfo;
-                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system_ai");
+                CurrentOutputSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
 
             InspectionInfoChanged?.Invoke(copiedInfo);
@@ -106,6 +108,7 @@ namespace HDSInspector_AI.Class.Manager
                 };
 
                 CurrentInfo = copiedInfo;
+                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system_ai");
                 CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
 
@@ -181,7 +184,7 @@ namespace HDSInspector_AI.Class.Manager
             List<ParsedImageFile> sequenceFiles = parsedFiles.Where(x => x.SequenceNumber == sequenceNumber).ToList();
 
             // png,txt가 다 없어도 FileSet은 정상생성.
-            return CreateFileSet(CurrentSystemDirectory, sequenceNumber, sequenceFiles);
+            return CreateFileSet(CurrentSystemDirectory, CurrentOutputSystemDirectory, sequenceNumber, sequenceFiles);
         }
 
         // 지정한 검사 번호 파일 세트를 가져옴
@@ -202,7 +205,7 @@ namespace HDSInspector_AI.Class.Manager
 
                 if (sequenceFiles.Count == 0) { LastError = "검사번호의 불량 이미지는 없습니다."; return false; }
 
-                fileSet = CreateFileSet(CurrentSystemDirectory, seqNum, sequenceFiles);
+                fileSet = CreateFileSet(CurrentSystemDirectory, CurrentOutputSystemDirectory, seqNum, sequenceFiles);
 
                 return fileSet.HasAnyImage;
             }
@@ -256,13 +259,13 @@ namespace HDSInspector_AI.Class.Manager
             return result;
         }
 
-        private static DefectImageFileSet CreateFileSet(string systemDirectory, int sequenceNumber, IList<ParsedImageFile> files)
+        private static DefectImageFileSet CreateFileSet(string systemDirectory, string outputSystemDirectory, int sequenceNumber, IList<ParsedImageFile> files)
         {
             DefectImageFileSet result = new DefectImageFileSet
             {
                 SequenceNumber = sequenceNumber,
-                SystemDirectory = systemDirectory
-
+                SystemDirectory = systemDirectory,
+                OutputSystemDirectory = outputSystemDirectory
             };
 
             foreach (ParsedImageFile file in files)

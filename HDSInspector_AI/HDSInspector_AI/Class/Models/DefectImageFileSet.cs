@@ -19,6 +19,7 @@ namespace HDSInspector_AI.Class.Models
 
         //실제 System 폴더
         public string SystemDirectory { get; set; }
+        public string OutputSystemDirectory { get; set; }
 
         /*
          * 이거 Verify에서 가져가는 이미지들은 하나의 폴더에 상부 하부 투과 다 들어있음

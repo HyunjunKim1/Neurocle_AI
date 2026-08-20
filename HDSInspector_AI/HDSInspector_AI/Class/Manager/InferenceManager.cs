@@ -24,6 +24,7 @@ namespace HDSInspector_AI.Class.Manager
         private readonly DefectJudgementEngine _judgeEngine;
         private readonly DefectImageCutter _imageCutter;
         private readonly DefectTextParser _textParser;
+        private readonly InferenceOutputWriter _outputWriter;
 
         private readonly object _stripLock = new object();
         private readonly HashSet<int> _processingStrips = new HashSet<int>();
@@ -40,6 +41,7 @@ namespace HDSInspector_AI.Class.Manager
             _judgeEngine = new DefectJudgementEngine();
             _imageCutter = new DefectImageCutter();
             _textParser  = new DefectTextParser();
+            _outputWriter = new InferenceOutputWriter();
         }
 
         public devNeurocle Neurocle
@@ -481,6 +483,19 @@ namespace HDSInspector_AI.Class.Manager
                 await ProcessCameraAsync(transInputs, stripResult);
 
                 stripResult.Status = StripInferenceStatus.Success;
+
+                string outputError;
+
+                bool outputSuccess = _outputWriter.SaveUnknownResults(fileSet, defectData, stripResult, out outputError);
+
+                if (!outputSuccess)
+                {
+                    stripResult.Status = StripInferenceStatus.Failed;
+                    stripResult.ErrorMessage = outputError;
+                    throw new Exception($"Unknown 결과 저장 실패 : {outputError}");
+                }
+
+                GLB.AddLog("INFERENCE", $"Strip [{stripResult.StripNumber:D6}] Unknown Result 저장 완료.  {stripResult.UnknownCount}", SeverityLevel.INFO);
             }
             catch(Exception ex)
             {

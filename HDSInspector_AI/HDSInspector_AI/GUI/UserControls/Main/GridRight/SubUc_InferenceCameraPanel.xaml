@@ -60,7 +60,7 @@
         
         <!-- OK -->
         <Border Grid.Row="0" Grid.Column="0" Margin="0, 2, 5, 2" Background="#173927" CornerRadius="4">
-            <TextBlock Text="OK" Foreground="#66BB6A" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="OK" Foreground="#66BB6A" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
         <ScrollViewer x:Name="svOK" Grid.Row="0" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding OKItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
@@ -79,7 +79,7 @@
         
         <!-- NG -->
         <Border Grid.Row="01" Grid.Column="0" Margin="0, 2, 5, 2" Background="#3E1C20" CornerRadius="4">
-            <TextBlock Text="NG" Foreground="#EF5350" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="NG" Foreground="#EF5350" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
         <ScrollViewer x:Name="svNG" Grid.Row="1" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding NGItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
@@ -98,7 +98,7 @@
 
         <!-- Unknown -->
         <Border Grid.Row="2" Grid.Column="0" Margin="0, 2, 5, 2" Background="#49391A" CornerRadius="4">
-            <TextBlock Text="UNKNOWN" Foreground="#FFB74D" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="UNKNOWN" Foreground="#FFB74D" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
         <ScrollViewer x:Name="svUnknown" Grid.Row="2" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding UnknownItems, RelativeSource={RelativeSource AncestorType=UserControl}}">

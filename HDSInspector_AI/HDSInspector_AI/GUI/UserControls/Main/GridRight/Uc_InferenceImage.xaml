@@ -6,6 +6,88 @@
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridRight"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="768" Background="#121d2f">
+    <!-- 칸부족으로 Tab 만들어서 이미지 관리하자~-->
+    <UserControl.Resources>
+        <!-- Tab -->
+        <Style x:Key="DefectTabItemStyle" TargetType="TabItem">
+            <Setter Property="Foreground" Value="#9EABBC"/>
+            <Setter Property="Background" Value="#17263B"/>
+            <Setter Property="BorderBrush" Value="#324A68"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="22, 7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                            CornerRadius="5, 5, 0, 0" Padding="{TemplateBinding Padding}" Margin="0, 0, 3, 0">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#27466A"/>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#4FC3F7"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#203A59"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- 이미지 한 칸 -->
+        <Style x:Key="DefectImageBorderStyle" TargetType="Border">
+            <Setter Property="Width" Value="108"/>
+            <Setter Property="Height" Value="108"/>
+            <Setter Property="Background" Value="#0C1523"/>
+            <Setter Property="BorderBrush" Value="#3A506D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Margin" Value="3"/>
+        </Style>
+        <!-- 스크롤 바 -->
+        <Style x:Key="HorizontalDefectScrollBarStyle" TargetType="ScrollBar">
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="MinHeight" Value="12"/>
+            <Setter Property="Background" Value="#17263B"/>
+            <Setter Property="Foreground" Value="#4B607C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True" Margin="1">
+                            <Track x:Name="PART_Track" IsDirectionReversed="False" Orientation="Horizontal" Focusable="False">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageLeftCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Background="{TemplateBinding Background}" MinWidth="35" Margin="2">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="ThumbBorder" Background="{TemplateBinding Background}" CornerRadius="5"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#69C7F0"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#29B6F6"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageRightCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Border BorderBrush="WhiteSmoke" BorderThickness="2" CornerRadius="8">
         <Border.Effect>
             <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="1"/>
@@ -28,17 +110,17 @@
 
             <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
                 <!-- 상부 영역 -->
-                <TabItem Header="Top">
+                <TabItem Header="TOP" Style="{StaticResource DefectTabItemStyle}">
                     <local:SubUc_InferenceCameraPanel x:Name="pnlTop" OKItems="{Binding TopOKItems}" NGItems="{Binding TopNGItems}" UnknownItems="{Binding TopUnknownItems}"/>
                 </TabItem>
                 
                 <!-- 하부 영역 -->
-                <TabItem Header="Bottom">
+                <TabItem Header="BOTTOM" Style="{StaticResource DefectTabItemStyle}">
                     <local:SubUc_InferenceCameraPanel x:Name="pnlBottom" OKItems="{Binding BottomOKItems}" NGItems="{Binding BottomNGItems}" UnknownItems="{Binding BottomUnknownItems}"/>
                 </TabItem>
 
                 <!-- 투과 영역 -->
-                <TabItem Header="Trans">
+                <TabItem Header="TRANS" Style="{StaticResource DefectTabItemStyle}">
                     <local:SubUc_InferenceCameraPanel x:Name="pnlTrans" OKItems="{Binding TransOKItems}" NGItems="{Binding TransNGItems}" UnknownItems="{Binding TransUnknownItems}"/>
                 </TabItem>
             </TabControl>

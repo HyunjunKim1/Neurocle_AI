@@ -1,6 +1,7 @@
 ﻿using HDSInspector_AI.Class.Models;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
+using SharpDX;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -585,7 +586,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
                 pairItems.Add(new DefectImagePairItem
                 {
-                    index = index + 1,
+                    index = index,
                     ReferenceImage = referenceImage,
                     DefectImage = defectImage,
                 });
@@ -709,5 +710,290 @@ namespace HDSInspector_AI.Class.GlobalFunctions
                 return false;
             }
         }
+    }
+
+    public class InferenceOutputWriter
+    {
+        private const int ColumnCount = 5;
+        public bool SaveUnknownResults(DefectImageFileSet fileSet, StripDefectData defectData, StripInferenceResult inferenceResult, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (fileSet == null || defectData == null || inferenceResult == null)
+            {
+                errorMessage = "Unknown 결과 저장 Input이 Null 입니다.";
+
+                return false;
+            }
+
+            try
+            {
+                string outputDirectory = fileSet.OutputSystemDirectory;
+                if (string.IsNullOrWhiteSpace(outputDirectory))
+                {
+                    errorMessage = "Output System 경로가 없습니다.";
+
+                    return false;
+                }
+
+                Directory.CreateDirectory(outputDirectory);
+
+                // Top
+                SaveCameraUnknown(fileSet.SequenceNumber, "9011", InspectionCameraType.Top, fileSet.TopTextPath, defectData.TopPairs, inferenceResult.Results, outputDirectory);
+
+                // Bottom
+                SaveCameraUnknown(fileSet.SequenceNumber, "9021", InspectionCameraType.Bottom, fileSet.BottomTextPath, defectData.BottomPairs, inferenceResult.Results, outputDirectory);
+
+                // Trans
+                SaveCameraUnknown(fileSet.SequenceNumber, "9031", InspectionCameraType.Trans, fileSet.TransTextPath, defectData.TransPairs, inferenceResult.Results, outputDirectory);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+
+                return false;
+            }
+        }
+
+        private void SaveCameraUnknown(int stripNumber, string cameraCode, InspectionCameraType cameraType, string sourceTextPath, IList<DefectImagePairItem> pairItems, IList<DefectInferenceResult> results, string outputDirectory)
+        {
+            string baseName = $"[{stripNumber:D6}]_{cameraCode}";
+            string outputImagePath = Path.Combine(outputDirectory, baseName + ".png");
+            string outputTextPath = Path.Combine(outputDirectory, baseName + ".txt");
+
+            // Unknown만 Verify에 넘길예정
+            List<DefectInferenceResult> unknownResults = results.Where(x => x.CameraType == cameraType && x.Judgement == AIJudgement.Unknown).OrderBy(x => x.DefectIndex).ToList();
+
+            // Unknown이 하나도 없으면 system에는 해당 Camera 파일을 만들지 않도록 하자
+            if (unknownResults.Count == 0)
+            {
+                DeleteIfExists(outputImagePath);
+                DeleteIfExists(outputTextPath);
+
+                return;
+            }
+
+            if (pairItems == null || pairItems.Count == 0)
+                throw new Exception($"{cameraType} pair image가 없습니다.");
+
+            // Unknown Result의 DefectIndex와 Pair를 매칭
+            Dictionary<int, DefectImagePairItem> pairMap = pairItems.ToDictionary(x => x.index);
+            List<DefectImagePairItem> unknownPairs = new List<DefectImagePairItem>();
+
+            foreach(DefectInferenceResult result in unknownResults)
+            {
+                DefectImagePairItem pair;
+
+                if(!pairMap.TryGetValue(result.DefectIndex, out pair))
+                    throw new Exception($"{cameraType} pair Mapping 실패 : DefectIndex={result.DefectIndex}");
+
+                unknownPairs.Add(pair);
+            }
+
+            // Image Merging
+            BitmapSource mergedImage = MergeUnknownPairs(unknownPairs);
+
+            // Text 재구성
+            List<string> outputLines = CreateUnknownTextLines(sourceTextPath, unknownResults);
+
+            // PNG, TXT 완료 후 저장
+            SaveBitmapImage(mergedImage, outputImagePath);
+            SaveTextFile(outputLines, outputTextPath);
+        }
+
+        private BitmapSource MergeUnknownPairs(IList<DefectImagePairItem> pairs)
+        {
+            if (pairs == null || pairs.Count == 0)
+                throw new ArgumentException("병합할 Pair가 없습니다.");
+
+            BitmapSource firstRef = ConvertBgr24(pairs[0].ReferenceImage);
+
+            int tileWidth = firstRef.PixelWidth;
+            int tileHeight = firstRef.PixelHeight;
+
+            // 원래 Vision 저장 규칙은 가로 5칸 고정, 세로로 REF / DEF 이렇게들어감
+            int setCount = (int)Math.Ceiling(pairs.Count / (double)ColumnCount);
+            int outputWidth = tileWidth * ColumnCount;
+            int outputHeight = tileHeight * 2 * setCount;
+
+            const int bytesPerPixel = 3;
+            int outputStride = ((outputWidth * bytesPerPixel + 3) / 4) * 4; // 4바이트 정렬
+
+            byte[] outputPixels = new byte[outputStride * outputHeight];
+
+            for(int i = 0; i < pairs.Count; i++)
+            {
+                DefectImagePairItem pair = pairs[i];
+                BitmapSource refImage = ConvertBgr24(pair.ReferenceImage);
+                BitmapSource defImage = ConvertBgr24(pair.DefectImage);
+
+                ValidatePairImageSize(refImage, defImage, tileWidth, tileHeight);
+
+                int setIndex = i / ColumnCount;
+                int columnIndex = i % ColumnCount;
+
+                int destinationX = columnIndex * tileWidth;
+                int refDestinationY = setIndex * tileHeight * 2;
+                int defDestinationY = refDestinationY + tileHeight;
+
+                CopyBgr24Image(refImage, outputPixels, outputStride, destinationX, refDestinationY);
+                CopyBgr24Image(defImage, outputPixels, outputStride, destinationX, defDestinationY);
+            }
+
+            BitmapSource result = BitmapSource.Create(outputWidth, outputHeight, firstRef.DpiX, firstRef.DpiY, PixelFormats.Bgr24, null, outputPixels, outputStride);
+
+            result.Freeze();
+
+            return result;
+        }
+
+        #region Helper.
+        private static void ValidatePairImageSize(BitmapSource refImage, BitmapSource defImage, int expectedWidth, int expectedHeight)
+        {
+            if (refImage == null || defImage == null) return;
+
+            if(refImage.PixelWidth != expectedWidth || refImage.PixelHeight != expectedHeight)
+                throw new Exception($"Reference Image Size Mismatch. Expected: {expectedWidth}x{expectedHeight}, Actual: {refImage.PixelWidth}x{refImage.PixelHeight}");
+
+            if(defImage.PixelWidth != expectedWidth || defImage.PixelHeight != expectedHeight)
+                throw new Exception($"Defect Image Size Mismatch. Expected: {expectedWidth}x{expectedHeight}, Actual: {defImage.PixelWidth}x{defImage.PixelHeight}");
+
+
+        }
+
+        private static BitmapSource ConvertBgr24(BitmapSource source)
+        {
+            if(source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (source.Format == PixelFormats.Bgr24) return source;
+
+            FormatConvertedBitmap converted = new FormatConvertedBitmap(source, PixelFormats.Bgr24, null, 0);
+
+            converted.Freeze();
+
+            return converted;
+        }
+
+        private static void CopyBgr24Image(BitmapSource source, byte[] destination, int destinationStride, int destinationX, int destinationY)
+        {
+            const int bytesPerPixel = 3;
+
+            // 4바이트 정렬... 번거롭긴한데 WPF는 4byte의 경우 stride를 303일 경우 304로함. 그래서 신경써서 맞춰줘야함
+            int outputStride = ((source.PixelWidth * bytesPerPixel + 3) / 4) * 4;
+
+            byte[] sourcePixels = new byte[outputStride * source.PixelHeight];
+            source.CopyPixels(sourcePixels, outputStride, 0);
+
+            int copyBytesPerRow = source.PixelWidth * bytesPerPixel;
+            int destinationXBytes = destinationX * bytesPerPixel;
+
+            for (int y = 0; y < source.PixelHeight; y++)
+            {
+                int sourceOffset = y * outputStride;
+                int destinationOffset = (destinationY + y) * destinationStride + destinationXBytes;
+                Buffer.BlockCopy(sourcePixels, sourceOffset, destination, destinationOffset, copyBytesPerRow);
+            }
+        }
+
+        private List<string> CreateUnknownTextLines(string sourceTextPath, IList<DefectInferenceResult> unknownResults)
+        {
+            if (string.IsNullOrWhiteSpace(sourceTextPath) || !File.Exists(sourceTextPath))
+                throw new FileNotFoundException("원본 Defect Text가 없습니다.", sourceTextPath);
+
+            string[] sourceLines = File.ReadAllLines(sourceTextPath, Encoding.UTF8);
+
+            /*
+             * 기존 TXT Index → 원본 Line
+             */
+            Dictionary<int, string> sourceLineMap = new Dictionary<int, string>();
+
+            foreach (string line in sourceLines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                
+                string[] fields = line.Split(new[] { ';' }, StringSplitOptions.None);
+
+                if (fields.Length <= 4)
+                    continue;
+
+                int originalIndex;
+
+                if (!int.TryParse(fields[4], out originalIndex))
+                    continue;
+
+                sourceLineMap[originalIndex] = line;
+            }
+
+            List<string> outputLines = new List<string>();
+            int newIndex = 0;
+
+            foreach (DefectInferenceResult result in unknownResults.OrderBy(x => x.DefectIndex))
+            {
+                string originalLine;
+
+                if (!sourceLineMap.TryGetValue(result.DefectIndex, out originalLine))
+                    throw new Exception($"TXT의 원본 Defect Index를 찾을 수 없습니다. " + $"Index={result.DefectIndex}");
+
+                string[] fields = originalLine.Split(new[] { ';' }, StringSplitOptions.None);
+
+                /*
+                 * Unknown 출력 파일 기준으로
+                 * Index 재설정
+                 */
+                fields[4] = newIndex.ToString();
+
+                outputLines.Add(string.Join(";",fields));
+
+                newIndex++;
+            }
+
+            return outputLines;
+        }
+
+        private static void SaveBitmapImage(BitmapSource bitmap, string outputPath)
+        {
+            string tempPath = outputPath + ".tmp";
+
+            DeleteIfExists(tempPath);
+
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+            using(FileStream stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                encoder.Save(stream);
+                stream.Flush();
+            }
+
+            DeleteIfExists(outputPath);
+
+            File.Move(tempPath, outputPath);
+        }
+
+        private static void SaveTextFile(IList<string> lines, string outputPath)
+        {
+            string tempPath = outputPath + ".tmp";
+
+            DeleteIfExists(tempPath);
+
+            File.WriteAllLines(tempPath, lines, Encoding.Default);
+
+            DeleteIfExists(outputPath);
+
+            File.Move(tempPath, outputPath);
+
+        }
+
+        private static void DeleteIfExists(string filePath)
+        {
+            if(!string.IsNullOrWhiteSpace(filePath)&& File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+        }
+        #endregion
     }
 }
