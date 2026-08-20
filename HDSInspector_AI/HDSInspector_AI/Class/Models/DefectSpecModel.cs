@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HDSInspector_AI.Class.Models
 {
+    // DTO
     public class DefectSpec
     {
         public InspectionCameraType CameraType { get; set; }

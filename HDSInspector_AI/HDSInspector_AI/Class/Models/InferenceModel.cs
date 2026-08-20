@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace HDSInspector_AI.Class.Models
 {
+    // DTO
     public class NeurocleInferenceInput
     {
         public int StripNumber { get; set; }
@@ -111,6 +112,8 @@ namespace HDSInspector_AI.Class.Models
     public class StripInferenceResult
     {
         public int StripNumber { get; set; }
+        public StripInferenceStatus Status { get; set; }
+        public string ErrorMessage { get; set; }
         public long ProcessingTimeMs { get; set; }
         public List<DefectInferenceResult> Results { get; set; }
         public StripInferenceResult()
@@ -122,6 +125,7 @@ namespace HDSInspector_AI.Class.Models
         public int OKCount => Results.Count(x => x.Judgement == AIJudgement.OK);
         public int NGCount => Results.Count(x => x.Judgement == AIJudgement.NG);
         public int UnknownCount => Results.Count(x => x.Judgement == AIJudgement.Unknown);
+
 
         // Strip 전체 판정
         // NG > Unknown > OK

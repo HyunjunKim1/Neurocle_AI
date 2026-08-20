@@ -42,6 +42,7 @@ namespace HDSInspector_AI.Class.Models
 
         Contaminant,
         ContaminantAg,
+
         Particle,
         UnderEtching,
         Flash,
@@ -68,5 +69,12 @@ namespace HDSInspector_AI.Class.Models
 
         // 정상 영역으로부터 벗어난 거리 측정
         OverflowDistance = 2,
+    }
+    
+    public enum StripInferenceStatus
+    {
+        None = 0,
+        Success,
+        Failed
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace HDSInspector_AI.Class.Models
 {
+    // DTO
     public class DefectImagePairItem
     {
         public int index { get; set; }

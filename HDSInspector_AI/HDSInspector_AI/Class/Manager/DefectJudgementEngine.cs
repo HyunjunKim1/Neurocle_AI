@@ -27,28 +27,6 @@ namespace HDSInspector_AI.Class.Manager
                 return result;
             }
 
-            /*
-             * Classification Confidence 확인
-             */
-            if(classification.Top1Probability < spec.ClassificationThreshold)
-            {
-                result.Judgement = AIJudgement.Unknown;
-                result.JudgementReason = $"Classification confidence low : {classification.Top1Probability:F3}";
-
-                return result;
-            }
-
-            /*
-             * Top1 / Top2 Margin 값 확인
-             */
-            if(classification.ProbabilityMargin < spec.ClassificationMargin)
-            {
-                result.Judgement = AIJudgement.Unknown;
-                result.JudgementReason = $"Classification margin low : {classification.ProbabilityMargin:F3}";
-
-                return result;
-            }
-
             switch(spec.JudgeMethod)
             {
                 case DefectJudgeMethod.Direct:

@@ -127,6 +127,22 @@ namespace HDSInspector_AI.Class.Manager
             };
         }
 
+        private static DefectInferenceResult CreateUnknownResult(NeurocleInferenceInput input, string reason, ClassificationResult classifcation)
+        {
+            return new DefectInferenceResult
+            {
+                StripNumber = input.StripNumber,
+                CameraType = input.CameraType,
+                DefectIndex = input.DefectIndex,
+                DefectClass = classifcation != null ? classifcation.DefectClass : DefectClass.Unknown,
+                ClassName = classifcation.ClassName,
+                ClassificationProbability = classifcation?.Top1Probability ?? 0.0f,
+                ClassificationMargin = classifcation?.ProbabilityMargin ?? 0.0f,
+                Judgement = AIJudgement.Unknown,
+                JudgementReason = reason
+            };
+        }
+
         /* 
          *  260818_hjkim
          *  << ProcessDefect 순서 >>
@@ -187,12 +203,11 @@ namespace HDSInspector_AI.Class.Manager
              * 
              *    애매하면 Seg도 하지말자
              */
-            if (classification.Top1Probability < spec.ClassificationThreshold || classification.ProbabilityMargin < spec.ClassificationMargin)
-            {
-                DefectInferenceResult result = _judgeEngine.Judge(classification, null, spec);
+            if (classification.Top1Probability < spec.ClassificationThreshold)
+                return CompleteDefect(input, CreateUnknownResult(input, "Classification confidence is low", classification));
 
-                return CompleteDefect(input, result);
-            }
+            if (classification.ProbabilityMargin < spec.ClassificationMargin)
+                return CompleteDefect(input, CreateUnknownResult(input, "Classification margin is low", classification));
 
             /*
              * 4. Direct 판정 (particle / void / punch)
@@ -351,7 +366,9 @@ namespace HDSInspector_AI.Class.Manager
 
         public async Task<StripInferenceResult> ProcessFileSetAsync(DefectImageFileSet fileSet)
         {
-            if(!InspectionEnabled)
+            if (fileSet == null) return null;
+
+            if (!InspectionEnabled)
             {
                 GLB.AddLog("INFERENCE", $"Inspection disabled. Strip ignored : {fileSet.SequenceNumber:D6}", SeverityLevel.WARN);
 
@@ -369,9 +386,7 @@ namespace HDSInspector_AI.Class.Manager
                 _processingStrips.Add(fileSet.SequenceNumber);
             }
 
-            if (fileSet == null) return null;
-
-            StripInferenceResult stripResult = new StripInferenceResult { StripNumber = fileSet.SequenceNumber };
+            StripInferenceResult stripResult = new StripInferenceResult { StripNumber = fileSet.SequenceNumber, Status = StripInferenceStatus.None };
             System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
 
@@ -391,12 +406,20 @@ namespace HDSInspector_AI.Class.Manager
                 /*
                  * 3. 각 카메라 별 추론
                  */
-                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Top, defectData.TopPairs, stripResult);
-                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Bottom, defectData.BottomPairs, stripResult);
-                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Trans, defectData.TransPairs, stripResult);
+
+                List<NeurocleInferenceInput> topInputs = CreateCameraInputs(fileSet.SequenceNumber, InspectionCameraType.Top, defectData.TopPairs);
+                List<NeurocleInferenceInput> bottomInputs = CreateCameraInputs(fileSet.SequenceNumber, InspectionCameraType.Bottom, defectData.BottomPairs);
+                List<NeurocleInferenceInput> transInputs = CreateCameraInputs(fileSet.SequenceNumber, InspectionCameraType.Trans, defectData.TransPairs);
+
+                await ProcessCameraAsync(topInputs, stripResult);
+                await ProcessCameraAsync(bottomInputs, stripResult);
+                await ProcessCameraAsync(transInputs, stripResult);
+
+                stripResult.Status = StripInferenceStatus.Success;
             }
             catch(Exception ex)
             {
+                stripResult.Status = StripInferenceStatus.Failed;
                 GLB.AddLog("INFERENCE", $"Defect Data 생성 실패. {ex.Message}", SeverityLevel.ERROR);
             }
             finally
@@ -404,50 +427,73 @@ namespace HDSInspector_AI.Class.Manager
                 stopwatch.Stop();
                 stripResult.ProcessingTimeMs = stopwatch.ElapsedMilliseconds;
 
-                _processingStrips.Remove(fileSet.SequenceNumber);
+                lock (_stripLock)
+                {
+                    _processingStrips.Remove(fileSet.SequenceNumber);
+                }
             }
 
-            /*
-             * 4. 각 결과값 누적 저장
-             */
-            GLB.InferenceStatistics.AddStripResult(stripResult);
+            if (stripResult.Status == StripInferenceStatus.Success)
+            {
+                /*
+                 * 4. 각 결과값 누적 저장
+                 */
+                GLB.InferenceStatistics.AddStripResult(stripResult);
 
-            /*
-             * 5. Strip 추론 완료 Event
-             */
-            StripInferenceCompleted?.Invoke(stripResult);
+                /*
+                 * 5. Strip 추론 완료 Event
+                 */
+                StripInferenceCompleted?.Invoke(stripResult);
 
-            GLB.AddLog("INFERENCE", $"Strip [{stripResult.StripNumber}] 완료. Total={stripResult.TotalCount}, OK={stripResult.OKCount}, NG={stripResult.NGCount}, Unknown={stripResult.UnknownCount}, Time={stripResult.ProcessingTimeMs}", SeverityLevel.INFO);
+                // Main S/W에 추론 완료 통보
+                GLB.Client.SendInferenceDone(stripResult.StripNumber);
+                GLB.AddLog("INFERENCE", $"Strip [{stripResult.StripNumber}] 완료. Total={stripResult.TotalCount}, OK={stripResult.OKCount}, NG={stripResult.NGCount}, Unknown={stripResult.UnknownCount}, Time={stripResult.ProcessingTimeMs}", SeverityLevel.INFO);
+            }
 
             return stripResult;
         }
 
-        private async Task ProcessCameraAsync(int stripNumber, InspectionCameraType cameraType, IList<DefectImagePairItem> pairItems, StripInferenceResult stripResult)
+        private async Task ProcessCameraAsync(IList<NeurocleInferenceInput> inputs, StripInferenceResult stripResult)
         {
-            if(pairItems == null || pairItems.Count == 0) return;
+            if(inputs == null || inputs.Count == 0) return;
+
+            foreach(NeurocleInferenceInput input in inputs)
+            {
+                if (inputs == null) continue;
+
+                DefectInferenceResult result = await Task.Run(() => ProcessDefect(input));
+
+                if (result == null)
+                {
+                    result = CreateUnknownResult(input, "Inference result is null");
+
+                    RaiseInferenceImage(input, result);
+                }
+
+                stripResult.Results.Add(result);  
+            }
+        }
+
+        private List<NeurocleInferenceInput> CreateCameraInputs(int stripNumber, InspectionCameraType cameraType, IList<DefectImagePairItem> pairItems)
+        {
+            List<NeurocleInferenceInput> inputs = new List<NeurocleInferenceInput>();
+            if (pairItems == null || pairItems.Count == 0)
+                return inputs;
 
             foreach(DefectImagePairItem pair in pairItems)
             {
-                if (pair == null) continue;
-
-                NeurocleInferenceInput input = new NeurocleInferenceInput
+                if(pair == null) continue;
+                inputs.Add(new NeurocleInferenceInput
                 {
                     StripNumber = stripNumber,
                     CameraType = cameraType,
                     DefectIndex = pair.index,
                     ReferenceImage = pair.ReferenceImage,
                     DefectImage = pair.DefectImage
-                };
-
-                DefectInferenceResult result = await Task.Run(() => ProcessDefect(input));
-
-                if(result == null)
-                    result = CreateUnknownResult(input, "Inference result is null");
-
-                stripResult.Results.Add(result);  
+                });
             }
 
-            GLB.Client.SendInferenceDone(stripResult.StripNumber);
+            return inputs;
         }
     }
 }
