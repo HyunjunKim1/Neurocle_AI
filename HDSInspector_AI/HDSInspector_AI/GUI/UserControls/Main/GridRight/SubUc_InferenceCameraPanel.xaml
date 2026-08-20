@@ -5,7 +5,49 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HDSInspector_AI.GUI.UserControls.Main.GridRight"
              mc:Ignorable="d">
-    <Grid>
+    <UserControl.Resources>
+        <Style x:Key="InferenceHorizontalScrollBarStyle" TargetType="ScrollBar">
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="MinHeight" Value="12"/>
+            <Setter Property="Background" Value="#17263B"/>
+            <Setter Property="Foreground" Value="#4B607C"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" ClipToBounds="True" Margin="1">
+                            <Track x:Name="PART_Track" IsDirectionReversed="False" Orientation="Horizontal" Focusable="False">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageLeftCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Background="#4F6B8A" MinWidth="35" Margin="2">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="ThumbBorder" Background="{TemplateBinding Background}" CornerRadius="5"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#69C7F0"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="ThumbBorder" Property="Background" Value="#29B6F6"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageRightCommand" Background="Transparent" BorderThickness="0" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ScrollBar" BasedOn="{StaticResource InferenceHorizontalScrollBarStyle}"/>
+    </UserControl.Resources>
+    <Grid Margin="0, 4, 0, 4">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
@@ -18,16 +60,15 @@
         
         <!-- OK -->
         <Border Grid.Row="0" Grid.Column="0" Margin="0, 2, 5, 2" Background="#173927" CornerRadius="4">
-            <TextBlock Text="OK" Foreground="#66BB6A" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="OK" Foreground="#66BB6A" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
-        <ScrollViewer Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="svOK" Grid.Row="0" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding OKItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <local:SubUc_InferenceImageTile/>
@@ -37,10 +78,10 @@
         </ScrollViewer>
         
         <!-- NG -->
-        <Border Grid.Row="1" Grid.Column="0" Margin="0, 2, 5, 2" Background="#3E1C20" CornerRadius="4">
-            <TextBlock Text="NG" Foreground="#EF5350" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Border Grid.Row="01" Grid.Column="0" Margin="0, 2, 5, 2" Background="#3E1C20" CornerRadius="4">
+            <TextBlock Text="NG" Foreground="#EF5350" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
-        <ScrollViewer Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="svNG" Grid.Row="1" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding NGItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -57,16 +98,15 @@
 
         <!-- Unknown -->
         <Border Grid.Row="2" Grid.Column="0" Margin="0, 2, 5, 2" Background="#49391A" CornerRadius="4">
-            <TextBlock Text="Unknown" Foreground="#FFB74D" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Text="UNKNOWN" Foreground="#FFB74D" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
-        <ScrollViewer Grid.Row="2" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <ScrollViewer x:Name="svUnknown" Grid.Row="2" Grid.Column="1" Margin="0, 2, 0, 2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="HorizontalOnly" PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel">
             <ItemsControl ItemsSource="{Binding UnknownItems, RelativeSource={RelativeSource AncestorType=UserControl}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <local:SubUc_InferenceImageTile/>

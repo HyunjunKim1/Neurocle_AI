@@ -9,11 +9,6 @@
         <Grid>
             <Image Source="{Binding DefectImage}" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             
-            <!-- Index -->
-            <Border Background="#AA000000" CornerRadius="3" Padding="3, 1" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <TextBlock Text="{Binding IndexText}" Foreground="White" FontSize="9"/>
-            </Border>
-            
             <!-- Class / Probability -->
             <Border Background="#BB000000" CornerRadius="3" Padding="4, 2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
                 <StackPanel>

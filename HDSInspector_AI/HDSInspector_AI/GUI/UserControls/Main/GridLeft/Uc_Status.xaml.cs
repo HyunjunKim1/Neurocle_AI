@@ -37,6 +37,8 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
 
             if (GLB.DefectImage.CurrentInfo != null)
                 SetInspectionInfo(GLB.DefectImage.CurrentInfo);
+
+            SetMainSWConnected(GLB.Client.Connected);
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)

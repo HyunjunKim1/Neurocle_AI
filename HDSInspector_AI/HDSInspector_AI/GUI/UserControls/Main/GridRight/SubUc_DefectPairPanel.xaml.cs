@@ -21,6 +21,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
     /// </summary>
     public partial class SubUc_DefectPairPanel : UserControl
     {
+        private const double MouseWheelScrollStep = 50.0;
         public static readonly DependencyProperty ItemsProperty = DependencyProperty.Register(nameof(Items), typeof(IEnumerable), typeof(SubUc_DefectPairPanel), new PropertyMetadata(null));
 
         private bool _isSynchronizingScroll;
@@ -72,6 +73,23 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
         {
             svReference.ScrollToLeftEnd();
             svDefect.ScrollToLeftEnd();
+        }
+
+        private void HorizontalScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer source = sender as ScrollViewer;
+            if (source == null) return;
+
+            double direction = e.Delta > 0 ? -1.0 : 1.0;
+            double newOffset = source.HorizontalOffset + direction * MouseWheelScrollStep;
+            newOffset = Math.Max(0.0, Math.Min(newOffset, source.ScrollableWidth));
+
+            source.ScrollToHorizontalOffset(newOffset);
+
+            ScrollViewer target = source == svReference ? svDefect : svReference;
+            target.ScrollToHorizontalOffset(newOffset);
+
+            e.Handled = true;
         }
     }
 }

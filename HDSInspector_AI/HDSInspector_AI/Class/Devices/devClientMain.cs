@@ -297,6 +297,8 @@ namespace HDSInspector_AI.Class.Devices
             {
                 GLB.AddLog("COMMUNICATION", "Main S/W Disconnected", SeverityLevel.INFO);
             }
+
+            ConnectionChanged?.Invoke(false);
         }
         #endregion
 

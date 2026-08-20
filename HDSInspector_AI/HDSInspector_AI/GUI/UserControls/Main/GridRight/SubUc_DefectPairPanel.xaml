@@ -75,7 +75,8 @@
         </Border>
         
         <!-- REF Image -->
-        <ScrollViewer x:Name="svReference" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0, 0, 0, 4" PanningMode="HorizontalOnly" ScrollChanged="svReference_ScrollChanged">
+        <ScrollViewer x:Name="svReference" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0, 0, 0, 4" PanningMode="HorizontalOnly" ScrollChanged="svReference_ScrollChanged"
+                      PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel" CanContentScroll="False">
             <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=UserControl}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -103,7 +104,8 @@
         </Border>
         
         <!-- DEF Image -->
-        <ScrollViewer x:Name="svDefect" Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly" ScrollChanged="svDefect_ScrollChanged">
+        <ScrollViewer x:Name="svDefect" Grid.Row="1" Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly" ScrollChanged="svDefect_ScrollChanged"
+                      PreviewMouseWheel="HorizontalScrollViewer_PreviewMouseWheel" CanContentScroll="False">
             <ItemsControl ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=UserControl}}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

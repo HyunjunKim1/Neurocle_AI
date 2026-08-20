@@ -67,6 +67,8 @@ namespace HDSInspector_AI
 
             GLB.DefectImage.InspectionImageReady -= DefectImage_InspectionImageReady;
             GLB.DefectImage.InspectionImageReady += DefectImage_InspectionImageReady;
+
+            Client_ConnectionChanged(GLB.Client.Connected);
         }
 
 
