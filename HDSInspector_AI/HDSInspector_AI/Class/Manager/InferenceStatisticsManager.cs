@@ -67,7 +67,7 @@ namespace HDSInspector_AI.Class.Manager
                 {
                     ProductName = _productName,
                     OrderNumber = _orderNumber,
-                    CurrentStipNumber = stripResult.StripNumber,
+                    CurrentStripNumber = stripResult.StripNumber,
                     StripOKCount = stripResult.OKCount,
                     StripNGCount = stripResult.NGCount,
                     StripUnknownCount = stripResult.UnknownCount,

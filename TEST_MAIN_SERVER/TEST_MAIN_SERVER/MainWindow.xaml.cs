@@ -125,5 +125,15 @@ namespace TEST_MAIN_SERVER
             // 검사 파일 저장 완료
             _server.SendInspectionDone(stripNumber);
         }
+
+        private void btnInspectionStart_Click(object sender, RoutedEventArgs e)
+        {
+            _server.Send(MainCommand.INSPECTION_STATE, BoolPayload.Serialize(true));
+        }
+
+        private void btnInspectionStop_Click(object sender, RoutedEventArgs e)
+        {
+            _server.Send(MainCommand.INSPECTION_STATE, BoolPayload.Serialize(false));
+        }
     }
 }

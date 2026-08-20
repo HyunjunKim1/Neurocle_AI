@@ -42,6 +42,7 @@ namespace HDSInspector_AI.Class.Manager
             _specs.Clear();
 
             AddFromSetting(InspectionCameraType.Top, DefectClass.Contaminant, "TOP_CONTAMINANT");
+            AddFromSetting(InspectionCameraType.Top, DefectClass.ContaminantAg, "TOP_CONTAMINANT_AG");
             AddFromSetting(InspectionCameraType.Top, DefectClass.Particle,      "TOP_PARTICLE");
             AddFromSetting(InspectionCameraType.Top, DefectClass.UnderEtching,  "TOP_UNDERETCHING");
             AddFromSetting(InspectionCameraType.Top, DefectClass.Flash,         "TOP_FLASH");

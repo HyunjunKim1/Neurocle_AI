@@ -18,11 +18,13 @@ namespace HDSInspector_AI.Class.Devices
         // Main → AI
         INSPECTION_INFO = 100,
         STRIP_NUMBER = 110,
+        INSPECTION_STATE = 115,
         INSPECTION_DONE = 120,
 
         // AI → Main
         R_INSPECTION_INFO = 200,
         R_STRIP_NUMBER = 210,
+        R_INSPECTION_STATE = 215,
         R_INSPECTION_DONE = 220,
 
         INFERENCE_DONE = 300,

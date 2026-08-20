@@ -25,9 +25,14 @@ namespace HDSInspector_AI.Class.Manager
         private readonly DefectImageCutter _imageCutter;
         private readonly DefectTextParser _textParser;
 
+        private readonly object _stripLock = new object();
+        private readonly HashSet<int> _processingStrips = new HashSet<int>();
+
         public event Action<InferenceImageDisplayItem> InferenceImageReady;
         public event Action<StripInferenceResult> StripInferenceCompleted;
         public event Action<StripDefectData> DefectDataReady;
+
+        public bool InspectionEnabled { get; private set; }
 
         public InferenceManager(DefectSpecManager specManager)
         {
@@ -65,6 +70,13 @@ namespace HDSInspector_AI.Class.Manager
             };
 
             return _neurocle.Initialize(configs);
+        }
+
+        public void SetInspectionState(bool enabled)
+        {
+            InspectionEnabled = enabled;
+
+            GLB.AddLog("INFERENCE", enabled ? "Inspection Enabled" : "Inspection Disabled", SeverityLevel.INFO);
         }
 
         private NeurocleModelConfig CreateModelConfig(InspectionCameraType cameraType, NeurocleCameraSetting setting)
@@ -168,11 +180,7 @@ namespace HDSInspector_AI.Class.Manager
              */
             DefectSpec spec = _specManager.GetSpec(input.CameraType, classification.DefectClass);
             if (spec == null)
-            {
-                DefectInferenceResult result = _judgeEngine.Judge(classification, null, null);
-
-                return CompleteDefect(input, result);
-            }
+                return CompleteDefect(input, _judgeEngine.Judge(classification, null, null));
 
             /*
              * 3. Confidence / Margin 검사
@@ -200,6 +208,23 @@ namespace HDSInspector_AI.Class.Manager
             /*
              * 5. Measurement 필요한 경우 (Seg로 할지 rule로 할지 하다가 전부 AI, Seg로하자 그냥)
              */
+            if(spec.JudgeMethod == DefectJudgeMethod.OverflowDistance)
+            {
+                DefectInferenceResult result = new DefectInferenceResult
+                {
+                    StripNumber = input.StripNumber,
+                    CameraType = input.CameraType,
+                    DefectIndex = input.DefectIndex,
+                    DefectClass = classification.DefectClass,
+                    ClassName = classification.ClassName,
+                    ClassificationProbability = classification.Top1Probability,
+                    ClassificationMargin = classification.ProbabilityMargin,
+                    Judgement = AIJudgement.Unknown,
+                    JudgementReason = "Flash measurement is not implmented yet"
+                };
+
+                return CompleteDefect(input, result);
+            }
             double resolution = GetResolution(input.CameraType);
 
             SegmentationResult segmentation;
@@ -324,22 +349,105 @@ namespace HDSInspector_AI.Class.Manager
             }
         }
 
-        public async Task ProcessFileSetAsync(DefectImageFileSet fileSet)
+        public async Task<StripInferenceResult> ProcessFileSetAsync(DefectImageFileSet fileSet)
         {
-            if (fileSet == null) return;
+            if(!InspectionEnabled)
+            {
+                GLB.AddLog("INFERENCE", $"Inspection disabled. Strip ignored : {fileSet.SequenceNumber:D6}", SeverityLevel.WARN);
+
+                return null;
+            }
+
+            lock(_stripLock)
+            {
+                if (_processingStrips.Contains(fileSet.SequenceNumber))
+                {
+                    GLB.AddLog("INFERENCE", $"Duplicate strip ignored : {fileSet.SequenceNumber:D6}", SeverityLevel.WARN);
+
+                    return null;
+                }
+                _processingStrips.Add(fileSet.SequenceNumber);
+            }
+
+            if (fileSet == null) return null;
+
+            StripInferenceResult stripResult = new StripInferenceResult { StripNumber = fileSet.SequenceNumber };
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
 
             try
             {
+                /*
+                 * 1. Text + Merge PNG를 REF / DEF Pair로 변경
+                 */
                 StripDefectData defectData = await Task.Run(() => CreateDefectData(fileSet));
 
-                // Uc_DefectImage에 전달해야함.
+                /*
+                 * 2. Uc_DefectImage에 전달
+                 */
                 DefectDataReady?.Invoke(defectData);
                 GLB.AddLog("INFERENCE", $"Strip [{fileSet.SequenceNumber}] Pair 준비 완료, Top={defectData.TopPairs.Count}, Bottom={defectData.BottomPairs.Count}, Trans={defectData.TransPairs.Count}", SeverityLevel.INFO);
+
+                /*
+                 * 3. 각 카메라 별 추론
+                 */
+                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Top, defectData.TopPairs, stripResult);
+                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Bottom, defectData.BottomPairs, stripResult);
+                await ProcessCameraAsync(fileSet.SequenceNumber, InspectionCameraType.Trans, defectData.TransPairs, stripResult);
             }
             catch(Exception ex)
             {
                 GLB.AddLog("INFERENCE", $"Defect Data 생성 실패. {ex.Message}", SeverityLevel.ERROR);
             }
+            finally
+            {
+                stopwatch.Stop();
+                stripResult.ProcessingTimeMs = stopwatch.ElapsedMilliseconds;
+
+                _processingStrips.Remove(fileSet.SequenceNumber);
+            }
+
+            /*
+             * 4. 각 결과값 누적 저장
+             */
+            GLB.InferenceStatistics.AddStripResult(stripResult);
+
+            /*
+             * 5. Strip 추론 완료 Event
+             */
+            StripInferenceCompleted?.Invoke(stripResult);
+
+            GLB.AddLog("INFERENCE", $"Strip [{stripResult.StripNumber}] 완료. Total={stripResult.TotalCount}, OK={stripResult.OKCount}, NG={stripResult.NGCount}, Unknown={stripResult.UnknownCount}, Time={stripResult.ProcessingTimeMs}", SeverityLevel.INFO);
+
+            return stripResult;
+        }
+
+        private async Task ProcessCameraAsync(int stripNumber, InspectionCameraType cameraType, IList<DefectImagePairItem> pairItems, StripInferenceResult stripResult)
+        {
+            if(pairItems == null || pairItems.Count == 0) return;
+
+            foreach(DefectImagePairItem pair in pairItems)
+            {
+                if (pair == null) continue;
+
+                NeurocleInferenceInput input = new NeurocleInferenceInput
+                {
+                    StripNumber = stripNumber,
+                    CameraType = cameraType,
+                    DefectIndex = pair.index,
+                    ReferenceImage = pair.ReferenceImage,
+                    DefectImage = pair.DefectImage
+                };
+
+                DefectInferenceResult result = await Task.Run(() => ProcessDefect(input));
+
+                if(result == null)
+                    result = CreateUnknownResult(input, "Inference result is null");
+
+                stripResult.Results.Add(result);  
+            }
+
+            GLB.Client.SendInferenceDone(stripResult.StripNumber);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridRight
             if (statistics == null) return;
 
             tbkProductOrder.Text = $"{statistics.ProductName} / {statistics.OrderNumber}";
-            tbkStripNumber.Text = statistics.CurrentStipNumber > 0 ? $"{statistics.CurrentStipNumber:D6}" : "[------]";
+            tbkStripNumber.Text = statistics.CurrentStripNumber > 0 ? $"{statistics.CurrentStripNumber:D6}" : "[------]";
 
             // Current Strip
             tbkStripOK.Text = statistics.StripOKCount.ToString();

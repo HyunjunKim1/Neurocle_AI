@@ -127,9 +127,11 @@ namespace HDSInspector_AI.Class.Devices
         // 검사랑 Image 저장 완료까지
         public event Action<int> InspectionCompleted;
         public event Action<bool> ConnectionChanged;
+        
+        // 현재 검사 여부
+        public event Action<bool> InspectionStateChanged;
 
         #endregion
-
 
 
         public devClientMain()
@@ -354,6 +356,13 @@ namespace HDSInspector_AI.Class.Devices
 
                         Send(MainCommand.R_STRIP_NUMBER, IntPayload.Serialize(stripNumber));
                     }
+                    break;
+
+                case MainCommand.INSPECTION_STATE:
+                    bool inspectionRunning = BoolPayload.Deserialize(packet.Payload);
+                    InspectionStateChanged?.Invoke(inspectionRunning);
+
+                    Send(MainCommand.R_INSPECTION_STATE, BoolPayload.Serialize(inspectionRunning));
                     break;
 
                 case MainCommand.INSPECTION_DONE:

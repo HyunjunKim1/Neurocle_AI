@@ -103,7 +103,6 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public devClientMain    Client      = new devClientMain();
 
         // Class Manager
-        public SequenceManager              Sequence    = new SequenceManager();
         public WindowManager                Windows     = new WindowManager();
         public HardwareMonitorManager       Hardware    = new HardwareMonitorManager(driveName:"E:\\", gpuIndex:0);
         public DefectImageManager           DefectImage = new DefectImageManager(@"E:\ImagePath");
@@ -124,7 +123,6 @@ namespace HDSInspector_AI.Class.GlobalFunctions
             Inference?.Dispose();
 
             Hardware?.Dispose();
-            Sequence?.Dispose();
             Client?.Dispose();
         }
 

@@ -627,9 +627,13 @@ namespace HDSInspector_AI.Class.Devices
                 case "particle":
                     return DefectClass.Particle;
 
-                case "contatminant":
+                case "contaminant":
                 case "오염":
                     return DefectClass.Contaminant;
+
+                case "contaminantag":
+                case "오염ag":
+                    return DefectClass.ContaminantAg;
 
                 case "underetching":
                 case "미성형":

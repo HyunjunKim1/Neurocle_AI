@@ -33,7 +33,7 @@ namespace HDSInspector_AI.Class.Manager
             if(classification.Top1Probability < spec.ClassificationThreshold)
             {
                 result.Judgement = AIJudgement.Unknown;
-                result.JudgementReason = "Classification confidence low";
+                result.JudgementReason = $"Classification confidence low : {classification.Top1Probability:F3}";
 
                 return result;
             }
@@ -44,7 +44,7 @@ namespace HDSInspector_AI.Class.Manager
             if(classification.ProbabilityMargin < spec.ClassificationMargin)
             {
                 result.Judgement = AIJudgement.Unknown;
-                result.JudgementReason = "Classification margin low";
+                result.JudgementReason = $"Classification margin low : {classification.ProbabilityMargin:F3}";
 
                 return result;
             }
@@ -59,7 +59,6 @@ namespace HDSInspector_AI.Class.Manager
 
                 case DefectJudgeMethod.Size:
                 case DefectJudgeMethod.OverflowDistance:
-                case DefectJudgeMethod.ReferenceDifference:
                     if(segmentation == null || !segmentation.Success)
                     {
                         result.Judgement = AIJudgement.Unknown;
@@ -67,6 +66,7 @@ namespace HDSInspector_AI.Class.Manager
                         break;
                     }
                     result.SegmentationExecuted = true;
+                    result.SpecValueUm = spec.ThresholdUm;
 
                     switch (spec.JudgeMethod)
                     {
@@ -77,13 +77,8 @@ namespace HDSInspector_AI.Class.Manager
                         case DefectJudgeMethod.OverflowDistance:
                             result.MeasuredValueUm = segmentation.OverflowDistanceUm;
                             break;
-
-                        case DefectJudgeMethod.ReferenceDifference:
-                            result.MeasuredValueUm = segmentation.ReferenceDifferenceUm;
-                            break;
                     }
 
-                    result.SpecValueUm = spec.ThresholdUm;
                     result.Judgement = result.MeasuredValueUm >= spec.ThresholdUm ? AIJudgement.NG : AIJudgement.OK;
                     result.JudgementReason = $"Measured = {result.MeasuredValueUm:F1}um / Spec = {spec.ThresholdUm:F1}um";
                     break;

@@ -93,5 +93,19 @@ namespace HDSInspector_AI.GUI.UserControls.Main.GridLeft
             btnMainSwConnect.Background = isConnected ? System.Windows.Media.Brushes.SeaGreen : Brushes.Firebrick;
         }
 
+        public void SetInspectionRunning(bool isRunning)
+        {
+            if(!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(() => SetInspectionRunning(isRunning)));
+
+                return;
+            }
+
+            if(isRunning)
+                subStatus.SetText(Colors.LimeGreen, "검 사 중");
+            else
+                subStatus.SetText(Colors.Gray, "검 사 대 기");
+        }
     }
 }

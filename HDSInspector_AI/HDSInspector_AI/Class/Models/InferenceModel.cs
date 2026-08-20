@@ -75,10 +75,12 @@ namespace HDSInspector_AI.Class.Models
 
         public double WidthUm { get; set; }
         public double HeightUm { get; set; }
+
+        // 불량 Size 판정하기 위한 크기, BBox 장축 기준.
         public double SizeUm { get; set; }
 
+        // Flash ㅂ루량 전용. 정상 Ag 영역으로부터 최대 침범 거리
         public double OverflowDistanceUm { get; set; }
-        public double ReferenceDifferenceUm { get; set; }
 
         public bool Success { get; set; }
         public string ErrorMessage { get; set; }
@@ -165,7 +167,7 @@ namespace HDSInspector_AI.Class.Models
     {
         public string ProductName { get; set; }
         public string OrderNumber { get; set; }
-        public int CurrentStipNumber { get; set; }
+        public int CurrentStripNumber { get; set; }
 
         public int StripOKCount { get; set; }
         public int StripNGCount { get; set; }

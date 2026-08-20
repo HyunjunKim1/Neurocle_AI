@@ -110,7 +110,6 @@
     <Compile Include="Class\Manager\HardwareMonitorManager.cs" />
     <Compile Include="Class\Manager\InferenceManager.cs" />
     <Compile Include="Class\Manager\InferenceStatisticsManager.cs" />
-    <Compile Include="Class\Manager\SequenceManager.cs" />
     <Compile Include="Class\Manager\WindowManager.cs" />
     <Compile Include="Class\Models\DefectSpecModel.cs" />
     <Compile Include="Class\Models\InferenceConfigModel.cs" />

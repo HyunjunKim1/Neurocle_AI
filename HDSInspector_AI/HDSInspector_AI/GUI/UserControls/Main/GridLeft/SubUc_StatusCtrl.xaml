@@ -19,6 +19,6 @@
             <BeginStoryboard Storyboard="{StaticResource Storyboard1}"/>
         </EventTrigger>
     </UserControl.Triggers>
-    <TextBlock FontFamily="헤드라인" FontWeight="UltraBold" FontSize="50" Foreground="NavajoWhite" 
+    <TextBlock FontFamily="헤드라인" FontWeight="UltraBold" FontSize="50" Foreground="Gray" 
        HorizontalAlignment="Center" VerticalAlignment="Center" Name="txtStatus" TextWrapping="Wrap" TextAlignment="Center" Text="검 사 대 기"/>
 </UserControl>

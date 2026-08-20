@@ -22,6 +22,8 @@
                 <TextBox x:Name="tBoxPort" Width="120" Height="28" Text="500"/>
                 <Button x:Name="btnListen" Content="Listen" Width="100" Height="28" Margin="10,0,0,0" Click="btnListen_Click"/>
                 <TextBlock x:Name="tbkConnection" Text="Disconnected" Margin="20, 0, 0, 0" VerticalAlignment="Center"/>
+                <Button x:Name="btnInspectionStart" Content="Inspection Start" Margin="40, 0, 0, 0" Click="btnInspectionStart_Click"/>
+                <Button x:Name="btnInspectionStop" Content="Inspection Stop" Margin="10, 0, 0, 0" Click="btnInspectionStop_Click"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Grid.Row="1" Header="Inspection Info" Padding="10" Margin="0, 0, 0, 10">

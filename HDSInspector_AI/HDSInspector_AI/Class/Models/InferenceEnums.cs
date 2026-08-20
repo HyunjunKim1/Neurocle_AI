@@ -18,13 +18,31 @@ namespace HDSInspector_AI.Class.Models
     /* 상부 5종 (오염, Particle, 미성형, Flash, 미도금)
      * 하부 3종 (오염, Particle, 미성형)
      * 투과 3종 (Particle, 미성형, 천공)
+     * 
+     * [TOP]
+     * 오염 → 200um 이상 NG
+     * Particle → 무조건 OK
+     * Flash → Ag 영역 밖 100um 이상 NG
+     * 미성형 → 40um 이상 NG
+     * Void → 존재시 NG
+     * 
+     * [BOTTOM]
+     * 오염 → 200um 이상 NG
+     * Particle → 무조건 OK
+     * 미성형 → 40um 이상 NG
+     * 
+     * [TRANS]
+     * Particle → 무조건 OK
+     * 미성형 → 40um 이상 NG
+     * 천공 → 존재시 NG
      */
     public enum DefectClass
     {
         Unknown = 0,
 
-        Particle,
         Contaminant,
+        ContaminantAg,
+        Particle,
         UnderEtching,
         Flash,
         Void,
@@ -50,8 +68,5 @@ namespace HDSInspector_AI.Class.Models
 
         // 정상 영역으로부터 벗어난 거리 측정
         OverflowDistance = 2,
-
-        // REF, DEF 측정
-        ReferenceDifference = 3
     }
 }
