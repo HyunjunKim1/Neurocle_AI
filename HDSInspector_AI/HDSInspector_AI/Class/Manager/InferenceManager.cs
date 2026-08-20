@@ -180,6 +180,9 @@ namespace HDSInspector_AI.Class.Manager
                 };
             }
 
+            if (GLB.Setting.General.Simulation)
+                return ProcessDefectSimulation(input);
+
             if (_neurocle == null || !_neurocle.IsInitialized)
                 return CompleteDefect(input, CreateUnknownResult(input, "Neurocle is not initialized"));
 
@@ -264,6 +267,62 @@ namespace HDSInspector_AI.Class.Manager
 
             // UI에 띄우기
             return CompleteDefect(input, finalResult);
+        }
+
+        private DefectInferenceResult ProcessDefectSimulation(NeurocleInferenceInput input)
+        {
+            AIJudgement judgement;
+            DefectClass defectClass;
+            float probability;
+
+            /*
+             * Simulation용으로 하나 만들자
+             * Index 기준으로 OK / NG / Unknown을 반복적으로 생성
+             * 
+             * 0 → OK
+             * 1 → NG
+             * 2 → Unknown
+             * 3 → OK
+             * .....
+             */
+            int simulationType = input.DefectIndex % 3;
+
+            switch(simulationType)
+            {
+                case 0:
+                    judgement = AIJudgement.OK;
+                    defectClass = DefectClass.Particle;
+                    probability = 0.98f;
+                    break;
+
+                case 1:
+                    judgement = AIJudgement.NG;
+                    defectClass = DefectClass.Contaminant;
+                    probability = 0.96f;
+                    break;
+
+                default:
+                    judgement = AIJudgement.Unknown;
+                    defectClass = DefectClass.UnderEtching;
+                    probability = 0.72f;
+                    break;
+            }
+
+            DefectInferenceResult result = new DefectInferenceResult
+            {
+                StripNumber = input.StripNumber,
+                CameraType = input.CameraType,
+                DefectIndex = input.DefectIndex,
+                DefectClass = defectClass,
+                ClassName = defectClass.ToString(),
+                ClassificationProbability = probability,
+                ClassificationMargin = judgement == AIJudgement.Unknown ? 0.05f : 0.80f,
+                SegmentationExecuted = false,
+                Judgement = judgement,
+                JudgementReason = "SIMULATION"
+            };
+
+            return CompleteDefect(input, result);
         }
 
         private DefectInferenceResult CompleteDefect(NeurocleInferenceInput input, DefectInferenceResult result)
@@ -401,6 +460,12 @@ namespace HDSInspector_AI.Class.Manager
                  * 2. Uc_DefectImage에 전달
                  */
                 DefectDataReady?.Invoke(defectData);
+
+                if(defectData.TotalCount == 0)
+                {
+                    GLB.AddLog("INFERENCE", $"Strip [{fileSet.SequenceNumber:D6}] Vision Defect 없어서 AI 검사 대상 없음.", SeverityLevel.INFO);
+                }
+
                 GLB.AddLog("INFERENCE", $"Strip [{fileSet.SequenceNumber}] Pair 준비 완료, Top={defectData.TopPairs.Count}, Bottom={defectData.BottomPairs.Count}, Trans={defectData.TransPairs.Count}", SeverityLevel.INFO);
 
                 /*

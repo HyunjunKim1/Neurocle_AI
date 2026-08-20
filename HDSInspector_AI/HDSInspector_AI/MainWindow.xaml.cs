@@ -59,9 +59,6 @@ namespace HDSInspector_AI
             GLB.Client.StripNumberReceived -= Client_StripNumberReceived;
             GLB.Client.StripNumberReceived += Client_StripNumberReceived;
 
-            GLB.Client.InspectionCompleted -= Client_InspectionCompleted;
-            GLB.Client.InspectionCompleted += Client_InspectionCompleted;
-
             GLB.Client.ConnectionChanged -= Client_ConnectionChanged;
             GLB.Client.ConnectionChanged += Client_ConnectionChanged;
 
@@ -115,19 +112,18 @@ namespace HDSInspector_AI
             _currentStripNumber = stripNumber;
 
             GLB.AddLog("MAIN", $"Current Strip : {stripNumber}", SeverityLevel.INFO);
-        }
 
-        private void Client_InspectionCompleted(int stripNumber)
-        {
-            // Main에서 이미 Image 저장까지 완료하고 이 Flag를 보냄
+            /*
+             * Main S/W는 이미지 저장까지 완료한 뒤
+             * Strip Number를 송신해야만함.
+             * 
+             * 그래서 StripNumber 자체가 AI 검사 Trigger로 써도 될듯~?
+             */
             bool success = GLB.DefectImage.ProcessInspectionComplete(stripNumber);
-
             if (!success)
-            {
-                GLB.AddLog("DEFECT", $"Strip [{stripNumber:D6}] 처리 실패 : {GLB.DefectImage.LastError}", SeverityLevel.ERROR);
-            }
+                GLB.AddLog("MAIN", $"Strip [{stripNumber:D6}] 처리 실패 : {GLB.DefectImage.LastError}", SeverityLevel.ERROR);
 
-            // 이다음 Inference 할때 동일하게 Strip 투입하자.
+
         }
 
         private void Client_ConnectionChanged(bool connected)

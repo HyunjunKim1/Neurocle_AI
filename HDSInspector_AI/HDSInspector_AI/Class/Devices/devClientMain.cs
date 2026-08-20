@@ -125,7 +125,6 @@ namespace HDSInspector_AI.Class.Devices
         public event Action<int> StripNumberReceived;
 
         // 검사랑 Image 저장 완료까지
-        public event Action<int> InspectionCompleted;
         public event Action<bool> ConnectionChanged;
         
         // 현재 검사 여부
@@ -176,6 +175,7 @@ namespace HDSInspector_AI.Class.Devices
             _sendThread.IsBackground = true;
             _sendThread.Name = "MainSW Send";
             _sendThread.Start();
+
         }
 
         public void Stop()
@@ -363,16 +363,6 @@ namespace HDSInspector_AI.Class.Devices
                     InspectionStateChanged?.Invoke(inspectionRunning);
 
                     Send(MainCommand.R_INSPECTION_STATE, BoolPayload.Serialize(inspectionRunning));
-                    break;
-
-                case MainCommand.INSPECTION_DONE:
-                    {
-                        // 검사 완료 메세지 자체에  strip number를 포함하자
-                        int stripNumber = IntPayload.Deserialize(packet.Payload);
-                        InspectionCompleted?.Invoke(stripNumber);
-
-                        Send(MainCommand.R_INSPECTION_DONE, IntPayload.Serialize(stripNumber));
-                    }
                     break;
 
                 case MainCommand.PING:

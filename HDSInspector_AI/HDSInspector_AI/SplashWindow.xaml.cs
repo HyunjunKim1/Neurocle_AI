@@ -150,12 +150,6 @@ namespace HDSInspector_AI
                         break;
 
                     case 30:
-                        if (GLB.Setting.General.Simulation == true)
-                        {
-                            Logging("Simulation skip - Client Connect.. !", SeverityLevel.INFO);
-                            SetImage(iBox_Server, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
-                        }
-                        else
                         {
                             Logging("Connect Main S/W... ", SeverityLevel.INFO);
 
@@ -199,12 +193,6 @@ namespace HDSInspector_AI
                         break;
 
                     case 60:
-                        if (GLB.Setting.General.Simulation == true)
-                        {
-                            Logging("Simulation skip - Initialize necessary functions.. ", SeverityLevel.INFO);
-                            SetImage(iBox_Func, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
-                        }
-                        else
                         {
                             Logging("Initialize necessary functions.. ", SeverityLevel.INFO);
 
