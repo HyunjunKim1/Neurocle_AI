@@ -3,7 +3,6 @@ using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
 using HDSInspector_AI.GUI.UserControls.Main.GridRight;
 using HDSInspector_AI.GUI.Windows;
-using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,22 +170,34 @@ namespace HDSInspector_AI
                     case 40:
                         if (GLB.Setting.General.Simulation == true)
                         {
-                            Logging("Simulation skip - Try connect with Frame grabber.. !", SeverityLevel.INFO);
+                            bool dbSuccess = GLB.Database.Initialize();
+
+                            if (!dbSuccess)
+                            {
+                                Logging($@"Failed database connection.", SeverityLevel.ERROR);
+                            }
+
+                            Logging("Simulation skip - Try connect with Database.. !", SeverityLevel.INFO);
                             SetImage(iBox_Camera, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                         }
                         else
                         {
-                            Logging("Try connect with Frame grabber.. !", SeverityLevel.INFO);
+                            Logging("Try connect with Database.. !", SeverityLevel.INFO);
 
                             try
                             {
+                                bool dbSuccess = GLB.Database.Initialize();
 
+                                if(!dbSuccess)
+                                {
+                                    Logging($@"Failed database connection.", SeverityLevel.ERROR);
+                                }
 
                                 SetImage(iBox_Camera, new Uri("pack://application:,,,/Resources/LED_GREEN.png"));
                             }
                             catch (Exception ex)
                             {
-                                Logging($@"Failed framegrabber connection. - {ex.Message}", SeverityLevel.ERROR);
+                                Logging($@"Failed database connection. - {ex.Message}", SeverityLevel.ERROR);
                                 return;
                             }
                         }

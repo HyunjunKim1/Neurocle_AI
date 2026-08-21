@@ -1,5 +1,4 @@
-﻿using ControlzEx.Behaviors;
-using HDSInspector_AI.Class.Models;
+﻿using HDSInspector_AI.Class.Models;
 using HDSInspector_AI.GUI.Windows.Popup;
 using nrt;
 using OpenCvSharp;
@@ -9,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows.Media.Imaging;
 using static HDSInspector_AI.Class.GlobalFunctions.GlobalFunction;
 

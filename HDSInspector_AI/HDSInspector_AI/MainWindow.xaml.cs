@@ -1,9 +1,7 @@
 ﻿using Common;
-using ControlzEx.Behaviors;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.Class.Models;
-using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;

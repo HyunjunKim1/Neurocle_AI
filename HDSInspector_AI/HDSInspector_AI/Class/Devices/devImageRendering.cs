@@ -7,7 +7,6 @@
  * ================================================================================================================================
  */
 using Common;
-using ControlzEx.Behaviors;
 using nrt;
 using OpenCvSharp;
 using SharpDX;
@@ -21,7 +20,6 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Media3D;

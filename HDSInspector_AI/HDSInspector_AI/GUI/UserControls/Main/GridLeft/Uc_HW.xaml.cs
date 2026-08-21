@@ -1,5 +1,4 @@
-﻿using ControlzEx.Behaviors;
-using HDSInspector_AI.Class.Devices.NVML;
+﻿using HDSInspector_AI.Class.Devices.NVML;
 using HDSInspector_AI.Class.Manager;
 using System;
 using System.Collections.Generic;

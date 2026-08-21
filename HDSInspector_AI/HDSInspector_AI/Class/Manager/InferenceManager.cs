@@ -182,6 +182,7 @@ namespace HDSInspector_AI.Class.Manager
                 };
             }
 
+            // Simulation일 경우 별도로 동작
             if (GLB.Setting.General.Simulation)
                 return ProcessDefectSimulation(input);
 
@@ -193,9 +194,11 @@ namespace HDSInspector_AI.Class.Manager
              */
             ClassificationResult classification;
             bool classificationSuccess = _neurocle.Classification(input, out classification);
-            if (!classificationSuccess || classification == null)
+            if (!classificationSuccess || classification == null || !classification.Success)
                 return CompleteDefect(input, CreateUnknownResult(input, _neurocle.LastError));
 
+            if (classification.DefectClass == DefectClass.Unknown)
+                return CompleteDefect(input, CreateUnknownResult(input, $"Unknown Class : {classification.ClassName}", classification));
             /*
              * 2. Spec 조회
              */
@@ -209,10 +212,10 @@ namespace HDSInspector_AI.Class.Manager
              *    애매하면 Seg도 하지말자
              */
             if (classification.Top1Probability < spec.ClassificationThreshold)
-                return CompleteDefect(input, CreateUnknownResult(input, "Classification confidence is low", classification));
+                return CompleteDefect(input, CreateUnknownResult(input, $"Classification confidence is low - {classification.Top1Probability:F3}", classification));
 
             if (classification.ProbabilityMargin < spec.ClassificationMargin)
-                return CompleteDefect(input, CreateUnknownResult(input, "Classification margin is low", classification));
+                return CompleteDefect(input, CreateUnknownResult(input, $"Classification margin is low - {classification.ProbabilityMargin:F3}", classification));
 
             /*
              * 4. Direct 판정 (particle / void / punch)
@@ -249,18 +252,8 @@ namespace HDSInspector_AI.Class.Manager
 
             SegmentationResult segmentation;
             bool segmantationSuccess = _neurocle.Segmentation(input, classification.DefectClass, resolution, out segmentation);
-            if (!segmantationSuccess || segmentation == null)
-            {
-                segmentation = new SegmentationResult
-                {
-                    StripNumber = input.StripNumber,
-                    CameraType = input.CameraType,
-                    DefectIndex = input.DefectIndex,
-                    DefectClass = classification.DefectClass,
-                    Success = false,
-                    ErrorMessage = _neurocle.LastError
-                };
-            }
+            if (!segmantationSuccess || segmentation == null || !segmentation.Success)
+                return CompleteDefect(input, CreateUnknownResult(input, _neurocle.LastError ?? segmentation?.ErrorMessage ?? "Segmentation failed", classification));
 
             /*
              * 6. Spec 판정
@@ -500,7 +493,8 @@ namespace HDSInspector_AI.Class.Manager
             catch(Exception ex)
             {
                 stripResult.Status = StripInferenceStatus.Failed;
-                GLB.AddLog("INFERENCE", $"Defect Data 생성 실패. {ex.Message}", SeverityLevel.ERROR);
+                stripResult.ErrorMessage = ex.Message;
+                GLB.AddLog("INFERENCE", $"Strip [{fileSet.SequenceNumber}] 처리 실패 : {ex.Message}", SeverityLevel.ERROR);
             }
             finally
             {
@@ -515,6 +509,17 @@ namespace HDSInspector_AI.Class.Manager
 
             if (stripResult.Status == StripInferenceStatus.Success)
             {
+                // DB 저장
+                if(GLB.Database != null && GLB.Database.IsInitialized)
+                {
+                    bool dbSuccess = GLB.Database.SaveInspectionResult(GLB.DefectImage.CurrentInfo, stripResult);
+
+                    if (!dbSuccess)
+                    {
+                        GLB.AddLog("DATABASE", $"Strip DB 저장 실패 : {GLB.Database.LastError}", SeverityLevel.ERROR);
+                    }
+                }
+
                 /*
                  * 4. 각 결과값 누적 저장
                  */
@@ -539,7 +544,7 @@ namespace HDSInspector_AI.Class.Manager
 
             foreach(NeurocleInferenceInput input in inputs)
             {
-                if (inputs == null) continue;
+                if (input == null) continue;
 
                 DefectInferenceResult result = await Task.Run(() => ProcessDefect(input));
 

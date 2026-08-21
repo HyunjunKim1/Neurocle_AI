@@ -20,6 +20,7 @@ namespace Common
 
         private string _neuroclePath;
         private string _defectSpecPath;
+        private string _databasePath;
 
         public string m_language_Path;
         
@@ -28,6 +29,7 @@ namespace Common
         public Neurocles            Neurocle;
         public DefectSpecSettings   DefectSpec;
         public InferenceSettings    Inference;
+        public DatabaseSettings     Database;
 
 
         public Setting(string astrPath)
@@ -36,8 +38,9 @@ namespace Common
             m_GeneralPath = m_Path + "\\Setting.ini";
             m_DevicePath = m_Path + "\\SubSystem.ini";
 
-            _neuroclePath = m_Path + "\\Neurocle.ini";
+            _neuroclePath   = m_Path + "\\Neurocle.ini";
             _defectSpecPath = m_Path + "\\DefectSpec.ini";
+            _databasePath   = m_Path + "\\Database.ini";
 
             General     = new Generals(m_GeneralPath);
             SubSystem   = new SubSystems(m_DevicePath);
@@ -45,6 +48,7 @@ namespace Common
             Neurocle    = new Neurocles(_neuroclePath);
             Inference   = new InferenceSettings(_neuroclePath);
             DefectSpec  = new DefectSpecSettings(_defectSpecPath);
+            Database    = new DatabaseSettings(_databasePath, astrPath);
         }
 
         public bool Exists()
@@ -62,6 +66,7 @@ namespace Common
             ReadSucc &= Neurocle.Load();
             ReadSucc &= Inference.Load();
             ReadSucc &= DefectSpec.Load();
+            ReadSucc &= Database.Load();
 
             return ReadSucc;
         }
@@ -73,6 +78,7 @@ namespace Common
             Neurocle.Save();
             Inference.Save(); 
             DefectSpec.Save();
+            Database.Save();
         }
 
         public void SettingConversion()
@@ -517,6 +523,138 @@ namespace Common
                     DirectJudgement = "Unknown",
                     ThresholdUm = 0.0
                 };
+            }
+        }
+    }
+
+    public class DatabaseSettings
+    {
+        private readonly string _iniPath;
+        private readonly string _configDirectory;
+
+        // MySQL
+        public string Server;
+        public int Port;
+        public string DatabaseName;
+        public string User;
+        public string Password;
+        public int ConnectionTimeout;
+        public int CommandTimeout;
+
+        // Path
+        public string SchemaRelativePath;
+        public string BackupRelativePath;
+
+        // Backup
+        public bool BackupEnable;
+        public int BackupKeepDays;
+        public string MySqlDumpPath;
+
+        public DatabaseSettings(string iniPath, string configDirectory)
+        {
+            _iniPath = iniPath;
+            _configDirectory = configDirectory;
+        }
+
+        public bool Load()
+        {
+            if(!File.Exists(_iniPath))
+            {
+                using (FileStream fs = File.Create(_iniPath)) { }
+
+                CreateDefault();
+                Save();
+                CreateDirectories();
+
+                return false;
+            }
+
+            IniFile ini = new IniFile(_iniPath);
+            Server          = ini.Read("MYSQL", "Server", "127.0.0.1");
+            Port            = ini.Read("MYSQL", "Port", 3306);
+            DatabaseName    = ini.Read("MYSQL", "Database", "ai_judgement");
+            User            = ini.Read("MYSQL", "User", "root");
+            Password        = ini.Read("MYSQL", "Password", "");
+            ConnectionTimeout   = ini.Read("MYSQL", "ConnectionTimeout", 5);
+            CommandTimeout      = ini.Read("MYSQL", "CommandTimeout", 30);
+
+            SchemaRelativePath  = ini.Read("PATH", "Schema", @"Database\Schema");
+            BackupRelativePath  = ini.Read("PATH", "Backup", @"Database\Backup");
+
+            BackupEnable    = ini.Read("BACKUP", "Enable", true);
+            BackupKeepDays  = ini.Read("BACKUP", "KeepDays", 365);
+            MySqlDumpPath   = ini.Read("BACKUP", "MySqlDumpPath", @"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump.exe");
+
+            CreateDirectories();
+
+            return true;
+        }
+
+        public void Save()
+        {
+            IniFile ini = new IniFile(_iniPath);
+
+            ini.Write("MYSQL", "Server", Server);
+            ini.Write("MYSQL", "Port", Port);
+            ini.Write("MYSQL", "Database", DatabaseName);
+            ini.Write("MYSQL", "User", User);
+            ini.Write("MYSQL", "Password", Password);
+            ini.Write("MYSQL", "ConnectionTimeout", ConnectionTimeout);
+            ini.Write("MYSQL", "CommandTimeout", CommandTimeout);
+
+            ini.Write("PATH", "Schema", SchemaRelativePath);
+            ini.Write("PATH", "Backup", BackupRelativePath);
+
+            ini.Write("BACKUP", "Enable", BackupEnable);
+            ini.Write("BACKUP", "KeepDays", BackupKeepDays);
+            ini.Write("BACKUP", "MySqlDumpPath", MySqlDumpPath);
+        }
+
+        private void CreateDefault()
+        {
+            Server = "127.0.0.1";
+            Port = 3306;
+            DatabaseName = "ai_judgement";
+            User = "root";
+            Password = "hsds";
+            ConnectionTimeout = 5;
+            CommandTimeout = 30;
+
+            SchemaRelativePath = @"Database\Schema";
+            BackupRelativePath = @"Database\Backup";
+
+            BackupEnable = true;
+            BackupKeepDays = 365;
+        }
+
+        private void CreateDirectories()
+        {
+            Directory.CreateDirectory(SchemaRelativePath);
+            Directory.CreateDirectory(BackupRelativePath);
+        }
+
+
+        public string SchemaDirectory
+        {
+            get
+            {
+                return Path.GetFullPath(Path.Combine(_configDirectory, SchemaRelativePath));
+            }
+        }
+
+        public string BackupDirectory
+        {
+            get
+            {
+                return Path.GetFullPath(Path.Combine(_configDirectory, BackupRelativePath));
+            }
+        }
+
+        public string SchemaFilePath
+        {
+            get
+            {
+                return Path.Combine(SchemaDirectory, "AIJudgement.sql");
             }
         }
     }

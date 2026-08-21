@@ -1,5 +1,4 @@
-﻿using ControlzEx.Behaviors;
-using DALSA.SaperaLT.SapClassBasic;
+﻿using DALSA.SaperaLT.SapClassBasic;
 using HDSInspector_AI.Class.Interface;
 using OpenCvSharp;
 using System;

@@ -108,12 +108,14 @@ namespace HDSInspector_AI.Class.GlobalFunctions
         public DefectImageManager           DefectImage = new DefectImageManager(@"E:\ImagePath");
         public DefectSpecManager            DefectSpec  = new DefectSpecManager();
         public InferenceStatisticsManager   InferenceStatistics = new InferenceStatisticsManager();
+        public DatabaseManager              Database;
         public InferenceManager             Inference;
         //public CameraManager    Cameras     = new CameraManager();
 
         private GlobalFunction()
         {
             Inference = new InferenceManager(DefectSpec);
+            Database = new DatabaseManager();
         }
 
         #endregion
@@ -124,6 +126,7 @@ namespace HDSInspector_AI.Class.GlobalFunctions
 
             Hardware?.Dispose();
             Client?.Dispose();
+            Database?.Dispose();
         }
 
         #region Global Functions

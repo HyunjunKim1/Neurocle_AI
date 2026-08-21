@@ -1,5 +1,4 @@
 ﻿using Common;
-using ControlzEx.Standard;
 using HDSInspector_AI.Class.GlobalFunctions;
 using SharpDX.Direct3D11;
 using System;

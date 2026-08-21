@@ -1,7 +1,5 @@
 ﻿using Common;
 using Common.Drawing;
-using ControlzEx.Standard;
-using HandyControl.Expression.Shapes;
 using HDSInspector_AI.Class.Devices;
 using HDSInspector_AI.Class.GlobalFunctions;
 using HDSInspector_AI.GUI.UserControls.ImageReivew;

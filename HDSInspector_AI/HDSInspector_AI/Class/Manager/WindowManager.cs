@@ -1,5 +1,4 @@
-﻿using ControlzEx.Behaviors;
-using HDSInspector_AI.Class.Interface;
+﻿using HDSInspector_AI.Class.Interface;
 using HDSInspector_AI.GUI.UserControls.Main.GridLeft;
 using HDSInspector_AI.GUI.UserControls.Main.GridRight;
 using HDSInspector_AI.GUI.Windows;

@@ -1,5 +1,4 @@
-﻿using ControlzEx.Behaviors;
-using HDSInspector_AI.Class.Models;
+﻿using HDSInspector_AI.Class.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -109,7 +109,7 @@ namespace HDSInspector_AI.Class.Manager
 
                 CurrentInfo = copiedInfo;
                 CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system_ai");
-                CurrentSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
+                CurrentOutputSystemDirectory = Path.Combine(_rootDirectory, copiedInfo.DeviceName, copiedInfo.ProductName, copiedInfo.OrderNumber, "system");
             }
 
             InspectionInfoChanged?.Invoke(copiedInfo);
@@ -123,6 +123,7 @@ namespace HDSInspector_AI.Class.Manager
             {
                 CurrentInfo = null;
                 CurrentSystemDirectory = null;
+                CurrentOutputSystemDirectory = null;
                 LastError = null;
             }
         }
@@ -144,7 +145,7 @@ namespace HDSInspector_AI.Class.Manager
                 LastError = null;
 
                 if (!ValidateCurrentInfo()) return false;
-                if(sequenceNumber < 0)
+                if(sequenceNumber <= 0)
                 {
                     LastError = $"잘못된 검사 번호입니다. : {sequenceNumber}";
 
